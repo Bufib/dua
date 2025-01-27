@@ -1,5 +1,13 @@
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import { StyleSheet, View, Switch, Appearance, Pressable } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Switch,
+  Appearance,
+  Pressable,
+  Text,
+  Button,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
@@ -17,6 +25,7 @@ import handleOpenExternalUrl from "@/utils/handleOpenExternalUrl";
 import { Image } from "expo-image";
 import DeleteUserModal from "@/components/DeleteUserModal";
 import Toast from "react-native-toast-message";
+import { supabase } from "@/utils/supabase";
 
 const Settings = () => {
   const colorScheme = useColorScheme();
@@ -81,19 +90,16 @@ const Settings = () => {
         </ThemedText>
 
         {isLoggedIn ? (
-          <Entypo
-            name="log-out"
-            size={24}
-            color={colorScheme === "dark" ? "white" : "black"}
-            onPress={handleLogout}
-          />
+          <Text style={styles.logText} onPress={handleLogout}>
+            Ausloggen
+          </Text>
         ) : (
-          <Entypo
-            name="login"
-            size={24}
-            color={colorScheme === "dark" ? "white" : "black"}
+          <Text
+            style={styles.logText}
             onPress={() => router.push("/(auth)/login")}
-          />
+          >
+            Einloggen
+          </Text>
         )}
       </ThemedView>
 
@@ -207,6 +213,7 @@ const Settings = () => {
         onDeleteSuccess={handleDeleteSuccess}
         serverUrl="https://tdjuwrsspauybgfywlfr.supabase.co/functions/v1/delete-account"
       />
+      
     </SafeAreaView>
   );
 };
@@ -226,6 +233,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerText: {},
+  logText: {
+    fontSize: 20,
+    color: Colors.universal.link,
+  },
   contentContainer: {
     flex: 1,
     marginTop: 20,

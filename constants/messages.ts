@@ -4,7 +4,7 @@ import { router } from "expo-router";
 // Internet
 export const noInternetHeader = "Keine Internetverbindung!";
 export const noInternetBody =
-  "Bitte stelle sicher, dass du mit dem Internet verbunden damit du updates und Benachrichtigungen erhalten kannst!";
+  "Bitte stelle sicher, dass du mit dem Internet verbunden bist, damit du updates erhalten kannst!";
 
 // SignUp
 export const signUpErrorGeneral = "Fehler beim Registrieren!";

@@ -31,7 +31,7 @@ export function Collapsible({
           name="chevron.right"
           size={18}
           weight="medium"
-          color={theme === "light" ? Colors.light.icon : Colors.dark.icon}
+          color={colorScheme === "dark" ? "#fff" : "#000"}
           style={{ transform: [{ rotate: isOpen ? "90deg" : "0deg" }] }}
         />
         {marja && (
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 8,
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
   },
 });

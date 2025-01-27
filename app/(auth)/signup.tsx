@@ -843,6 +843,7 @@ export default function SignUpScreen() {
       if (event === "SIGNED_IN") {
         if (session?.user) {
           // Insert user data into "user" table
+          console.log(currentUsername);
           const { error: userError } = await supabase.from("user").insert([
             {
               user_id: session.user.id,
@@ -981,7 +982,9 @@ export default function SignUpScreen() {
       // If user object is returned, show the modal for verification code entry
       if (signUpData.user) {
         setCurrentEmail(email);
+        console.log("email" + email)
         setCurrentUsername(username);
+        console.log("username" + username)
         setShowVerificationModal(true);
 
         Alert.alert("Verifizierung erforderlich");
