@@ -12,7 +12,6 @@ import { z } from "zod";
 import { supabase } from "@/utils/supabase";
 import { router } from "expo-router";
 import Feather from "@expo/vector-icons/Feather";
-import ConfirmHcaptcha from "@hcaptcha/react-native-hcaptcha";
 import Toast from "react-native-toast-message";
 
 // Password validation schema
@@ -38,6 +37,7 @@ const passwordFormSchema = z
     path: ["confirmPassword"],
   });
 
+// Types & Schema
 type PasswordFormData = z.infer<typeof passwordFormSchema>;
 type FormErrors = {
   [K in keyof PasswordFormData]?: string;
@@ -54,11 +54,6 @@ const ChangePassword = () => {
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // Captcha states
-  const [showCaptcha, setShowCaptcha] = useState(false);
-  const captchaRef = useRef<ConfirmHcaptcha>(null);
-
   const colorScheme = useColorScheme();
 
   /** Supabase wont work without this */
@@ -70,11 +65,11 @@ const ChangePassword = () => {
         Toast.show({
           type: "success",
           text1: "Passwort erfolgreich aktualisiert!",
+          topOffset: 60,
         });
         setOldPassword("");
         setPassword("");
         setConfirmPassword("");
-        setShowCaptcha(false);
         router.push("/(tabs)/settings/");
       }
     });
@@ -84,11 +79,7 @@ const ChangePassword = () => {
     };
   }, []);
 
-  /**
-   * Handles the final password update call after captcha has validated.
-   * @param captchaToken - The token returned by hCaptcha
-   */
-  const handlePasswordChangeWithCaptcha = async (captchaToken: string) => {
+  const changeUserPassword = async () => {
     try {
       setLoading(true);
       setErrors({});
@@ -107,41 +98,6 @@ const ChangePassword = () => {
       Alert.alert("Fehler", error.message);
     } finally {
       setLoading(false);
-      setShowCaptcha(false);
-    }
-  };
-
-  /**
-   * Callback for the hCaptcha modal/webview messages
-   */
-  const onMessage = async (event: any) => {
-    if (event?.nativeEvent?.data) {
-      const token = event.nativeEvent.data;
-
-      if (["error", "expired"].includes(token)) {
-        if (!showCaptcha) {
-          console.log("Captcha nicht aktiv.");
-          return;
-        }
-        setShowCaptcha(false);
-        Alert.alert(
-          "Fehler",
-          "3. Captcha-Überprüfung fehlgeschlagen. Bitte versuche es erneut."
-        );
-      } else if (token === "cancel") {
-        setShowCaptcha(false);
-        Alert.alert(
-          "Abgebrochen",
-          "Bitte nicht wegklicken, da die Überprüfung sonst abgebrochen wird!"
-        );
-      } else if (token === "open") {
-        console.log("open");
-        // Captcha opened, no action required
-      } else {
-        console.log("else");
-        // We have a valid captcha token
-        await handlePasswordChangeWithCaptcha(token);
-      }
     }
   };
 
@@ -204,27 +160,14 @@ const ChangePassword = () => {
         setLoading(false);
         return;
       }
-
-      // Old password is correct, show captcha
-      setShowCaptcha(true);
+      // Old password is correct, change password
+      await changeUserPassword();
     } catch (error: any) {
       Alert.alert("Fehler", error.message);
     } finally {
       setLoading(false);
     }
   };
-
-  // Show captcha when the showCaptcha state changes
-  useEffect(() => {
-    if (showCaptcha && captchaRef.current) {
-      try {
-        captchaRef.current.show();
-      } catch (error) {
-        console.error("Captcha konnte nicht geöffnet werden:", error);
-        setShowCaptcha(false);
-      }
-    }
-  }, [showCaptcha]);
 
   /**
    * Helper to render validation error messages
@@ -351,17 +294,6 @@ const ChangePassword = () => {
           {loading ? "Wird aktualisiert..." : "Passwort aktualisieren"}
         </Text>
       </Pressable>
-
-      {/* Captcha */}
-      {showCaptcha && (
-        <ConfirmHcaptcha
-          ref={captchaRef}
-          siteKey="858ecaee-05ce-4f76-ba48-f1fe4ce0d1d4"
-          onMessage={onMessage}
-          languageCode="de"
-          size="invisible"
-        />
-      )}
     </View>
   );
 };
