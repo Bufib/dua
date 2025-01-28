@@ -160,9 +160,9 @@ export default function AskQuestionScreen() {
       // Extract the selected Marja
       let selectedMarja = "Keine Rechtsfrage"; // default
       if (data.marja.sistani) {
-        selectedMarja = "Sistani";
+        selectedMarja = "Sayid as-Sistani";
       } else if (data.marja.khamenei) {
-        selectedMarja = "Khamenei";
+        selectedMarja = "Sayid al-Khamenei";
       }
 
       // Insert into DB

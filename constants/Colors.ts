@@ -21,9 +21,6 @@ export const Colors = {
     newsMenuBearbeiten: "#2563EB",
     newsMenuLoeschen: "#DC2626",
 
-
-
-
     white: "#FFFFFF",
     indexCategoryTextBorder: "#808080",
     black: "#000000",
@@ -67,11 +64,6 @@ export const Colors = {
     newsMenuBearbeiten: "#60A5FA",
     newsMenuLoeschen: "#EF4444",
 
-
-
-
-
-
     white: "#FFFFFF",
     indexCategoryTextBorder: "#808080",
     black: "#000000",
@@ -106,17 +98,18 @@ export const Colors = {
     arrowUp: "#2980b9",
     borderBottomToggleSettings: "#ccc",
     fadeColor: "#888",
-    
+
     pickImageButton: "#007bff",
     submitButton: "#28a745",
-    chatBubbleQuestion: "#E3F2FD",
-    chatBubbleAnswer: "#E8F5E9",
+    // chatBubbleQuestion: "#E3F2FD",
+    chatBubbleQuestion: "#b0d9f7",
+    // chatBubbleAnswer: "#E8F5E9",
+    chatBubbleAnswer: "#7CEC9F",
     statusText: "#ffffff",
     questionBoxQuestionText: "#666",
     introductionBackground: "#4fa1b8",
-    indexItemBackgroundColor:  "#4fa1b8",
+    indexItemBackgroundColor: "#4fa1b8",
     // indexItemBackgroundColor: "#3498DB",
     error: "#DC2626",
-
   },
 };

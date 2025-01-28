@@ -6,7 +6,7 @@ import {
   Button,
   useColorScheme,
   Pressable,
-  Text
+  Text,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedView } from "@/components/ThemedView";
@@ -56,7 +56,9 @@ export default function NewsFeed() {
             color={themeStyles.activityIndicator.color}
           />
         ) : (
-          <Pressable onPress={() => fetchNextPage()} ><Text>Mehr laden</Text></Pressable>
+          <Pressable onPress={() => fetchNextPage()}>
+            <Text>Mehr laden</Text>
+          </Pressable>
         )}
       </ThemedView>
     );

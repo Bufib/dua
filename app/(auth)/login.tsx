@@ -87,7 +87,7 @@ export default function LoginScreen() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [stayLoggedIn]);
 
   const onSubmit = async (formData: LoginFormValues) => {
     //Check for network connection

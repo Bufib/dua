@@ -111,9 +111,10 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
         if (session) {
           // Fetch the user's role and username
           const { role, username } = await get().getUserRole(session.user.id); // Destructure role and username
-          const isAdmin = role === "admin"; // Compare role properly
-          const isModerator = role === "moderator";
 
+          // Compare role properly
+          const isAdmin = role === "admin";
+          const isModerator = role === "moderator";
 
           // Update the state with session, role, and username
           set({
@@ -134,8 +135,6 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     return false;
   },
 }));
-
-
 
 // // import { create } from "zustand";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
