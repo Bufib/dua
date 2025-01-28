@@ -250,9 +250,11 @@ export default RenderQuestion;
 const styles = StyleSheet.create({
   scrollViewStyles: {
     flex: 1,
+
   },
   scrollViewContent: {
     gap: 20,
+    paddingBottom: 50,
   },
 
   questionContainer: {
@@ -265,7 +267,6 @@ const styles = StyleSheet.create({
     flex: 3,
     gap: 30,
     marginHorizontal: 10,
-    paddingBottom: 20,
     backgroundColor: "transparent",
   },
   singleAnswer: {

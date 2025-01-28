@@ -315,10 +315,7 @@ export function ResetPassword() {
           color={Colors.universal.link}
         />
       ) : (
-        <Button
-          title="Passwort aktualisieren"
-          onPress={handleSubmit(handleUpdatePassword)}
-        />
+        <Pressable  onPress={handleSubmit(handleUpdatePassword)}><Text>Passwort aktualisieren</Text></Pressable>
       )}
     </View>
   );

@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { View, TextInput, Alert, StyleSheet, Button, Text } from "react-native";
+import {
+  View,
+  TextInput,
+  Alert,
+  StyleSheet,
+  Button,
+  Text,
+  Pressable,
+} from "react-native";
 import { supabase } from "@/utils/supabase";
 import { router } from "expo-router";
 import { z } from "zod";
@@ -73,11 +81,9 @@ export function ForgotPassword() {
       />
       {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
-      <Button
-        title="Reset-Code anfordern"
-        onPress={handleSubmit(handleResetPassword)}
-        disabled={loading}
-      />
+      <Pressable onPress={handleSubmit(handleResetPassword)} disabled={loading}>
+        <Text>Reset-Code anfordern"</Text>
+      </Pressable>
     </View>
   );
 }

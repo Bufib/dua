@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   Alert,
   StyleSheet,
   Pressable,
@@ -529,11 +528,9 @@ export default function SignUpScreen() {
           {isLoading ? (
             <ActivityIndicator />
           ) : (
-            <Button
-              title="Registrieren"
-              onPress={handleSubmit(onSubmit)}
-              disabled={isLoading}
-            />
+            <Pressable disabled={isLoading} onPress={handleSubmit(onSubmit)}>
+              <Text>Registrieren</Text>
+            </Pressable>
           )}
 
           {/* Link to Login */}
@@ -541,7 +538,9 @@ export default function SignUpScreen() {
             <ThemedText style={styles.logInText}>
               Hast du bereits einen Account?
             </ThemedText>
-            <Button title="Login" onPress={() => router.replace("/login")} />
+            <Pressable onPress={() => router.replace("/login")}>
+              <Text>Login</Text>
+            </Pressable>
           </View>
         </View>
       </ScrollView>
@@ -583,17 +582,18 @@ export default function SignUpScreen() {
               <ActivityIndicator style={styles.modalButton} />
             ) : (
               <View style={styles.modalButtonsContainer}>
-                <Button title="Verifizieren" onPress={handleVerification} />
+                <Pressable onPress={handleVerification}>
+                  <Text>Verifizieren</Text>
+                </Pressable>
                 <View style={styles.buttonSpacer} />
-                <Button
-                  title="Abbrechen"
-                  onPress={() => setShowVerificationModal(false)}
-                />
+                <Pressable onPress={() => setShowVerificationModal(false)}>
+                  <Text>Abbrechen</Text>
+                </Pressable>
+
                 <View style={styles.buttonSpacer} />
-                <Button
-                  title="Code erneut senden"
-                  onPress={resendVerificationCode}
-                />
+                <Pressable onPress={resendVerificationCode}>
+                  <Text>Code erneut senden </Text>
+                </Pressable>
               </View>
             )}
           </View>

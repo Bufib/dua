@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   Switch,
   Alert,
   StyleSheet,
@@ -212,23 +211,19 @@ export default function LoginScreen() {
           </View>
 
           {/* LOGIN BUTTON */}
-          <Button
-            title={isLoading ? "Wird geladen..." : "Einloggen"}
-            onPress={handleSubmit(onSubmit)}
-            disabled={isLoading}
-          />
+          <Pressable onPress={handleSubmit(onSubmit)} disabled={isLoading}>
+            <Text>{isLoading ? "Wird geladen..." : "Einloggen"}</Text>
+          </Pressable>
 
           {/* FORGOT PASSWORD */}
-          <Button
-            title="Passwort vergessen"
-            onPress={() => router.replace("/forgotPassword")}
-          />
+          <Pressable onPress={() => router.replace("/forgotPassword")}>
+            <Text>Passwort vergessen</Text>
+          </Pressable>
 
           {/* SIGNUP */}
-          <Button
-            title="Registrieren"
-            onPress={() => router.replace("/signup")}
-          />
+          <Pressable onPress={() => router.replace("/signup")}>
+            <Text>Registrieren</Text>
+          </Pressable>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

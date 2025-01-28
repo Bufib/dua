@@ -81,7 +81,7 @@ export default function question() {
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          headerTitle: questionTitle,
+          title: questionTitle,
           headerRight: () => (
             <View style={styles.headerRightContainer}>
               <Ionicons

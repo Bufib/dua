@@ -5,6 +5,8 @@ import {
   ActivityIndicator,
   Button,
   useColorScheme,
+  Pressable,
+  Text
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedView } from "@/components/ThemedView";
@@ -18,7 +20,7 @@ import { router } from "expo-router";
 import NoInternet from "@/components/NoInternet";
 import { FlashList } from "@shopify/flash-list";
 import { NewsItemType } from "@/hooks/useFetchNews";
-
+import { useSupabaseRealtime } from "@/components/SupabaseRealtimeProvider";
 export default function NewsFeed() {
   const {
     allNews: news,
@@ -34,13 +36,15 @@ export default function NewsFeed() {
   const themeStyles = coustomTheme();
   const flatListRef = useRef<FlashList<NewsItemType>>(null);
   const colorScheme = useColorScheme();
-  const handleRefreshAndScroll = async () => {
-    await refetch();
-    // Scroll to top after refetch
-    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
-  };
-  const { isAdmin } = useAuthStore();
 
+  const handleRefreshAndScroll = async () => {
+    await refetch(); // Fetch the latest news
+    clearNewNewsFlag(); // Clear the "new data" flag
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true }); // Scroll to the top
+  };
+
+  const { isAdmin } = useAuthStore();
+  const { hasNewNewsData, clearNewNewsFlag } = useSupabaseRealtime();
   const ListFooter = () => {
     if (!hasNextPage) return null;
 
@@ -52,7 +56,7 @@ export default function NewsFeed() {
             color={themeStyles.activityIndicator.color}
           />
         ) : (
-          <Button title="Mehr laden" onPress={() => fetchNextPage()} />
+          <Pressable onPress={() => fetchNextPage()} ><Text>Mehr laden</Text></Pressable>
         )}
       </ThemedView>
     );
@@ -107,12 +111,11 @@ export default function NewsFeed() {
       edges={["top"]}
     >
       <NoInternet />
-      {showUpdateButton && !isAdmin && (
+      {hasNewNewsData && !isAdmin && (
         <ThemedView style={styles.updateContainer}>
-          <Button
-            title="Neuer Beitrag verfügbar"
-            onPress={handleRefreshAndScroll}
-          />
+          <Pressable onPress={handleRefreshAndScroll}>
+            <Text>Neuer Beitrag verfügbar</Text>
+          </Pressable>
         </ThemedView>
       )}
 

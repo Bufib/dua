@@ -14,7 +14,6 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import NetInfo from "@react-native-community/netinfo";
-import ConfirmHcaptcha from "@hcaptcha/react-native-hcaptcha";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { supabase } from "@/utils/supabase";
@@ -43,22 +42,11 @@ const QuestionSchema = z.object({
     .number({ invalid_type_error: "Bitte gebe dein Alter ein!" })
     .min(1, "Bitte gebe dein Alter ein!"),
   gender: z.string().min(1, "Bitte gebe dein Geschlecht an!"),
-  email: z
-    .string()
-    .email("Ungültige Emailadresse")
-    .min(1, "Bitte gebe deinen Email an!"),
   username: z.string().optional(),
 });
 
 // The TypeScript definition derived from Zod:
 type QuestionFormData = z.infer<typeof QuestionSchema>;
-
-/** Typed hCaptcha event */
-type CaptchaEvent = {
-  nativeEvent: {
-    data: string;
-  };
-};
 
 /** Reusable checkbox */
 const CustomCheckbox = ({
@@ -120,7 +108,6 @@ const CustomInput = ({
 export default function AskQuestionScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showCaptcha, setShowCaptcha] = useState(false);
 
   // Access user info
   const session = useAuthStore((state) => state.session);
@@ -128,9 +115,6 @@ export default function AskQuestionScreen() {
 
   // Theming
   const themeStyles = coustomTheme();
-
-  // Captcha Ref
-  const captchaRef = useRef<ConfirmHcaptcha | null>(null);
 
   const {
     control,
@@ -150,7 +134,6 @@ export default function AskQuestionScreen() {
       question: "",
       age: undefined,
       gender: "",
-      email: "",
       username: "",
     },
   });
@@ -163,15 +146,8 @@ export default function AskQuestionScreen() {
     }
   }, [username, setValue]);
 
-  // Show captcha when state toggles
-  useEffect(() => {
-    if (showCaptcha && captchaRef.current) {
-      captchaRef.current.show();
-    }
-  }, [showCaptcha]);
-
-  /** The actual DB insert logic after captcha success */
-  async function submitQuestion(data: QuestionFormData, captchaToken: string) {
+  /** The actual DB insert logic  */
+  async function submitQuestion(data: QuestionFormData) {
     if (!session?.user.id) {
       setError("You must be logged in to submit a question.");
       return;
@@ -201,7 +177,6 @@ export default function AskQuestionScreen() {
             question: data.question,
             age: data.age,
             gender: data.gender,
-            email: data.email,
           },
         ]);
 
@@ -209,13 +184,12 @@ export default function AskQuestionScreen() {
       reset();
 
       askQuestionQuestionSendSuccess();
-      router.replace("/(tabs)/home"); 
+      router.replace("/(tabs)/home");
     } catch (err: any) {
       setError(err.message);
       console.log(err);
     } finally {
       setLoading(false);
-      setShowCaptcha(false);
     }
   }
 
@@ -228,41 +202,8 @@ export default function AskQuestionScreen() {
       return;
     }
 
-    // If connected, open captcha
-    setShowCaptcha(true);
-  };
-
-  /** Handle captcha message & token */
-  const onCaptchaMessage = async (event: CaptchaEvent) => {
-    if (!showCaptcha) return;
-
-    const token = event.nativeEvent.data;
-    switch (token) {
-      case "error":
-      case "expired":
-        setShowCaptcha(false);
-        Alert.alert(
-          "Fehler",
-          "4. Captcha-Überprüfung fehlgeschlagen. Bitte versuche es erneut."
-        );
-        return;
-
-      case "cancel":
-        setShowCaptcha(false);
-        Alert.alert(
-          "Fehler",
-          "Bitte nicht wegklicken, da die Überprüfung sonst abgebrochen wird!"
-        );
-        return;
-
-      case "open":
-        // Just opened, do nothing
-        return;
-
-      default:
-        // Valid token from hCaptcha, run the insert logic
-        handleSubmit((validData) => submitQuestion(validData, token))();
-    }
+    // If connected, upload
+    handleSubmit((validData) => submitQuestion(validData))();
   };
 
   return (
@@ -405,24 +346,6 @@ export default function AskQuestionScreen() {
               />
             )}
           />
-
-          {/* EMAIL */}
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, value } }) => (
-              <CustomInput
-                label="Email *"
-                value={value}
-                onChangeText={onChange}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                error={errors.email?.message}
-                placeholder="Deine Emailadresse"
-                style={themeStyles.text}
-              />
-            )}
-          />
         </View>
 
         {/* SUBMIT BUTTON */}
@@ -435,22 +358,11 @@ export default function AskQuestionScreen() {
             <ActivityIndicator color="black" />
           ) : (
             <ThemedText style={styles.submitButtonText}>
-              Frage stellen
+              Frage absenden
             </ThemedText>
           )}
         </Pressable>
       </ScrollView>
-
-      {/* HCAPTCHA INVISIBLE WIDGET */}
-      {showCaptcha && (
-        <ConfirmHcaptcha
-          ref={captchaRef}
-          siteKey="2bf09a6a-7b84-4dd0-853e-9ef0805401a8"
-          onMessage={onCaptchaMessage}
-          languageCode="de"
-          size="invisible"
-        />
-      )}
     </KeyboardAvoidingView>
   );
 }

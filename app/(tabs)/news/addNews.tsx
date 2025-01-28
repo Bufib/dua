@@ -197,6 +197,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   textArea: {
+    textAlignVertical: "top",
     height: 200,
   },
   pickImageButton: {

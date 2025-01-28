@@ -1,5 +1,13 @@
 import React from "react";
-import { View, Text, TextInput, Button, Alert, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  Alert,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -147,8 +155,9 @@ const SignUp: React.FC = () => {
           </View>
         )}
       />
-
-      <Button title="Sign Up" onPress={handleSubmit(onSubmit)} />
+      <Pressable onPress={handleSubmit(onSubmit)}>
+        <Text>Sign Up</Text>
+      </Pressable>
     </View>
   );
 };
