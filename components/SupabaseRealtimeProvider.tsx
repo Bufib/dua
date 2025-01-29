@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import { supabase } from "@/utils/supabase";
 import { useQueryClient } from "@tanstack/react-query";
-import { NewsItemType } from "@/hooks/useFetchNews";
 import { userQuestionsNewAnswerForQuestions } from "@/constants/messages";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -33,7 +32,7 @@ export const SupabaseRealtimeProvider = ({
   const [userId, setUserId] = useState<string | null>(null);
   const [hasNewNewsData, setHasNewNewsData] = useState(false);
   const queryClient = useQueryClient();
-  const isAdmin = useAuthStore();
+  const {isAdmin} = useAuthStore();
   const clearNewNewsFlag = () => setHasNewNewsData(false);
 
   /**
@@ -125,7 +124,9 @@ export const SupabaseRealtimeProvider = ({
             await queryClient.invalidateQueries({
               queryKey: ["news"],
               refetchType: "all",
+            
             });
+            console.log("here")
           }
         }
       )

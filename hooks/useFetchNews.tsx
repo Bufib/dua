@@ -66,7 +66,7 @@ export const useFetchNews = () => {
 
   /**
    * Handle pull-to-refresh
-   */ 
+   */
   //! might be not needed
   const handlePullToRefresh = async () => {
     setIsRefreshing(true);
@@ -93,7 +93,6 @@ export const useFetchNews = () => {
       setShowUpdateButton(false); // Hide the banner
     }
   };
-  
 
   /**
    * Handle infinite scroll with debouncing
@@ -107,14 +106,15 @@ export const useFetchNews = () => {
   /**
    * Flatten and deduplicate news items
    */
-  const allNews: NewsItemType[] = data?.pages
-    .flatMap((page) => page)
-    .reduce<NewsItemType[]>((unique, item) => {
-      if (!unique.some((existing) => existing.id === item.id)) {
-        unique.push(item);
-      }
-      return unique;
-    }, []) ?? [];
+  const allNews: NewsItemType[] =
+    data?.pages
+      .flatMap((page) => page)
+      .reduce<NewsItemType[]>((unique, item) => {
+        if (!unique.some((existing) => existing.id === item.id)) {
+          unique.push(item);
+        }
+        return unique;
+      }, []) ?? [];
 
   return {
     allNews,

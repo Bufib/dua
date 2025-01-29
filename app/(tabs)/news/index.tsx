@@ -135,7 +135,7 @@ export default function NewsFeed() {
           />
         )}
       </ThemedView>
-
+   
       <FlashList
         ref={flatListRef}
         data={news}
