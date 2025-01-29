@@ -41,7 +41,16 @@ const QuestionSchema = z.object({
   age: z
     .number({ invalid_type_error: "Bitte gebe dein Alter ein!" })
     .min(1, "Bitte gebe dein Alter ein!"),
-  gender: z.string().min(1, "Bitte gebe dein Geschlecht an!"),
+  gender: z
+    .object({
+      männlich: z.boolean(),
+      weiblich: z.boolean(),
+    })
+    // at least one must be true
+    .refine(
+      (val) => val.männlich || val.weiblich,
+      "Bitte wähle dein Geschlecht aus!"
+    ),
   username: z.string().optional(),
 });
 
@@ -61,7 +70,7 @@ const CustomCheckbox = ({
   error?: string;
 }) => (
   <Pressable
-    style={[styles.checkboxContainer]}
+    style={[styles.marjaContainer]}
     onPress={() => onValueChange(!value)}
   >
     <View style={[styles.checkbox, value && styles.checkboxChecked]}>
@@ -133,18 +142,14 @@ export default function AskQuestionScreen() {
       },
       question: "",
       age: undefined,
-      gender: "",
-      username: "",
+      gender: {
+        männlich: false,
+        weiblich: false,
+      },
     },
   });
 
-  // If user already has a username stored in the store,
-  // you can auto-fill it so they don't have to retype:
-  useEffect(() => {
-    if (username) {
-      setValue("username", username);
-    }
-  }, [username, setValue]);
+
 
   /** The actual DB insert logic  */
   async function submitQuestion(data: QuestionFormData) {
@@ -244,7 +249,7 @@ export default function AskQuestionScreen() {
           />
 
           {/* MARJA */}
-          <View style={styles.marjaContainer}>
+          <View style={styles.checkBoxContainer}>
             <ThemedText style={styles.label}>Marja *</ThemedText>
             <Controller
               control={control}
@@ -331,23 +336,48 @@ export default function AskQuestionScreen() {
           />
 
           {/* GENDER */}
-          <Controller
-            control={control}
-            name="gender"
-            render={({ field: { onChange, value } }) => (
-              <CustomInput
-                label="Geschlecht *"
-                value={value}
-                onChangeText={onChange}
-                error={errors.gender?.message}
-                placeholder="Dein Geschlecht"
-                style={themeStyles.text}
-                autoCapitalize="none"
-              />
-            )}
-          />
+          <View>
+            <ThemedText style={styles.label}>Geschlecht *</ThemedText>
+            <Controller
+              control={control}
+              name="gender"
+              render={({
+                field: {
+                  onChange,
+                  value = { männlich: false, weiblich: false },
+                },
+              }) => (
+                <View>
+                  <CustomCheckbox
+                    label="Männlich"
+                    value={value.männlich}
+                    onValueChange={() =>
+                      onChange({
+                        männlich: true,
+                        weiblich: false,
+                      })
+                    }
+                  />
+                  <CustomCheckbox
+                    label="Weiblich"
+                    value={value.weiblich}
+                    onValueChange={() =>
+                      onChange({
+                        männlich: false,
+                        weiblich: true,
+                      })
+                    }
+                  />
+                  {errors.gender?.message && (
+                    <ThemedText style={styles.errorText}>
+                      {errors.gender.message}
+                    </ThemedText>
+                  )}
+                </View>
+              )}
+            />
+          </View>
         </View>
-
         {/* SUBMIT BUTTON */}
         <Pressable
           style={[styles.submitButton, loading && styles.submitButtonDisabled]}
@@ -420,10 +450,10 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: Colors.universal.error,
   },
-  marjaContainer: {
+  checkBoxContainer: {
     marginBottom: 16,
   },
-  checkboxContainer: {
+  marjaContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginVertical: 6,

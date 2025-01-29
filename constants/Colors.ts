@@ -101,10 +101,8 @@ export const Colors = {
 
     pickImageButton: "#007bff",
     submitButton: "#28a745",
-    // chatBubbleQuestion: "#E3F2FD",
-    chatBubbleQuestion: "#b0d9f7",
-    // chatBubbleAnswer: "#E8F5E9",
-    chatBubbleAnswer: "#7CEC9F",
+    chatBubbleQuestion: "#b7d6ef",
+    chatBubbleAnswer: "#b3e1c1",
     statusText: "#ffffff",
     questionBoxQuestionText: "#666",
     introductionBackground: "#4fa1b8",

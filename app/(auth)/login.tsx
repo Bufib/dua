@@ -159,7 +159,7 @@ export default function LoginScreen() {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 style={[styles.input, themeStyles.text]}
-                placeholder="E-mail"
+                placeholder="E-Mail"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 onChangeText={onChange}
@@ -203,25 +203,37 @@ export default function LoginScreen() {
           )}
 
           {/* STAY LOGGED IN SWITCH */}
-          <View style={styles.stayLoggedInContainer}>
-            <Switch value={stayLoggedIn} onValueChange={setStayLoggedIn} />
-            <ThemedText style={styles.stayLoggedInText}>
-              Eingeloggt bleiben
-            </ThemedText>
+          <View style={styles.stayAndPasswordContainer}>
+            <View style={styles.forgotPasswordContainer}>
+              <Pressable
+                onPress={() => router.replace("/forgotPassword")}
+                style={styles.forgotPasswordButton}
+              >
+                <Text style={{ textDecorationLine: "underline" }}>
+                  Passwort vergessen?
+                </Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.stayLoggedInContainer}>
+              <Switch value={stayLoggedIn} onValueChange={setStayLoggedIn} />
+              <ThemedText style={styles.stayLoggedInText}>
+                Angemeldet bleiben
+              </ThemedText>
+            </View>
           </View>
 
           {/* LOGIN BUTTON */}
           <Pressable onPress={handleSubmit(onSubmit)} disabled={isLoading}>
-            <Text>{isLoading ? "Wird geladen..." : "Einloggen"}</Text>
-          </Pressable>
-
-          {/* FORGOT PASSWORD */}
-          <Pressable onPress={() => router.replace("/forgotPassword")}>
-            <Text>Passwort vergessen</Text>
+            <View style={styles.loginButtonContainer}>
+              <Text style={styles.loginButtonText}>
+                {isLoading ? "Wird geladen..." : "Anmelden"}
+              </Text>
+            </View>
           </Pressable>
 
           {/* SIGNUP */}
-          <Pressable onPress={() => router.replace("/signup")}>
+          <Pressable style={styles.registerButton} onPress={() => router.replace("/signup")}>
             <Text>Registrieren</Text>
           </Pressable>
         </View>
@@ -274,13 +286,42 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 10,
   },
+  stayAndPasswordContainer: {
+    flexDirection: "column",
+    marginBottom: 16,
+  },
   stayLoggedInContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
   },
+  forgotPasswordContainer: {
+    alignSelf: "flex-end",
+  },
+  forgotPasswordButton: {},
   stayLoggedInText: {
     marginLeft: 8,
     fontSize: 16,
+  },
+  loginButtonContainer: {
+    backgroundColor: "#127646",
+    width: 120,
+    borderWidth: 2,
+    borderRadius: 10,
+    alignSelf: "center",
+  },
+  loginButtonText: {
+    color: "white",
+    fontSize: 20,
+    borderWidth: 2,
+    padding: 10,
+    borderRadius: 10,
+    borderColor: "#4fa1b8",
+  },
+  registerButton: {
+    alignSelf: "center",
+    marginTop: 16,
+    padding: 10,
+    borderRadius: 10,
+    borderWidth: 2,
   },
 });

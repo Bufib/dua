@@ -9,8 +9,6 @@ export const noInternetBody =
 // SignUp
 export const signUpErrorGeneral = "Fehler beim Registrieren!";
 
-
-
 export const signUpUserNameMin =
   "Benutzername muss mindestens 3 Zeichen lang sein";
 export const signUpUserEmail = "Ungültige E-Mail-Adresse";
@@ -32,13 +30,11 @@ export const signUpPasswordNotEmpty = "Passwort darf nicht leer sein.";
 // Login
 export const loginError = "Fehler beim login";
 
-
 export const loginEmailNotEmpty = "Bitte gib deine E-Mail-Adresse ein!";
 export const loginPasswordNotEmpty = "Bitte gib dein Passwort ein!";
 
-
 // Logout
-export const logoutErrorGeneral = "Fehler beim ausloggen";
+export const logoutErrorGeneral = "Fehler beim Abmelden";
 export const logoutSuccess = () => {
   return Toast.show({
     type: "success",
@@ -95,9 +91,6 @@ export const userQuestionsNewAnswerForQuestions = () => {
     text1: "Neue Nachricht verfügbar",
     text1Style: { fontWeight: "500" },
     topOffset: 60,
-    onPress() {
-      router.replace("/(user)/");
-    },
   });
 };
 
@@ -137,5 +130,5 @@ export const noInternet = () => {
   });
 };
 
-
-export const cancleCaptcha = "Bitte nicht wegklicken, da die Überprüfung sonst abgebrochen wird!"
+export const cancleCaptcha =
+  "Bitte nicht wegklicken, da die Überprüfung sonst abgebrochen wird!";

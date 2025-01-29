@@ -198,7 +198,7 @@ export default function QuestionsList() {
         disabled={!isConnected}
       >
         <ThemedText style={styles.askQuestionButtonText}>
-          Neue Frage stellen
+          Neue Frage
         </ThemedText>
       </Pressable>
     </ThemedView>
@@ -304,10 +304,11 @@ const styles = StyleSheet.create({
     bottom: 30,
     right: 15,
     padding: 15,
-    backgroundColor: Colors.universal.link,
+    backgroundColor: "#4983b2",
     borderRadius: 25,
   },
   askQuestionButtonText: {
+    fontWeight: "600",
     color: Colors.universal.white,
   },
 });

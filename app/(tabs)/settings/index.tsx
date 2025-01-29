@@ -91,14 +91,14 @@ const Settings = () => {
 
         {isLoggedIn ? (
           <Text style={styles.logText} onPress={handleLogout}>
-            Ausloggen
+            Abmelden
           </Text>
         ) : (
           <Text
             style={styles.logText}
             onPress={() => router.push("/(auth)/login")}
           >
-            Einloggen
+            Anmelden
           </Text>
         )}
       </ThemedView>

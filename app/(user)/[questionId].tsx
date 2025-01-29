@@ -116,9 +116,6 @@ export default function QuestionDetailScreen() {
 
       <View style={styles.chatContainer}>
         <View style={styles.questionBubble}>
-          <Text style={[styles.bubbleHeaderText, styles.informationText]}>
-            Frage: {"\n"}
-          </Text>
           <Text style={[styles.bubbleText, styles.informationText]}>
             Marja: {question.marja}
           </Text>
@@ -135,9 +132,6 @@ export default function QuestionDetailScreen() {
 
         {question.answer || question.internal_url ? (
           <View style={styles.answerBubble}>
-            <Text style={[styles.bubbleHeaderText, styles.informationText]}>
-              Antwort: {"\n"}
-            </Text>
             <Text style={styles.bubbleText}>{question.answer}</Text>
             {question.internal_url && question.internal_url.length > 0 && (
               <ThemedView style={styles.linksContainer}>
@@ -216,9 +210,6 @@ const styles = StyleSheet.create({
     maxWidth: "80%",
     alignSelf: "flex-end",
     marginBottom: 16,
-  },
-  bubbleHeaderText: {
-    fontSize: 20,
   },
   bubbleText: {
     fontSize: 16,
