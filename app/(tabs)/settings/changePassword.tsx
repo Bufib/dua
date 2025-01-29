@@ -202,13 +202,13 @@ const ChangePassword = () => {
               <Feather
                 name="eye"
                 size={24}
-                color={colorScheme === "dark" ? "white" : "black"}
+                color={colorScheme === "dark" ? "#fff" : "#000"}
               />
             ) : (
               <Feather
                 name="eye-off"
                 size={24}
-                color={colorScheme === "dark" ? "white" : "black"}
+                color={colorScheme === "dark" ? "#fff" : "#000"}
               />
             )}
           </Pressable>
@@ -236,13 +236,13 @@ const ChangePassword = () => {
               <Feather
                 name="eye"
                 size={24}
-                color={colorScheme === "dark" ? "white" : "black"}
+                color={colorScheme === "dark" ? "#fff" : "#000"}
               />
             ) : (
               <Feather
                 name="eye-off"
                 size={24}
-                color={colorScheme === "dark" ? "white" : "black"}
+                color={colorScheme === "dark" ? "#fff" : "#000"}
               />
             )}
           </Pressable>
@@ -270,13 +270,13 @@ const ChangePassword = () => {
               <Feather
                 name="eye"
                 size={24}
-                color={colorScheme === "dark" ? "white" : "black"}
+               color={colorScheme === "dark" ? "#fff" : "#000"}
               />
             ) : (
               <Feather
                 name="eye-off"
                 size={24}
-                color={colorScheme === "dark" ? "white" : "black"}
+               color={colorScheme === "dark" ? "#fff" : "#000"}
               />
             )}
           </Pressable>

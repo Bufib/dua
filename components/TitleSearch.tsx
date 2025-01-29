@@ -411,7 +411,7 @@ export const TitleSearchInput = ({
         onPress={() => handleDeleteItem(item)}
         style={styles.deleteButton}
       >
-        <Feather name="trash-2" size={24} color="black" />
+        <Feather name="trash-2" size={24} color="#000" />
       </Pressable>
     </View>
   );

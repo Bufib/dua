@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   loginButtonText: {
-    color: "white",
+    color: "#fff",
     fontSize: 20,
     borderWidth: 2,
     padding: 10,

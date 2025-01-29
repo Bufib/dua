@@ -13,7 +13,6 @@ export default function categories() {
           headerTitle: category,
         }}
       />
-      
       <RenderCategoryItems category={category} />
     </View>
   );

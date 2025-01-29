@@ -32,7 +32,7 @@ export default function NewsMenu({
           <Entypo
             name="dots-three-horizontal"
             size={24}
-            color={isDarkMode ? "white" : "black"}
+            color={isDarkMode ? "#fff" : "#000"}
             style={styles.triggerIcon}
           />
         </MenuTrigger>

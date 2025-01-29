@@ -209,14 +209,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   imagePickerText: {
-    color: Colors.universal.white,
+    color: "#fff",
     fontWeight: "600",
     fontSize: 16,
   },
   imageContainer: {
     marginRight: 15,
     alignItems: "center",
-    shadowColor: Colors.universal.black,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -235,7 +235,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   removeButtonText: {
-    color: Colors.universal.white,
+    color: "#fff",
     fontSize: 12,
     fontWeight: "600",
   },
@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.universal.fadeColor,
   },
   submitButtonText: {
-    color: Colors.universal.white,
+    color: "#fff",
     fontWeight: "700",
     fontSize: 16,
   },

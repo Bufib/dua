@@ -87,7 +87,7 @@ export default function question() {
               <Ionicons
                 name="text"
                 size={25}
-                color={colorScheme === "light" ? "black" : "white"}
+                color={colorScheme === "light" ? "#000" : "#fff"}
                 onPress={() => setModalVisible(true)} // Open modal
               />
               {isFavorite ? (

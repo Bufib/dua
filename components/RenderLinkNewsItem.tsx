@@ -35,7 +35,7 @@ const RenderLinkNewsItem = ({
       <Feather
         name={isExternal ? "external-link" : "link"}
         size={14}
-        color={colorScheme === "dark" ? "white" : "black"}
+        color={colorScheme === "dark" ? "#fff" : "#000"}
         style={{ paddingRight: 5 }}
       />
       <ThemedText style={styles.linkText} numberOfLines={1}>

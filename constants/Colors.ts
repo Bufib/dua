@@ -98,7 +98,6 @@ export const Colors = {
     arrowUp: "#2980b9",
     borderBottomToggleSettings: "#ccc",
     fadeColor: "#888",
-
     pickImageButton: "#007bff",
     submitButton: "#28a745",
     chatBubbleQuestion: "#b7d6ef",
@@ -107,7 +106,6 @@ export const Colors = {
     questionBoxQuestionText: "#666",
     introductionBackground: "#4fa1b8",
     indexItemBackgroundColor: "#4fa1b8",
-    // indexItemBackgroundColor: "#3498DB",
     error: "#DC2626",
   },
 };

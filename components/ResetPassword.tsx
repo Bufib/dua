@@ -253,13 +253,13 @@ export function ResetPassword() {
                 <Feather
                   name="eye"
                   size={24}
-                  color={colorScheme === "dark" ? "white" : "black"}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
                 />
               ) : (
                 <Feather
                   name="eye-off"
                   size={24}
-                  color={colorScheme === "dark" ? "white" : "black"}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
                 />
               )}
             </Pressable>
@@ -291,13 +291,13 @@ export function ResetPassword() {
                 <Feather
                   name="eye"
                   size={24}
-                  color={colorScheme === "dark" ? "white" : "black"}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
                 />
               ) : (
                 <Feather
                   name="eye-off"
                   size={24}
-                  color={colorScheme === "dark" ? "white" : "black"}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
                 />
               )}
             </Pressable>
@@ -315,7 +315,9 @@ export function ResetPassword() {
           color={Colors.universal.link}
         />
       ) : (
-        <Pressable  onPress={handleSubmit(handleUpdatePassword)}><Text>Passwort aktualisieren</Text></Pressable>
+        <Pressable onPress={handleSubmit(handleUpdatePassword)}>
+          <Text>Passwort aktualisieren</Text>
+        </Pressable>
       )}
     </View>
   );

@@ -11,14 +11,14 @@ import { ThemedText } from "@/components/ThemedText";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { NewsItemType } from "@/hooks/useFetchNews";
 import { Colors } from "@/constants/Colors";
-import { formateDate } from "../utils/formateDate";
+import { formatDate } from "../utils/formatDate";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
 import RenderLinkNewsItem from "@/components/RenderLinkNewsItem";
 import { useAuthStore } from "../stores/authStore";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import NewsMenu from "./NewsMenu";
 import { Image } from "expo-image";
-import NoInternet from "./NoInternet";
+
 const screenWidth = Dimensions.get("window").width;
 const imageHeight = screenWidth * 1.2;
 
@@ -59,7 +59,7 @@ export const NewsItem = ({
         <AntDesign
           name="pushpin"
           size={24}
-          color={colorScheme === "dark" ? "white" : "black"}
+          color={colorScheme === "dark" ? "#fff" : "#000"}
           style={styles.pinIconStyle}
         />
       )}
@@ -146,7 +146,7 @@ export const NewsItem = ({
         </View>
       )}
 
-      <ThemedText style={styles.newsDate}>{formateDate(created_at)}</ThemedText>
+      <ThemedText style={styles.newsDate}>{formatDate(created_at)}</ThemedText>
     </View>
   );
 };
@@ -201,10 +201,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
   },
   activeDot: {
-    backgroundColor: "black",
+    backgroundColor: "#000",
   },
   inactiveDot: {
-    backgroundColor: "gray",
+    backgroundColor: "#A4B0BD",
   },
   newsDate: {
     fontSize: 14,

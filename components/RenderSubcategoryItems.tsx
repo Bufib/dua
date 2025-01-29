@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { View, Pressable, StyleSheet, FlatList } from "react-native";
+import { View, Pressable, StyleSheet, FlatList, Text } from "react-native";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useColorScheme } from "react-native";
-import { router } from "expo-router";
-import { useLocalSearchParams } from "expo-router";
-import { getQuestionsForSubcategory, QuestionType } from "../utils/initializeDatabase";
+import { router, useLocalSearchParams } from "expo-router";
+import { getQuestionsForSubcategory } from "../utils/initializeDatabase";
+import { QuestionType } from "@/utils/types";
+import { Colors } from "@/constants/Colors";
 
 function RenderSubcategoryItems() {
   const { category, subcategory } = useLocalSearchParams<{
@@ -15,6 +16,7 @@ function RenderSubcategoryItems() {
     subcategory: string;
   }>();
   const [questions, setQuestions] = useState<QuestionType[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const themeStyle = coustomTheme();
   const colorScheme = useColorScheme();
@@ -23,11 +25,6 @@ function RenderSubcategoryItems() {
     const loadQuestions = async () => {
       try {
         setIsLoading(true);
-
-        if (!category || !subcategory) {
-          console.log("Missing category or subcategory");
-          return;
-        }
         const questions = await getQuestionsForSubcategory(
           category,
           subcategory
@@ -35,13 +32,16 @@ function RenderSubcategoryItems() {
 
         if (questions) {
           setQuestions(questions);
+          setError(null);
         } else {
-          console.log("Invalid data format received");
+          console.log("Fehler in RenderSubcategoryItems");
           setQuestions([]);
+          setError("Fragen konnten nicht geladen werden!");
         }
       } catch (error) {
-        console.error("Error loading questions:", error);
+        console.log("Fehler in RenderSubcategoryItems " + error);
         setQuestions([]);
+        setError("Fragen konnten nicht geladen werden!");
       } finally {
         setIsLoading(false);
       }
@@ -49,6 +49,17 @@ function RenderSubcategoryItems() {
 
     loadQuestions();
   }, [category, subcategory]);
+
+  //  Display error state
+  if (error && !isLoading && questions.length === 0) {
+    return (
+      <ThemedView style={styles.centeredContainer}>
+        <ThemedText style={styles.error} type="subtitle">
+          {error}
+        </ThemedText>
+      </ThemedView>
+    );
+  }
 
   // Show loading state
   if (isLoading) {
@@ -92,7 +103,7 @@ function RenderSubcategoryItems() {
               <Entypo
                 name="chevron-thin-right"
                 size={24}
-                color={colorScheme === "light" ? "black" : "white"}
+                color={colorScheme === "dark" ? "#fff" : "#000"}
               />
             </ThemedView>
           </Pressable>
@@ -110,6 +121,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  error: {
+    color: Colors.universal.error,
   },
   flatListStyle: {
     paddingTop: 10,

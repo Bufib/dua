@@ -385,7 +385,7 @@ export default function AskQuestionScreen() {
           disabled={loading}
         >
           {loading ? (
-            <ActivityIndicator color="black" />
+            <ActivityIndicator color="#000" />
           ) : (
             <ThemedText style={styles.submitButtonText}>
               Frage absenden
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.universal.link,
   },
   checkmark: {
-    color: "white",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -494,6 +494,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 18,
     fontWeight: "600",
-    color: Colors.universal.white,
+    color: "#fff"
   },
 });

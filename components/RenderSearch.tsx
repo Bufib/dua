@@ -125,7 +125,7 @@ const RenderSearch = () => {
               <Feather
                 name="x-circle"
                 size={18}
-                color={colorScheme === "light" ? "black" : "white"}
+                color={colorScheme === "dark" ? "#fff" : "#000"}
                 onPress={() => handleSearchTextChange("")}
                 style={styles.xButton}
               />

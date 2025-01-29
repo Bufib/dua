@@ -7,7 +7,7 @@ export const lightTheme = {
   },
   contrast: {
     backgroundColor: Colors.light.contrast,
-    borderColor: Colors.universal.black
+    borderColor: "#000",
   },
 
   text: {
@@ -20,19 +20,18 @@ export const lightTheme = {
   activityIndicator: {
     color: Colors.light.activityIndicator,
   },
-  newsMenuFixieren:{
+  newsMenuFixieren: {
     color: Colors.light.newsMenuFixieren,
   },
-  newsMenuBearbeiten:{
+  newsMenuBearbeiten: {
     color: Colors.light.newsMenuBearbeiten,
   },
-  newsMenuLoeschen:{
+  newsMenuLoeschen: {
     color: Colors.light.newsMenuLoeschen,
   },
   borderColor: {
     borderColor: Colors.light.borderColor,
-
-  }
+  },
 };
 
 export const darkTheme = {
@@ -42,7 +41,7 @@ export const darkTheme = {
   },
   contrast: {
     backgroundColor: Colors.dark.contrast,
-    borderColor: Colors.universal.white
+    borderColor: "#fff",
   },
   text: {
     color: Colors.dark.text,
@@ -54,19 +53,18 @@ export const darkTheme = {
   activityIndicator: {
     color: Colors.dark.activityIndicator,
   },
-  newsMenuFixieren:{
+  newsMenuFixieren: {
     color: Colors.dark.newsMenuFixieren,
   },
-  newsMenuBearbeiten:{
+  newsMenuBearbeiten: {
     color: Colors.dark.newsMenuBearbeiten,
   },
-  newsMenuLoeschen:{
+  newsMenuLoeschen: {
     color: Colors.dark.newsMenuLoeschen,
   },
   borderColor: {
     borderColor: Colors.dark.borderColor,
-
-  }
+  },
 };
 
 export const coustomTheme = () => {

@@ -115,6 +115,7 @@ const RenderQuestion = ({
     <ScrollView
       style={[styles.scrollViewStyles, themeStyles.defaultBackgorundColor]}
       contentContainerStyle={styles.scrollViewContent}
+      showsVerticalScrollIndicator={false}
   >
     <NoInternet />
       <View style={[styles.questionContainer, themeStyles.contrast]}>

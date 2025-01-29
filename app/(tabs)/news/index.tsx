@@ -93,7 +93,7 @@ export default function NewsFeed() {
             <Ionicons
               name="add-circle-outline"
               size={35}
-              color={colorScheme === "dark" ? "white" : "black"}
+              color={colorScheme === "dark" ? "#fff" : "#000"}
               style={styles.addIcon}
               onPress={() => router.push("/news/addNews")}
             />
@@ -129,7 +129,7 @@ export default function NewsFeed() {
           <Ionicons
             name="add-circle-outline"
             size={35}
-            color={colorScheme === "dark" ? "white" : "black"}
+            color={colorScheme === "dark" ? "#fff" : "#000"}
             style={styles.addIcon}
             onPress={() => router.push("/news/addNews")}
           />

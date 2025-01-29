@@ -11,15 +11,15 @@ import { Colors } from "@/constants/Colors";
 import { useAuthStore } from "@/stores/authStore";
 
 export default function QuestionLinks() {
-  const colorScheme = useColorScheme();
   const themeStyles = coustomTheme();
-  const [pressedIndex, setPressedIndex] = useState<number | null>(null);
   const { width } = useWindowDimensions();
   const { isLoggedIn } = useAuthStore();
 
   // Dynamically calculate the size of each element based on screen width
   const elementSize = width > 400 ? 200 : 160;
   const fontSize = width > 400 ? 20 : 16;
+  const iconSize = width > 400 ? 120 : 100;
+
   const headerSize = width > 400 ? 50 : 30;
   const imageSize = width > 400 ? 120 : 90;
 
@@ -49,7 +49,7 @@ export default function QuestionLinks() {
       image: require("@/assets/images/ratschlaege.png"),
     },
     {
-      name: "Stelle eine Frage",
+      name: "Deine Fragen",
       image: require("@/assets/images/frageStellen.png"),
     },
   ];
@@ -70,16 +70,14 @@ export default function QuestionLinks() {
         {categories.map((category, index) => (
           <Pressable
             key={index}
-            onPressIn={() => setPressedIndex(index)}
-            onPressOut={() => setPressedIndex(null)}
             onPress={() =>
               router.push(
-                category.name === "Stelle eine Frage" && isLoggedIn
+                category.name === "Deine Fragen" && isLoggedIn
                   ? {
                       pathname: "/(user)",
                       params: { category: category.name },
                     }
-                  : category.name === "Stelle eine Frage" && !isLoggedIn
+                  : category.name === "Deine Fragen" && !isLoggedIn
                   ? {
                       pathname: "/(auth)/login",
                     }
@@ -104,10 +102,10 @@ export default function QuestionLinks() {
             ]}
           >
             {/* Image top and text bottom */}
-            {category.name !== "Stelle eine Frage" && (
+            {category.name !== "Deine Fragen" && (
               <View style={styles.buttonContentContainerNormal}>
                 <Image
-                  style={styles.elementIcon}
+                  style={[styles.elementIcon, { width: iconSize }]}
                   source={category.image}
                   contentFit="contain"
                 />
@@ -121,7 +119,7 @@ export default function QuestionLinks() {
             )}
 
             {/* Text left and Image right */}
-            {category.name === "Stelle eine Frage" && (
+            {category.name === "Deine Fragen" && (
               <View style={styles.buttonContentContainerAskQuestion}>
                 <View style={styles.elementTextContainerAskQuestion}>
                   <Text style={[styles.elementText, { fontSize: fontSize }]}>
@@ -132,7 +130,8 @@ export default function QuestionLinks() {
                 <Image
                   style={[
                     styles.elementIcon,
-                    { width: 100, alignItems: "center" },
+                    { alignItems: "center" },
+                    { width: iconSize - 10},
                   ]}
                   source={category.image}
                   contentFit="contain"
@@ -195,7 +194,7 @@ const styles = StyleSheet.create({
 
   elementTextContainer: {
     padding: 10,
-    backgroundColor: Colors.universal.white,
+    backgroundColor: "#fff",
     borderRadius: 20,
     borderWidth: 1,
   },
@@ -203,12 +202,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 7,
     marginHorizontal: 10,
-    backgroundColor: Colors.universal.white,
+    backgroundColor: "#fff",
     borderRadius: 20,
     borderWidth: 1,
   },
   elementIcon: {
-    width: 120,
     height: "auto",
     aspectRatio: 1.5,
     alignSelf: "center",
@@ -219,4 +217,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-

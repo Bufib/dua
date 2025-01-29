@@ -16,7 +16,7 @@ import {
   QuestionFromUser,
 } from "@/hooks/useFetchUserQuestions";
 import { useAuthStore } from "@/stores/authStore";
-import { formateDate } from "@/utils/formateDate";
+import { formatDate } from "@/utils/formatDate";
 import { Colors } from "@/constants/Colors";
 import getStatusColor from "@/utils/getStatusColor";
 import { useColorScheme } from "react-native";
@@ -100,13 +100,12 @@ export default function QuestionsList() {
             <Text style={styles.statusText}>{item.status}</Text>
           </View>
         </View>
-        <Text style={styles.createdAtText}>{formateDate(item.created_at)}</Text>
+        <Text style={styles.createdAtText}>{formatDate(item.created_at)}</Text>
       </Pressable>
     ),
 
     [themeStyles]
   );
-
 
   // 7. Return early if loading
   if (isLoading) {
@@ -114,7 +113,7 @@ export default function QuestionsList() {
       <ThemedView style={[styles.container, styles.centered]}>
         <ActivityIndicator
           size="large"
-          color={colorScheme === "dark" ? "white" : "black"}
+          color={colorScheme === "dark" ? "#fff" : "#000"}
         />
         <ThemedText style={styles.loadingText}>
           Fragen werden geladen
@@ -131,7 +130,7 @@ export default function QuestionsList() {
           <ThemedText style={styles.errorText}>
             {userQuestionErrorLoadingQuestions}
           </ThemedText>
-          <Pressable style={styles.retryButton} onPress={refetch}>
+          <Pressable style={styles.retryButton} onPress={() => refetch}>
             <ThemedText style={styles.retryButtonText}>
               Versuch es nochmal
             </ThemedText>
@@ -197,9 +196,7 @@ export default function QuestionsList() {
         onPress={() => router.push("/(user)/askQuestion")}
         disabled={!isConnected}
       >
-        <ThemedText style={styles.askQuestionButtonText}>
-          Neue Frage
-        </ThemedText>
+        <ThemedText style={styles.askQuestionButtonText}>Neue Frage</ThemedText>
       </Pressable>
     </ThemedView>
   );
@@ -231,7 +228,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   retryButtonText: {
-    color: "white",
+    color: "#fff",
     fontSize: 14,
     fontWeight: "600",
   },
@@ -250,7 +247,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   updateButtonText: {
-    color: "white",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
   },
@@ -284,7 +281,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   statusText: {
-    color: "white",
+    color: "#fff",
     fontSize: 12,
     fontWeight: "500",
   },
@@ -309,6 +306,6 @@ const styles = StyleSheet.create({
   },
   askQuestionButtonText: {
     fontWeight: "600",
-    color: Colors.universal.white,
+    color: "#fff",
   },
 });

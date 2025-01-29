@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import { View, Pressable, Text, StyleSheet, FlatList } from "react-native";
+import { View, Pressable, StyleSheet, FlatList } from "react-native";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useColorScheme } from "react-native";
 import { router } from "expo-router";
-import { useLocalSearchParams } from "expo-router";
+import { Colors } from "@/constants/Colors";
 import { getSubcategoriesForCategory } from "../utils/initializeDatabase";
 
-function RenderCategoryItems() {
-  const { category } = useLocalSearchParams<{ category: string }>();
+function RenderCategoryItems({ category }: { category: string }) {
   const [subcategories, setSubcategories] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const themeStyle = coustomTheme();
   const colorScheme = useColorScheme();
@@ -23,13 +23,16 @@ function RenderCategoryItems() {
         const subcategories = await getSubcategoriesForCategory(category);
         if (subcategories) {
           setSubcategories(subcategories);
+          setError(null);
         } else {
           setSubcategories([]);
+          setError("Kategorien konnten nicht geladen werden!");
           console.log("No subcategories found");
         }
       } catch (error) {
         console.error("Error loading subcategories:", error);
         setSubcategories([]);
+        setError("Kategorien konnten nicht geladen werden!");
       } finally {
         setIsLoading(false);
       }
@@ -38,12 +41,21 @@ function RenderCategoryItems() {
     loadSubcategories();
   }, [category]);
 
+  //  Display error state
+  if (error && !isLoading && subcategories.length === 0) {
+    return (
+      <ThemedView style={styles.centeredContainer}>
+        <ThemedText style={styles.error} type="subtitle">{error}</ThemedText>
+      </ThemedView>
+    );
+  }
+
   //  Display loading state
   if (isLoading) {
     return (
-      <View style={styles.centeredContainer}>
-        <Text>Daten werden geladen...</Text>
-      </View>
+      <ThemedView style={styles.centeredContainer}>
+        <ThemedText>Kategorien werden geladen...</ThemedText>
+      </ThemedView>
     );
   }
 
@@ -70,7 +82,7 @@ function RenderCategoryItems() {
               <Entypo
                 name="chevron-thin-right"
                 size={24}
-                color={colorScheme === "light" ? "black" : "white"}
+                color={colorScheme === "dark" ? "#fff" : "#000"}
               />
             </ThemedView>
           </Pressable>
@@ -80,7 +92,6 @@ function RenderCategoryItems() {
   );
 }
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -89,6 +100,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  error: {
+    color: Colors.universal.error,
   },
   flatListStyle: {
     paddingTop: 10,
