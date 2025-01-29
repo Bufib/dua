@@ -1,4 +1,4 @@
-import { useEffect, useState, useLayoutEffect } from "react";
+import { useState, useLayoutEffect } from "react";
 import { View, Pressable, StyleSheet, FlatList } from "react-native";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
@@ -7,40 +7,43 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { useColorScheme } from "react-native";
 import { router } from "expo-router";
 import { useLocalSearchParams } from "expo-router";
-import {
-  QuestionType,
-  getFavoriteQuestions,
-} from "../utils/initializeDatabase";
+import { getFavoriteQuestions } from "../utils/initializeDatabase";
 import { useRefreshFavorites } from "@/stores/refreshFavoriteStore";
+import { QuestionType } from "@/utils/types";
 
 function RenderFavoriteQuestions() {
   const { category, subcategory } = useLocalSearchParams<{
     category: string;
     subcategory: string;
   }>();
+
   const [questions, setQuestions] = useState<QuestionType[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const themeStyle = coustomTheme();
   const colorScheme = useColorScheme();
+
+  /* When adding to favorites, it won't show until refreshing -> store forces to refresh because of state change */
   const { refreshTriggerFavorites } = useRefreshFavorites();
 
   useLayoutEffect(() => {
     const loadQuestions = async () => {
       try {
         setIsLoading(true);
-
         const questions = await getFavoriteQuestions();
-        console.log(questions);
 
         if (questions) {
           setQuestions(questions);
+          setError(null);
         } else {
-          console.log("Invalid data format received");
+          console.log("Can't load favorite questions");
           setQuestions([]);
+          setError("Fehler beim laden deiner Favoriten!");
         }
       } catch (error) {
         console.error("Error loading questions:", error);
         setQuestions([]);
+        setError("Fehler beim laden deiner Favoriten!");
       } finally {
         setIsLoading(false);
       }
@@ -49,16 +52,25 @@ function RenderFavoriteQuestions() {
     loadQuestions();
   }, [refreshTriggerFavorites]);
 
-  // Show loading state
-  if (isLoading) {
+  // Show error state
+  if (error && !isLoading && questions.length === 0) {
     return (
       <View style={styles.centeredContainer}>
-        <ThemedText>Fragen werden geladen...</ThemedText>
+        <ThemedText>{error}</ThemedText>
       </View>
     );
   }
 
-  if ((questions.length === 0 || !questions) && !isLoading) {
+  // Show loading state
+  if (isLoading) {
+    return (
+      <View style={styles.centeredContainer}>
+        <ThemedText>Favoriten werden geladen</ThemedText>
+      </View>
+    );
+  }
+
+  if ((questions.length === 0 || !questions) && !isLoading && !error) {
     return (
       <View style={styles.centeredContainer}>
         <ThemedText style={styles.emptyText}>
@@ -122,14 +134,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   flatListStyle: {
-    paddingTop: 10,
+    paddingTop: 20,
+    gap: 20
   },
   item: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 15,
-    marginBottom: 15,
     borderRadius: 8,
   },
   questionContainer: {

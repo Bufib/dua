@@ -1,0 +1,15 @@
+export type QuestionType = {
+  id: number;
+  title: string;
+  question: string;
+  answer: string;
+  answer_sistani: string;
+  answer_khamenei: string;
+  category_name: string;
+  subcategory_name: string;
+  created_at: string;
+};
+
+export type Paypal = {
+  link: string;
+};
