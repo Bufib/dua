@@ -149,8 +149,6 @@ export default function AskQuestionScreen() {
     },
   });
 
-
-
   /** The actual DB insert logic  */
   async function submitQuestion(data: QuestionFormData) {
     if (!session?.user.id) {
@@ -170,6 +168,14 @@ export default function AskQuestionScreen() {
         selectedMarja = "Sayid al-Khamenei";
       }
 
+      // Extract the selected gender
+      let selectedGender = ""; // default
+      if (data.gender.männlich) {
+        selectedGender = "Männlich";
+      } else if (data.gender.weiblich) {
+        selectedGender = "Weiblich";
+      }
+
       // Insert into DB
       const { error: submissionError } = await supabase
         .from("user_question")
@@ -181,7 +187,7 @@ export default function AskQuestionScreen() {
             marja: selectedMarja,
             question: data.question,
             age: data.age,
-            gender: data.gender,
+            gender: selectedGender,
           },
         ]);
 
@@ -494,6 +500,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#fff"
+    color: "#fff",
   },
 });
