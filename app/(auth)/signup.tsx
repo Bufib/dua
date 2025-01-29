@@ -175,12 +175,14 @@ export default function SignUpScreen() {
   }, [showCaptcha]);
 
   /**
-   * 2. Reset attempts (verification & resend) whenever the modal closes.
+   * 2. Reset attempts (verification & resend) whenever the modal closes and reset Textinput
    */
   useEffect(() => {
     if (!showVerificationModal) {
       setVerificationAttempts(0);
       setResendAttempts(0);
+      setVerificationCode("");
+
     }
   }, [showVerificationModal]);
 
@@ -565,10 +567,10 @@ export default function SignUpScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, themeStyles.contrast]}>
             <ThemedText style={styles.modalTitle}>
-              Email Verification
+              E-Mail Verifikation
             </ThemedText>
             <ThemedText style={styles.modalSubtitle}>
-              Please enter the verification code sent to {currentEmail}
+             Bitte gebe den Code ein, welcher an {currentEmail} gesendet wurde.
             </ThemedText>
             <TextInput
               style={[styles.input, themeStyles.text]}
