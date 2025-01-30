@@ -13,3 +13,18 @@ export type QuestionType = {
 export type Paypal = {
   link: string;
 };
+
+
+
+export type SignUpFormValues = {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+};
+
+export type CaptchaEvent = {
+  nativeEvent: {
+    data: string;
+  };
+};

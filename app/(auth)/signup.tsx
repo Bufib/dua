@@ -20,7 +20,7 @@ import NetInfo from "@react-native-community/netinfo";
 import Feather from "@expo/vector-icons/Feather";
 import ConfirmHcaptcha from "@hcaptcha/react-native-hcaptcha";
 import { supabase } from "@/utils/supabase";
-import { router } from "expo-router";
+import { router, useRootNavigationState } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { Colors } from "@/constants/Colors";
@@ -40,21 +40,7 @@ import {
   signUpUserPasswordConformation,
   cancleCaptcha,
 } from "@/constants/messages";
-
-/** 1. TYPE + SCHEMA DEFINITIONS */
-
-type SignUpFormValues = {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
-
-type CaptchaEvent = {
-  nativeEvent: {
-    data: string;
-  };
-};
+import { SignUpFormValues, CaptchaEvent } from "@/utils/types";
 
 // Define validation schema with Zod
 const schema = z
@@ -84,8 +70,6 @@ const schema = z
     message: signUpUserPasswordConformation,
     path: ["confirmPassword"], // Show error on confirmPassword
   });
-
-// ---- END: TYPE + SCHEMA DEFINITIONS ----
 
 // Max verification attempts for entering the code
 const MAX_VERIFICATION_ATTEMPTS = 3;
@@ -133,9 +117,14 @@ export default function SignUpScreen() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_IN") {
-        if (session?.user) {
-          // Insert user data into "user" table
+      if (event === "SIGNED_IN" && session?.user) {
+        try {
+          // Validate required data
+          if (!currentEmail || !currentUsername) {
+            console.log("Missing email or username, waiting for data...");
+            return;
+          }
+  
           const { error: userError } = await supabase.from("user").insert([
             {
               user_id: session.user.id,
@@ -143,13 +132,13 @@ export default function SignUpScreen() {
               email: currentEmail,
             },
           ]);
-
+  
           if (userError) {
-            console.log(userError);
+            console.error("Error inserting user:", userError);
             Alert.alert(signUpErrorGeneral, userError.message);
             return;
           }
-
+  
           // Success
           setShowVerificationModal(false);
           Toast.show({
@@ -158,14 +147,17 @@ export default function SignUpScreen() {
             topOffset: 60,
           });
           router.replace("/login");
+        } catch (error) {
+          console.error("Error in auth state change:", error);
+          Alert.alert(signUpErrorGeneral, "Ein Fehler ist aufgetreten.");
         }
       }
     });
-
+  
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [currentEmail, currentUsername]); 
 
   // Show the captcha when state changes
   useEffect(() => {
@@ -182,7 +174,6 @@ export default function SignUpScreen() {
       setVerificationAttempts(0);
       setResendAttempts(0);
       setVerificationCode("");
-
     }
   }, [showVerificationModal]);
 
@@ -570,7 +561,7 @@ export default function SignUpScreen() {
               E-Mail Verifikation
             </ThemedText>
             <ThemedText style={styles.modalSubtitle}>
-             Bitte gebe den Code ein, welcher an {currentEmail} gesendet wurde.
+              Bitte gebe den Code ein, welcher an {currentEmail} gesendet wurde.
             </ThemedText>
             <TextInput
               style={[styles.input, themeStyles.text]}
