@@ -105,7 +105,7 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   floatingButtonContainer: {
     position: "absolute",
-    bottom: 20,
+    bottom: 15,
     left: "50%",
     // This shifts the element 30 pixels to the left. Since we set `left: "50%"`,
     // the element's left edge is positioned in the middle of the screen, not its center.
