@@ -30,9 +30,10 @@ export default function QuestionLinks() {
 
   // Dynamically calculate the size of each element based on screen width
   const elementSize = width > 400 ? 170 : 120; // Element
-  const fontSize = width > 400 ? 16 : 14; // Font of element text
+  const fontSize = width > 400 ? 16 : 12; // Font of element text
   const iconSize = width > 400 ? 80 : 50; // Icon in element
   const imageSize = width > 400 ? 350 : 250; // Header image
+  const gap = width > 400 ? 30 : 10; // Header image
 
   // Get the latest five questions
   useEffect(() => {
@@ -82,7 +83,11 @@ export default function QuestionLinks() {
   return (
     <SafeAreaView
       edges={["top"]}
-      style={[styles.container, themeStyles.defaultBackgorundColor]}
+      style={[
+        styles.container,
+        themeStyles.defaultBackgorundColor,
+        { gap: gap },
+      ]}
     >
       <View style={styles.headerContainer}>
         <Image
@@ -93,7 +98,12 @@ export default function QuestionLinks() {
       </View>
 
       <View style={styles.bodyContainer}>
-        <ThemedText style={styles.bodyContainerText} type="title">
+        <ThemedText
+          style={[
+            styles.bodyContainerText,
+            { fontSize: fontSize * 2, fontWeight: "500", lineHeight: 32 },
+          ]}
+        >
           Kategorien
         </ThemedText>
         <FlatList
@@ -180,7 +190,12 @@ export default function QuestionLinks() {
       </View>
 
       <View style={styles.footerContainer}>
-        <ThemedText style={styles.footerContainerHeaderText} type="title">
+        <ThemedText
+          style={[
+            styles.footerContainerHeaderText,
+            { fontSize: fontSize * 2, fontWeight: "500", lineHeight: 32 },
+          ]}
+        >
           Aktuelle Fragen
         </ThemedText>
         <LatestQuestions />
@@ -192,7 +207,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: "column",
-    gap: 30,
   },
   headerContainer: {
     justifyContent: "center",
@@ -268,12 +282,11 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   elementText: {
-    fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
   },
   footerContainer: {
-    flex:1
+    flex: 1,
   },
   footerContainerHeaderText: {
     fontWeight: "500",
