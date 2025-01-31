@@ -29,7 +29,7 @@ export default function RootLayout() {
                   size={30}
                   color="#057958"
                   style={{ marginLeft: -16 }}
-                  onPress={() => router.replace("")}
+                  onPress={() => router.back()}
                 />
               );
             },
