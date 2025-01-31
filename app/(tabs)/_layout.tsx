@@ -141,8 +141,9 @@ export default function TabLayout() {
                 <View style={styles.floatingButton}>
                   <MaterialCommunityIcons
                     name="account-question-outline"
-                    size={24}
+                    size={26}
                     color="#fff"
+                    style={{marginLeft: 5}} // Align in middle
                   />
                 </View>
               </Pressable>
@@ -200,5 +201,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: "#057958"
   },
 });

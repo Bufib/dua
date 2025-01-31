@@ -224,18 +224,25 @@ export default function LoginScreen() {
           </View>
 
           {/* LOGIN BUTTON */}
-          <Pressable onPress={handleSubmit(onSubmit)} disabled={isLoading}>
-            <View style={styles.loginButtonContainer}>
-              <Text style={styles.loginButtonText}>
+          <View style={{ flexDirection: "column", gap: 10 }}>
+            <Pressable
+              style={styles.buttonContainer}
+              onPress={handleSubmit(onSubmit)}
+              disabled={isLoading}
+            >
+              <Text style={styles.buttonText}>
                 {isLoading ? "Wird geladen..." : "Anmelden"}
               </Text>
-            </View>
-          </Pressable>
+            </Pressable>
 
-          {/* SIGNUP */}
-          <Pressable style={styles.registerButton} onPress={() => router.replace("/signup")}>
-            <Text>Registrieren</Text>
-          </Pressable>
+            {/* SIGNUP */}
+            <Pressable
+              style={[styles.buttonContainer,{backgroundColor: "transparent", borderWidth: 1, borderColor: "#057958"}]}
+              onPress={() => router.replace("/signup")}
+            >
+              <Text style={[styles.buttonText, {color: "#000", fontSize: 16}]}>Jetzt kostenlos registrieren!</Text>
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -302,26 +309,17 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
   },
-  loginButtonContainer: {
-    backgroundColor: "#127646",
-    width: 120,
-    borderWidth: 2,
-    borderRadius: 10,
+  buttonContainer: {
+    width: "100%",
+    backgroundColor: "#057958",
     alignSelf: "center",
+    justifyContent: "center",
+    borderRadius: 7,
   },
-  loginButtonText: {
+  buttonText: {
     color: "#fff",
-    fontSize: 20,
-    borderWidth: 2,
+    fontSize: 18,
     padding: 10,
-    borderRadius: 10,
-    borderColor: "#4fa1b8",
-  },
-  registerButton: {
-    alignSelf: "center",
-    marginTop: 16,
-    padding: 10,
-    borderRadius: 10,
-    borderWidth: 2,
+    textAlign: "center",
   },
 });

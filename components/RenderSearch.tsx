@@ -4,7 +4,13 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useLayoutEffect,
+} from "react";
 import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -71,7 +77,7 @@ const RenderSearch = () => {
     const timer = setTimeout(() => {
       searchRef.current?.focus();
     }, 100);
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -183,6 +189,7 @@ const styles = StyleSheet.create({
   searchBarInput: {
     flex: 1,
     fontSize: 16,
+    borderWidth: 0.3,
   },
   xButton: {
     paddingLeft: 10,

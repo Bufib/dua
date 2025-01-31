@@ -24,9 +24,7 @@ const LatestQuestions: React.FC = () => {
         ]}
       >
         <View style={styles.questionContent}>
-          <ThemedText style={styles.questionTitle} numberOfLines={2}>
-            {item.title}
-          </ThemedText>
+        
           <ThemedText style={styles.questionPreview} numberOfLines={2}>
             {item.question}
           </ThemedText>
@@ -91,9 +89,16 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   questionItem: {
-    borderRadius: 12,
+    borderRadius: 7,
     padding: 16,
-    borderWidth: 1,
+     // iOS Shadow
+     shadowColor: "#000",
+     shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
+     shadowOpacity: 0.2,
+     shadowRadius: 4,
+ 
+     // Android Shadow
+     elevation: 5, // Adjust for stronger or softer shadow
   },
   pressed: {
     opacity: 0.7,

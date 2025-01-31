@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 15,
+  borderWidth: 0.3
   },
   searchInput: {
     flex: 1,
@@ -237,7 +238,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 5,
+    borderRadius: 7,
     // iOS Shadow
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
