@@ -193,7 +193,7 @@ export default function QuestionsList() {
             backgroundColor: Colors.universal.fadeColor,
           },
         ]}
-        onPress={() => router.push("/(user)/askQuestion")}
+        onPress={() => router.push("/(tabs)/user/askQuestion")}
         disabled={!isConnected}
       >
         <ThemedText style={styles.askQuestionButtonText}>Neue Frage</ThemedText>

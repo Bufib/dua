@@ -38,7 +38,7 @@ export const logoutErrorGeneral = "Fehler beim Abmelden";
 export const logoutSuccess = () => {
   return Toast.show({
     type: "success",
-    text1: "Du wurdest erfolgreich ausgeloggt!",
+    text1: "Du wurdest erfolgreich abgemeldet!",
     text1Style: { fontSize: 14, fontWeight: "600" },
     topOffset: 60,
   });

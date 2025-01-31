@@ -124,7 +124,7 @@ export default function SignUpScreen() {
             console.log("Missing email or username, waiting for data...");
             return;
           }
-  
+
           const { error: userError } = await supabase.from("user").insert([
             {
               user_id: session.user.id,
@@ -132,13 +132,13 @@ export default function SignUpScreen() {
               email: currentEmail,
             },
           ]);
-  
+
           if (userError) {
             console.error("Error inserting user:", userError);
             Alert.alert(signUpErrorGeneral, userError.message);
             return;
           }
-  
+
           // Success
           setShowVerificationModal(false);
           Toast.show({
@@ -153,11 +153,11 @@ export default function SignUpScreen() {
         }
       }
     });
-  
+
     return () => {
       subscription.unsubscribe();
     };
-  }, [currentEmail, currentUsername]); 
+  }, [currentEmail, currentUsername]);
 
   // Show the captcha when state changes
   useEffect(() => {
@@ -428,6 +428,7 @@ export default function SignUpScreen() {
               <TextInput
                 style={[styles.input, themeStyles.text]}
                 placeholder="Benutzername"
+                 placeholderTextColor="gray"
                 onChangeText={onChange}
                 value={value}
                 autoCapitalize="none"
@@ -446,6 +447,7 @@ export default function SignUpScreen() {
               <TextInput
                 style={[styles.input, themeStyles.text]}
                 placeholder="Email"
+                 placeholderTextColor="gray"
                 onChangeText={onChange}
                 value={value}
                 keyboardType="email-address"
@@ -497,6 +499,7 @@ export default function SignUpScreen() {
                 <TextInput
                   style={[styles.passwordInput, themeStyles.text]}
                   placeholder="Passwort bestätigen"
+                   placeholderTextColor="gray"
                   onChangeText={onChange}
                   value={value}
                   secureTextEntry={!showConfirmPassword}
@@ -522,18 +525,21 @@ export default function SignUpScreen() {
           {isLoading ? (
             <ActivityIndicator />
           ) : (
-            <Pressable disabled={isLoading} onPress={handleSubmit(onSubmit)}>
-              <Text>Registrieren</Text>
+            <Pressable
+              style={styles.signUpButton}
+              disabled={isLoading}
+              onPress={handleSubmit(onSubmit)}
+            >
+              <ThemedText style={styles.signUpText}>Registrieren</ThemedText>
             </Pressable>
           )}
 
           {/* Link to Login */}
           <View style={styles.logInContainer}>
-            <ThemedText style={styles.logInText}>
-              Hast du bereits einen Account?
-            </ThemedText>
             <Pressable onPress={() => router.replace("/login")}>
-              <Text>Login</Text>
+              <ThemedText style={styles.loginText}>
+                Hast du bereits einen Account?
+              </ThemedText>
             </Pressable>
           </View>
         </View>
@@ -644,14 +650,29 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 10,
   },
+  signUpButton: {
+    width: "100%",
+    backgroundColor: "#057958",
+    alignSelf: "center",
+    justifyContent: "center",
+    borderRadius: 7,
+  },
+  signUpText: {
+    color: "#fff",
+    fontSize: 18,
+    padding: 10,
+    textAlign: "center",
+  },
   logInContainer: {
+    marginTop: 10,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
-  logInText: {
+  loginText: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "500",
+    textDecorationLine: "underline",
   },
   modalOverlay: {
     flex: 1,

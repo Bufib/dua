@@ -130,7 +130,7 @@ export default function TabLayout() {
                 {...props}
                 onPress={() => {
                   if (isLoggedIn) {
-                    router.push("/(tabs)/user/");
+                    router.replace("/(tabs)/user/");
                   } else {
                     router.push("/(auth)/login");
                   }

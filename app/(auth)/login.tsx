@@ -74,13 +74,13 @@ export default function LoginScreen() {
         // Show success toast
         Toast.show({
           type: "success",
-          text1: "Salam!",
-          text1Style: { fontSize: 16, fontWeight: "600" },
+          text1: "Du wurdest erfolgreich angemeldet!",
+          text1Style: { fontSize: 14, fontWeight: "600" },
           topOffset: 60,
         });
 
         // Navigate to home
-        router.replace("/(tabs)/home");
+        router.replace("/(tabs)/user");
       }
     });
 
