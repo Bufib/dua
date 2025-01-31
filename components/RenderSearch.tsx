@@ -4,7 +4,7 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
 import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -27,7 +27,8 @@ const RenderSearch = () => {
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResults[]>([]);
   const [loading, setLoading] = useState(false);
-  const searchRef = useRef();
+  const searchRef = useRef<TextInput>(null);
+
   // Debounced search function
   const debouncedSearch = useCallback(
     async (text: string) => {
@@ -65,8 +66,13 @@ const RenderSearch = () => {
       setSearchResults([]);
     }
   };
+
   useEffect(() => {
-    searchRef.current.focus();
+    const timer = setTimeout(() => {
+      searchRef.current?.focus();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const renderItem = ({ item }: { item: SearchResults }) => (

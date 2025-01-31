@@ -29,7 +29,7 @@ export type CaptchaEvent = {
   };
 };
 
-type SearchResults = {
+export type SearchResults = {
   id: number;
   category_name: string;
   subcategory_name: string;

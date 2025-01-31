@@ -47,7 +47,7 @@ export default function QuestionLinks() {
     },
     {
       name: "Historie",
-      image: require("@/assets/images/historie.png"),
+      image: require("@/assets/images/geschichte.png"),
     },
     {
       name: "Glaubensfragen",
