@@ -36,6 +36,8 @@ export default function QuestionLinks() {
   const iconSize = width > 400 ? 60 : 40; // Icon in element
   const imageSize = width > 400 ? 300 : 200; // Header image
   const gap = width > 400 ? 30 : 10; // Header image
+  const [pressedIndex, setPressedIndex] = useState<number | null>(null);
+  const colorScheme = useColorScheme();
 
   const categories = [
     {
@@ -123,23 +125,43 @@ export default function QuestionLinks() {
           decelerationRate="fast"
           renderItem={({ item: category, index }) => (
             <Pressable
-              onPress={() =>
+              onPress={() => {
                 router.push({
                   pathname: "/(tabs)/home/category",
                   params: { category: category.name },
-                })
-              }
+                });
+              }}
+              onPressIn={() => setPressedIndex(index)}
+              onPressOut={() => setPressedIndex(null)}
               style={[
                 styles.element,
                 {
                   width: elementSize,
                   height: elementSize,
                 },
-                index === 6 && {
-                  width: elementSize * 2.1,
-                  height: elementSize / 2,
-                },
-                themeStyles.contrast,
+                pressedIndex === index
+                  ? {
+                      // Shadow when pressed
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 4 }, // More pronounced shadow
+                      shadowOpacity: 0.3,
+                      shadowRadius: 6,
+                      elevation: 8,
+                      backgroundColor:
+                        colorScheme === "dark" ? "#242c40" : "#e8f5e9",
+                      top: 2,
+                    }
+                  : {
+                      // Default shadow
+                      shadowColor: "#000",
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.2,
+                      shadowRadius: 4,
+                      elevation: 5,
+                      backgroundColor:
+                        colorScheme === "dark" ? "#34495e" : "#fff",
+                    },
+                // themeStyles.contrast,
               ]}
             >
               <View style={styles.buttonContentContainerNormal}>
@@ -206,7 +228,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 15,
-  borderWidth: 0.3
+    borderWidth: 0.3,
   },
   searchInput: {
     flex: 1,
@@ -229,8 +251,7 @@ const styles = StyleSheet.create({
     gap: 20,
     paddingRight: 20,
     paddingLeft: 20,
-    paddingVertical: 10
-
+    paddingVertical: 10,
   },
   flatListStyles: {},
 
@@ -239,14 +260,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 7,
-    // iOS Shadow
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-
-    // Android Shadow
-    elevation: 5, // Adjust for stronger or softer shadow
   },
 
   buttonContentContainerNormal: {

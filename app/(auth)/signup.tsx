@@ -466,6 +466,7 @@ export default function SignUpScreen() {
                 <TextInput
                   style={[styles.passwordInput, themeStyles.text]}
                   placeholder="Password"
+                  placeholderTextColor="gray"
                   onChangeText={onChange}
                   value={value}
                   secureTextEntry={!showPassword}
