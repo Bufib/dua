@@ -11,12 +11,13 @@ export default function RootLayout() {
         name="category"
         options={{
           headerShown: true,
+          headerTintColor: "#057958",
           headerLeft: () => {
             return (
               <Ionicons
                 name="chevron-back-outline"
                 size={30}
-                color={Colors.universal.link}
+                          color="#057958"
                 style={{ marginLeft: -16 }}
                 onPress={() => router.back()}
               />
@@ -24,7 +25,7 @@ export default function RootLayout() {
           },
         }}
       />
-      <Stack.Screen name="subcategory" options={{ headerShown: true }} />
+      <Stack.Screen name="subcategory" options={{ headerShown: true , headerTintColor: "#057958",}} />
     </Stack>
   );
 }

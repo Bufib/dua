@@ -20,13 +20,14 @@ export default function RootLayout() {
           name="login"
           options={{
             headerShown: true,
+            headerTintColor: "#057958",
             headerTitle: "Login",
             headerLeft: () => {
               return (
                 <Ionicons
                   name="chevron-back-outline"
                   size={30}
-                  color={Colors.universal.link}
+                  color="#057958"
                   style={{ marginLeft: -16 }}
                   onPress={() => router.back()}
                 />
@@ -38,13 +39,14 @@ export default function RootLayout() {
           name="signup"
           options={{
             headerShown: true,
+            headerTintColor: "#057958",
             headerTitle: "Registrieren",
             headerLeft: () => {
               return (
                 <Ionicons
                   name="chevron-back-outline"
                   size={30}
-                  color={Colors.universal.link}
+                  color="#057958"
                   style={{ marginLeft: -16 }}
                   onPress={() => router.back()}
                 />
@@ -56,13 +58,14 @@ export default function RootLayout() {
           name="forgotPassword"
           options={{
             headerShown: true,
+            headerTintColor: "#057958",
             headerTitle: "Passwort vergessen",
             headerLeft: () => {
               return (
                 <Ionicons
                   name="chevron-back-outline"
                   size={30}
-                  color={Colors.universal.link}
+                  color="#057958"
                   style={{ marginLeft: -16 }}
                   onPress={() => router.back()}
                 />
@@ -74,13 +77,14 @@ export default function RootLayout() {
           name="resetPassword"
           options={{
             headerShown: true,
+            headerTintColor: "#057958",
             headerTitle: "Passwort ändern",
             headerLeft: () => {
               return (
                 <Ionicons
                   name="chevron-back-outline"
                   size={30}
-                  color={Colors.universal.link}
+                  color="#057958"
                   style={{ marginLeft: -16 }}
                   onPress={() => router.back()}
                 />

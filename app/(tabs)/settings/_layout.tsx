@@ -21,15 +21,15 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen
           name="impressum"
-          options={{ headerShown: true, headerBackTitle: "Einstellungen" }}
+          options={{ headerShown: true, headerBackTitle: "Einstellungen",headerTintColor: "#057958", }}
         />
         <Stack.Screen
           name="about"
-          options={{ presentation: "modal", headerTitle: "Über die App" }}
+          options={{ presentation: "modal", headerTitle: "Über die App",headerTintColor: "#057958", }}
         />
         <Stack.Screen
           name="changePassword"
-          options={{ headerShown: true, headerBackTitle: "Einstellungen", headerTitle: "" }}
+          options={{ headerShown: true, headerBackTitle: "Einstellungen", headerTitle: "" ,headerTintColor: "#057958",}}
         />
       </Stack>
     </ThemeProvider>

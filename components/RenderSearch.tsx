@@ -117,6 +117,7 @@ const RenderSearch = () => {
               placeholder="Suche nach Fragen..."
               keyboardType="default"
               ref={searchRef}
+              placeholderTextColor={"gray"}
             />
             {searchText && (
               <Feather

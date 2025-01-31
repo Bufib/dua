@@ -20,13 +20,14 @@ export default function RootLayout() {
           name="index"
           options={{
             headerShown: true,
+            headerTintColor: "#057958",
             headerTitle: "Deine Fragen",
             headerLeft: () => {
               return (
                 <Ionicons
                   name="chevron-back-outline"
                   size={30}
-                  color={Colors.universal.link}
+                  color="#057958"
                   style={{ marginLeft: -16 }}
                   onPress={() => router.back()}
                 />
@@ -34,10 +35,17 @@ export default function RootLayout() {
             },
           }}
         />
-        <Stack.Screen name="askQuestion" options={{ headerShown: true, headerTitle: "" }} />
+        <Stack.Screen
+          name="askQuestion"
+          options={{ headerShown: true, headerTitle: "" }}
+        />
         <Stack.Screen
           name="[questionId]"
-          options={{ headerShown: true, headerTitle: "" }}
+          options={{
+            headerShown: true,
+            headerTitle: "",
+            headerTintColor: "#057958",
+          }}
         />
       </Stack>
     </ThemeProvider>

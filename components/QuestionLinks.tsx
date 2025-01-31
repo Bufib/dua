@@ -24,6 +24,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import LatestQuestions from "./LatestQuestions";
 import RenderSearch from "./RenderSearch";
 import { TextInput } from "react-native";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function QuestionLinks() {
   const themeStyles = coustomTheme();
@@ -46,7 +47,7 @@ export default function QuestionLinks() {
       image: require("@/assets/images/quran.png"),
     },
     {
-      name: "Historie",
+      name: "Geschichte",
       image: require("@/assets/images/geschichte.png"),
     },
     {
@@ -85,19 +86,33 @@ export default function QuestionLinks() {
           placeholder="Suche nach Fragen..."
           editable={false} // Prevents keyboard from opening
           style={styles.searchInput}
+          placeholderTextColor={"gray"}
           onPress={() => router.push("/(search)")}
         />
       </View>
 
       <View style={styles.bodyContainer}>
-        <ThemedText
-          style={[
-            styles.bodyContainerText,
-            { fontSize: fontSize * 2, fontWeight: "500", lineHeight: 32 },
-          ]}
-        >
-          Kategorien
-        </ThemedText>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <ThemedText
+            style={[
+              styles.bodyContainerText,
+              {
+                fontSize: fontSize * 2,
+                fontWeight: "500",
+                lineHeight: 32,
+              },
+            ]}
+          >
+            Kategorien
+          </ThemedText>
+          <MaterialCommunityIcons
+            name="gesture-swipe-right"
+            size={30}
+            color="#057958"
+            style={{ marginRight: 20 }}
+          />
+        </View>
+
         <FlatList
           contentContainerStyle={styles.flatListContent}
           style={styles.flatListStyles}
@@ -154,14 +169,22 @@ export default function QuestionLinks() {
       </View>
 
       <View style={styles.footerContainer}>
-        <ThemedText
-          style={[
-            styles.footerContainerHeaderText,
-            { fontSize: fontSize * 2, fontWeight: "500", lineHeight: 32 },
-          ]}
-        >
-          Aktuelle Fragen
-        </ThemedText>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <ThemedText
+            style={[
+              styles.footerContainerHeaderText,
+              { fontSize: fontSize * 2, fontWeight: "500", lineHeight: 32 },
+            ]}
+          >
+            Aktuelle Fragen
+          </ThemedText>
+          <MaterialCommunityIcons
+            name="gesture-swipe-down"
+            size={30}
+            color="#057958"
+            style={{ marginRight: 20 }}
+          />
+        </View>
         <LatestQuestions />
       </View>
     </SafeAreaView>
@@ -205,6 +228,8 @@ const styles = StyleSheet.create({
     gap: 20,
     paddingRight: 20,
     paddingLeft: 20,
+    paddingVertical: 10
+
   },
   flatListStyles: {},
 
@@ -212,8 +237,15 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 10,
-    borderWidth: 1,
+    borderRadius: 5,
+    // iOS Shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+
+    // Android Shadow
+    elevation: 5, // Adjust for stronger or softer shadow
   },
 
   buttonContentContainerNormal: {
@@ -231,7 +263,7 @@ const styles = StyleSheet.create({
     borderRadius: 90,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Colors.universal.QuestionLinksIconContainer,
+    backgroundColor: "#057958",
   },
   elementTextContainer: {},
 

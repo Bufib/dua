@@ -112,7 +112,7 @@ export default function question() {
               <Ionicons
                 name="chevron-back-outline"
                 size={30}
-                color={Colors.universal.link}
+                          color="#057958"
                 style={{ marginLeft: -16 }}
                 onPress={() => router.back()}
               />
