@@ -224,7 +224,7 @@ export default function LoginScreen() {
           </View>
 
           {/* LOGIN BUTTON */}
-          <View style={{ flexDirection: "column", gap: 10 }}>
+          <View style={{ flexDirection: "column", gap: 3, marginTop: 10 }}>
             <Pressable
               style={styles.buttonContainer}
               onPress={handleSubmit(onSubmit)}
@@ -237,10 +237,10 @@ export default function LoginScreen() {
 
             {/* SIGNUP */}
             <Pressable
-              style={[styles.buttonContainer,{backgroundColor: "transparent", borderWidth: 1, borderColor: "#057958"}]}
+              style={[styles.buttonContainer,{backgroundColor: "transparent", borderColor: "#057958"}]}
               onPress={() => router.replace("/signup")}
             >
-              <Text style={[styles.buttonText, {color: "#000", fontSize: 16}]}>Jetzt kostenlos registrieren!</Text>
+              <Text style={[styles.buttonText, {color: "#000", fontSize: 16, textDecorationLine: "underline"}]}>Jetzt kostenlos registrieren!</Text>
             </Pressable>
           </View>
         </View>
