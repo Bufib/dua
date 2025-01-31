@@ -71,7 +71,7 @@ const LatestQuestions: React.FC = () => {
       renderItem={renderItem}
       style={styles.list}
       contentContainerStyle={styles.listContent}
-      showsVerticalScrollIndicator={false}
+      showsVerticalScrollIndicator
     />
   );
 };

@@ -25,29 +25,13 @@ import LatestQuestions from "./LatestQuestions";
 export default function QuestionLinks() {
   const themeStyles = coustomTheme();
   const { width } = useWindowDimensions();
-  const { isLoggedIn } = useAuthStore();
-  const [latestQuestions, setLatestQuestions] = useState<QuestionType[]>([]);
 
   // Dynamically calculate the size of each element based on screen width
-  const elementSize = width > 400 ? 170 : 120; // Element
-  const fontSize = width > 400 ? 16 : 12; // Font of element text
-  const iconSize = width > 400 ? 80 : 50; // Icon in element
-  const imageSize = width > 400 ? 350 : 250; // Header image
+  const elementSize = width > 400 ? 120 : 100; // Element
+  const fontSize = width > 400 ? 12 : 10; // Font of element text
+  const iconSize = width > 400 ? 60 : 40; // Icon in element
+  const imageSize = width > 400 ? 300 : 200; // Header image
   const gap = width > 400 ? 30 : 10; // Header image
-
-  // Get the latest five questions
-  useEffect(() => {
-    const loadLatestQuestions = async () => {
-      try {
-        const questions = await getLatestQuestions();
-        setLatestQuestions(questions);
-      } catch (error) {
-        console.error("Error loading latest questions:", error);
-      }
-    };
-
-    loadLatestQuestions();
-  }, []);
 
   const categories = [
     {
@@ -73,10 +57,6 @@ export default function QuestionLinks() {
     {
       name: "Ratschläge",
       image: require("@/assets/images/ratschlaege.png"),
-    },
-    {
-      name: "Deine Fragen",
-      image: require("@/assets/images/frageStellen.png"),
     },
   ];
 
@@ -117,21 +97,10 @@ export default function QuestionLinks() {
           renderItem={({ item: category, index }) => (
             <Pressable
               onPress={() =>
-                router.push(
-                  category.name === "Deine Fragen" && isLoggedIn
-                    ? {
-                        pathname: "/(user)",
-                        params: { category: category.name },
-                      }
-                    : category.name === "Deine Fragen" && !isLoggedIn
-                    ? {
-                        pathname: "/(auth)/login",
-                      }
-                    : {
-                        pathname: "/(tabs)/home/category",
-                        params: { category: category.name },
-                      }
-                )
+                router.push({
+                  pathname: "/(tabs)/home/category",
+                  params: { category: category.name },
+                })
               }
               style={[
                 styles.element,
@@ -146,44 +115,25 @@ export default function QuestionLinks() {
                 },
               ]}
             >
-              {category.name !== "Deine Fragen" ? (
-                <View style={styles.buttonContentContainerNormal}>
-                  <View
-                    style={[
-                      styles.iconContainer,
-                      { width: iconSize, height: iconSize },
-                    ]}
-                  >
-                    <Image
-                      style={[styles.elementIcon, { width: iconSize }]}
-                      source={category.image}
-                      contentFit="contain"
-                    />
-                  </View>
-                  <View style={styles.elementTextContainer}>
-                    <Text style={[styles.elementText, { fontSize: fontSize }]}>
-                      {category.name}
-                    </Text>
-                  </View>
-                </View>
-              ) : (
-                <View style={styles.buttonContentContainerAskQuestion}>
-                  <View style={styles.elementTextContainerAskQuestion}>
-                    <Text style={[styles.elementText, { fontSize: fontSize }]}>
-                      {category.name}
-                    </Text>
-                  </View>
+              <View style={styles.buttonContentContainerNormal}>
+                <View
+                  style={[
+                    styles.iconContainer,
+                    { width: iconSize, height: iconSize },
+                  ]}
+                >
                   <Image
-                    style={[
-                      styles.elementIcon,
-                      { alignItems: "center" },
-                      { width: iconSize - 10 },
-                    ]}
+                    style={[styles.elementIcon, { width: iconSize }]}
                     source={category.image}
                     contentFit="contain"
                   />
                 </View>
-              )}
+                <View style={styles.elementTextContainer}>
+                  <Text style={[styles.elementText, { fontSize: fontSize }]}>
+                    {category.name}
+                  </Text>
+                </View>
+              </View>
             </Pressable>
           )}
         />
@@ -227,10 +177,12 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     gap: 20,
+    paddingRight: 20,
+    paddingLeft: 20,
+
   },
   flatListStyles: {
-    paddingLeft: 20,
-    paddingRight: 20,
+ 
   },
 
   element: {
@@ -240,10 +192,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     backgroundColor: "#fff",
-  },
-
-  askQuestionElement: {
-    backgroundColor: "#0C556A",
   },
 
   buttonContentContainerNormal: {
@@ -263,19 +211,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: Colors.universal.QuestionLinksIconContainer,
   },
-  elementTextContainer: {
-    padding: 10,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  elementTextContainerAskQuestion: {
-    padding: 7,
-    marginHorizontal: 10,
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    borderWidth: 1,
-  },
+  elementTextContainer: {},
+
   elementIcon: {
     height: "auto",
     aspectRatio: 1.5,
