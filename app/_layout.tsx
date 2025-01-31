@@ -107,6 +107,10 @@ export default function RootLayout() {
                 name="(question)"
                 options={{ headerShown: false }}
               />
+               <Stack.Screen
+                name="(askQuestion)"
+                options={{ headerShown: false }}
+              />
               <Stack.Screen name="+not-found" />
             </Stack>
             <StatusBar style="auto" />

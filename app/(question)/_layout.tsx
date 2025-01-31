@@ -41,7 +41,10 @@ export default function RootLayout() {
           ),
         }}
       >
-        <Stack.Screen name="index" options={{ headerShown: true,headerTintColor: "#057958", }} />
+        <Stack.Screen
+          name="index"
+          options={{ headerShown: true, headerTintColor: "#057958" }}
+        />
       </Stack>
     </ThemeProvider>
   );

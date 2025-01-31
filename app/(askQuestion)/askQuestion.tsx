@@ -223,13 +223,10 @@ export default function AskQuestionScreen() {
       style={[styles.container, themeStyles.defaultBackgorundColor]}
     >
       <ScrollView
-        style={styles.scrollView}
+        style={styles.scrollViewStyle}
+        contentContainerStyle={styles.scrollViewContent}
         showsVerticalScrollIndicator={false}
       >
-        <ThemedText style={styles.title} type="title">
-          Neue Frage
-        </ThemedText>
-
         {error && (
           <ThemedView style={styles.errorContainer}>
             <ThemedText style={styles.errorText}>{error}</ThemedText>
@@ -408,13 +405,14 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
   },
-  scrollView: {
+  scrollViewStyle: {
     flex: 1,
+    paddingTop: 20    
   },
-  title: {
-    marginTop: 10,
-    marginBottom: 10,
+  scrollViewContent: {
+   
   },
+
   errorContainer: {
     backgroundColor: "#FFE5E5",
     padding: 12,
@@ -468,14 +466,14 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderWidth: 2,
-    borderColor: Colors.universal.link,
+    borderColor: "#057958",
     borderRadius: 4,
     marginRight: 8,
     justifyContent: "center",
     alignItems: "center",
   },
   checkboxChecked: {
-    backgroundColor: Colors.universal.link,
+    backgroundColor: "#057958",
   },
   checkmark: {
     color: "#fff",
@@ -486,7 +484,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   submitButton: {
-    backgroundColor: Colors.universal.link,
+    backgroundColor: "#057958",
     height: 56,
     borderRadius: 12,
     alignItems: "center",
