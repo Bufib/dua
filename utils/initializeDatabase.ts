@@ -3,21 +3,8 @@ import { supabase } from "@/utils/supabase";
 import Storage from "expo-sqlite/kv-store";
 import { router } from "expo-router";
 import { questionsDatabaseUpate } from "@/constants/messages";
+import { QuestionType } from "./types";
 
-export type QuestionType = {
-  id: number;
-  title: string;
-  question: string;
-  answer: string;
-  answer_sistani: string;
-  answer_khamenei: string;
-  category_name: string;
-  subcategory_name: string;
-  created_at: string;
-};
-type Paypal = {
-  link: string;
-};
 
 export const initializeDatabase = async () => {
   // Check if version in Storage is up to date
@@ -456,6 +443,26 @@ export const searchQuestions = async (
     return rows;
   } catch (error) {
     console.error("Error searching questions:", error);
+    throw error;
+  }
+};
+
+export const getLatestQuestions = async (limit: number = 5): Promise<QuestionType[]> => {
+  try {
+    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
+    
+    const rows = await db.getAllAsync<QuestionType>(
+      `
+      SELECT * FROM question 
+      ORDER BY datetime(created_at) ASC 
+      LIMIT ?;
+      `,
+      [limit]
+    );
+    
+    return rows;
+  } catch (error) {
+    console.error("Error retrieving latest questions:", error);
     throw error;
   }
 };

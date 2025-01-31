@@ -4,7 +4,7 @@ const tintColorDark = "#fff";
 export const Colors = {
   light: {
     text: "#000000",
-    background: "#ecf0f1",
+    background: "#e8f5e9",
     tint: tintColorLight,
     tabIconDefault: "#ccc",
     tabIconSelected: tintColorLight,
@@ -20,6 +20,7 @@ export const Colors = {
     newsMenuFixieren: "#388e3c",
     newsMenuBearbeiten: "#2563EB",
     newsMenuLoeschen: "#DC2626",
+    // hellgrün: #2ea853
 
     white: "#FFFFFF",
     indexCategoryTextBorder: "#808080",
@@ -107,5 +108,6 @@ export const Colors = {
     introductionBackground: "#4fa1b8",
     indexItemBackgroundColor: "#4fa1b8",
     error: "#DC2626",
+    QuestionLinksIconContainer: "#057958"
   },
 };
