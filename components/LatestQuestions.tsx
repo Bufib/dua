@@ -3,36 +3,42 @@ import { View, Text, StyleSheet, Pressable, FlatList } from "react-native";
 import { router } from "expo-router";
 import { getLatestQuestions } from "@/utils/initializeDatabase";
 import { QuestionType } from "@/utils/types";
-
-// Define props interface for QuestionItem
-interface QuestionItemProps {
-  item: QuestionType;
-  onPress: () => void;
-}
-
-const QuestionItem: React.FC<QuestionItemProps> = ({ item, onPress }) => (
-  <Pressable
-    onPress={onPress}
-    style={({ pressed }) => [styles.questionItem, pressed && styles.pressed]}
-  >
-    <View style={styles.questionContent}>
-      <Text style={styles.questionTitle} numberOfLines={2}>
-        {item.title}
-      </Text>
-      <Text style={styles.questionPreview} numberOfLines={2}>
-        {item.question}
-      </Text>
-      <View style={styles.categoryContainer}>
-        <Text style={styles.categoryText}>
-          {item.category_name} • {item.subcategory_name}
-        </Text>
-      </View>
-    </View>
-  </Pressable>
-);
+import { coustomTheme } from "@/utils/coustomTheme";
+import { ThemedText } from "./ThemedText";
+import { ThemedView } from "./ThemedView";
 
 const LatestQuestions: React.FC = () => {
   const [latestQuestions, setLatestQuestions] = useState<QuestionType[]>([]);
+  // themeStyles is in scope here
+  const themeStyles = coustomTheme();
+
+  // 1) Move QuestionItem here:
+  const QuestionItem = ({ item, onPress }: { item: QuestionType; onPress: () => void }) => {
+    return (
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.questionItem,
+          pressed && styles.pressed,
+          themeStyles.contrast, // now it's in scope
+        ]}
+      >
+        <View style={styles.questionContent}>
+          <ThemedText style={styles.questionTitle} numberOfLines={2}>
+            {item.title}
+          </ThemedText>
+          <ThemedText style={styles.questionPreview} numberOfLines={2}>
+            {item.question}
+          </ThemedText>
+          <View style={styles.categoryContainer}>
+            <ThemedText style={styles.categoryText}>
+              {item.category_name} {">"} {item.subcategory_name}
+            </ThemedText>
+          </View>
+        </View>
+      </Pressable>
+    );
+  };
 
   useEffect(() => {
     const loadLatestQuestions = async () => {
@@ -71,7 +77,7 @@ const LatestQuestions: React.FC = () => {
       renderItem={renderItem}
       style={styles.list}
       contentContainerStyle={styles.listContent}
-      showsVerticalScrollIndicator
+      showsVerticalScrollIndicator={false}
     />
   );
 };
@@ -85,11 +91,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   questionItem: {
-    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: "#e1e1e1",
   },
   pressed: {
     opacity: 0.7,
@@ -103,7 +107,6 @@ const styles = StyleSheet.create({
   },
   questionPreview: {
     fontSize: 14,
-    color: "#666",
   },
   categoryContainer: {
     marginTop: 4,

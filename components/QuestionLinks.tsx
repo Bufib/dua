@@ -5,6 +5,7 @@ import {
   useWindowDimensions,
   ScrollView,
   FlatList,
+  Button,
 } from "react-native";
 import { ThemedView } from "./ThemedView";
 import { Link, router } from "expo-router";
@@ -21,6 +22,8 @@ import { getLatestQuestions } from "@/utils/initializeDatabase";
 import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LatestQuestions from "./LatestQuestions";
+import RenderSearch from "./RenderSearch";
+import { TextInput } from "react-native";
 
 export default function QuestionLinks() {
   const themeStyles = coustomTheme();
@@ -71,9 +74,18 @@ export default function QuestionLinks() {
     >
       <View style={styles.headerContainer}>
         <Image
-          source={require("@/assets/images/newLogo.png")}
+          source={require("@/assets/images/icon.png")}
           style={[styles.imageHeader, { width: imageSize }]}
           contentFit="contain"
+        />
+      </View>
+
+      <View style={[styles.searchContainer, themeStyles.contrast]}>
+        <TextInput
+          placeholder="Suche nach Fragen..."
+          editable={false} // Prevents keyboard from opening
+          style={styles.searchInput}
+          onPress={() => router.push("/(search)")}
         />
       </View>
 
@@ -108,11 +120,11 @@ export default function QuestionLinks() {
                   width: elementSize,
                   height: elementSize,
                 },
-                index === 6 && styles.askQuestionElement,
                 index === 6 && {
                   width: elementSize * 2.1,
                   height: elementSize / 2,
                 },
+                themeStyles.contrast,
               ]}
             >
               <View style={styles.buttonContentContainerNormal}>
@@ -129,9 +141,11 @@ export default function QuestionLinks() {
                   />
                 </View>
                 <View style={styles.elementTextContainer}>
-                  <Text style={[styles.elementText, { fontSize: fontSize }]}>
+                  <ThemedText
+                    style={[styles.elementText, { fontSize: fontSize }]}
+                  >
                     {category.name}
-                  </Text>
+                  </ThemedText>
                 </View>
               </View>
             </Pressable>
@@ -162,6 +176,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 16,
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+  },
   bodyContainer: {
     flexDirection: "column",
   },
@@ -179,11 +205,8 @@ const styles = StyleSheet.create({
     gap: 20,
     paddingRight: 20,
     paddingLeft: 20,
-
   },
-  flatListStyles: {
- 
-  },
+  flatListStyles: {},
 
   element: {
     flexDirection: "column",
@@ -191,7 +214,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 10,
     borderWidth: 1,
-    backgroundColor: "#fff",
   },
 
   buttonContentContainerNormal: {

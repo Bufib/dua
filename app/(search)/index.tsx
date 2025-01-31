@@ -5,11 +5,7 @@ import { Stack } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const search = () => {
-  return (
-    <View style={styles.container}>
-      <RenderSearch />
-    </View>
-  );
+  return <RenderSearch />;
 };
 
 export default search;

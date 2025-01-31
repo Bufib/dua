@@ -28,3 +28,11 @@ export type CaptchaEvent = {
     data: string;
   };
 };
+
+type SearchResults = {
+  id: number;
+  category_name: string;
+  subcategory_name: string;
+  question: string;
+  title: string;
+};

@@ -80,10 +80,13 @@ import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useAuthStore } from "@/stores/authStore";
+import { router } from "expo-router";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { isLoggedIn } = useAuthStore();
 
   return (
     <Tabs
@@ -116,26 +119,31 @@ export default function TabLayout() {
 
       {/** This is the middle “Add” button. */}
       <Tabs.Screen
-        name="user" // the route for "Add" screen / modal
+        name="user"
         options={{
-          title: "", // you can hide the title
+          title: "",
           tabBarLabel: () => null,
-          tabBarIcon: () => null, // we’ll render our own icon
+          tabBarIcon: () => null,
           tabBarButton: (props) => {
             return (
               <Pressable
                 {...props}
                 onPress={() => {
-                  // This is where you open your Add screen/modal, e.g.:
-                  // router.push("/some-route");
-                  // or
-                  // router.push("/modal/add-something");
+                  if (isLoggedIn) {
+                    router.push("/(tabs)/user/");
+                  } else {
+                    router.push("/(auth)/login");
+                  }
                 }}
                 style={styles.floatingButtonContainer}
               >
                 {/* Add the icon or the symbol you want here */}
                 <View style={styles.floatingButton}>
-                  <IconSymbol size={28} name="questionmark" color="white" />
+                  <MaterialCommunityIcons
+                    name="account-question-outline"
+                    size={24}
+                    color="#fff"
+                  />
                 </View>
               </Pressable>
             );
@@ -171,6 +179,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     left: "50%",
+    // This shifts the element 30 pixels to the left. Since we set `left: "50%"`,
+    // the element's left edge is positioned in the middle of the screen, not its center.
+    // Translating by -30px (half of 60px width) ensures the element's center
+    // lines up exactly with the screen's center.
+
     transform: [{ translateX: -30 }],
     justifyContent: "center",
     alignItems: "center",

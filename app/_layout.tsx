@@ -102,7 +102,7 @@ export default function RootLayout() {
               <Stack.Screen name="index" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-              <Stack.Screen name="(user)" options={{ headerShown: false }} />
+              <Stack.Screen name="(search)" options={{ headerShown: true, headerBackTitle: "Zurück", headerTitle: "Suche"}} />
               <Stack.Screen
                 name="(question)"
                 options={{ headerShown: false }}
