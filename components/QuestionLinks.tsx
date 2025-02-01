@@ -155,7 +155,7 @@ export default function QuestionLinks() {
               { fontSize: fontSize * 2, fontWeight: "500", lineHeight: 32 },
             ]}
           >
-            Neuesten Fragen
+            Neue Fragen
           </ThemedText>
           <Ionicons
             name="chevron-down"

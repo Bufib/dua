@@ -10,7 +10,7 @@ type NotificationState = {
 const useNotificationStore = create<NotificationState>()(
   persist(
     (set, get) => ({
-      getNotifications: false,
+      getNotifications: true,
       toggleGetNotifications: () =>
         set({ getNotifications: !get().getNotifications }),
     }),

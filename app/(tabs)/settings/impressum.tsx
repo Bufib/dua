@@ -12,9 +12,7 @@ export default function impressum() {
  # **Impressum** 
 
  **Angaben gemäß § 5 TMG:**
-
  Bund für islamische Bildung e. V.
-
  Füssener Str. 15
  12309 Berlin
  
@@ -37,7 +35,8 @@ export default function impressum() {
 
  27/657/53847
 
-# **Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:**
+# **Verantwortlich für den Inhalt**
+# **nach § 55 Abs. 2 RStV:**
 
  Bund für islamische Bildung e.V.  `;
 
@@ -113,7 +112,7 @@ const styles = StyleSheet.create({
     marginTop: 15,
     marginBottom: 25,
     backgroundColor: "transparent",
-    paddingHorizontal: 10
+    paddingHorizontal: 10,
   },
   darkScrollView: {
     backgroundColor: Colors.dark.background,
@@ -128,4 +127,3 @@ const styles = StyleSheet.create({
     color: Colors.light.text,
   },
 });
-

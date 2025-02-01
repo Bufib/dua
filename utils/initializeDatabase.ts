@@ -447,7 +447,7 @@ export const searchQuestions = async (
   }
 };
 
-export const getLatestQuestions = async (limit: number = 5): Promise<QuestionType[]> => {
+export const getLatestQuestions = async (limit: number = 10): Promise<QuestionType[]> => {
   try {
     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
     

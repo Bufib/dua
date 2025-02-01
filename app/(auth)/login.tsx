@@ -148,7 +148,7 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={[styles.contentContainer, themeStyles.contrast]}>
           <ThemedText style={styles.title} type="title">
-            Login
+          Benutzeranmeldung
           </ThemedText>
 
           {/* EMAIL FIELD */}
@@ -317,7 +317,6 @@ const styles = StyleSheet.create({
     borderRadius: 7,
   },
   buttonText: {
-    color: "#fff",
     fontSize: 18,
     padding: 10,
     textAlign: "center",

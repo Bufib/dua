@@ -2,18 +2,20 @@ import { Link, router } from "expo-router";
 import { StyleSheet, Text, View, Platform, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Image } from "expo-image";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
 
 export default function Modal() {
   const isPresented = router.canGoBack();
 
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       {!isPresented && <Link href="../">Dismiss modal</Link>}
       {/* Ios makes statusbar (time and wifi) dark on default so we need to adapt  */}
       <StatusBar style={Platform.OS === "ios" ? "light" : "auto"} />
       <ScrollView style={styles.scrollView}>
         <View style={styles.aboutContainer}>
-          <Text style={styles.aboutText}>
+          <ThemedText style={styles.aboutText}>
             Islam-Fragen ist die erste deutschsprachige Anwendung, in der eine
             Vielzahl der häufig gestellten islamischen Fragen in den
             verschiedensten Wissensgebieten nach schiitischer Ansicht
@@ -42,7 +44,7 @@ export default function Modal() {
             {"\n"}
             {"\n"}
             Möge Allah, der Erhabene, diese bescheidenen Anstrengungen annehmen.
-          </Text>
+          </ThemedText>
           <View style={styles.imageContainer}>
             <Image
               source={require("@/assets/images/bufibLogo.png")}
@@ -52,7 +54,7 @@ export default function Modal() {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </ThemedView>
   );
 }
 
