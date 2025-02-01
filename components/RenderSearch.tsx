@@ -189,7 +189,6 @@ const styles = StyleSheet.create({
   searchBarInput: {
     flex: 1,
     fontSize: 16,
-    borderWidth: 0.3,
   },
   xButton: {
     paddingLeft: 10,

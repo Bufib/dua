@@ -22,6 +22,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
+        headerTintColor: "#000",
       }}
     >
       <Tabs.Screen

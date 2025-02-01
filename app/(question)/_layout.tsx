@@ -22,6 +22,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack
         screenOptions={{
+         headerTintColor: "#000",
           headerTitle: (props) => (
             <ThemedView
               style={{
@@ -43,7 +44,7 @@ export default function RootLayout() {
       >
         <Stack.Screen
           name="index"
-          options={{ headerShown: true, headerTintColor: "#057958" }}
+          options={{ headerShown: true, }}
         />
       </Stack>
     </ThemeProvider>

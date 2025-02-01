@@ -5,19 +5,17 @@ import { router } from "expo-router";
 
 export default function RootLayout() {
   return (
-    <Stack>
+    <Stack screenOptions={{headerTintColor: "#000"}}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen
         name="category"
         options={{
-          headerShown: true,
-          headerTintColor: "#057958",
+
           headerLeft: () => {
             return (
               <Ionicons
                 name="chevron-back-outline"
                 size={30}
-                          color="#057958"
                 style={{ marginLeft: -16 }}
                 onPress={() => router.back()}
               />
@@ -25,7 +23,10 @@ export default function RootLayout() {
           },
         }}
       />
-      <Stack.Screen name="subcategory" options={{ headerShown: true , headerTintColor: "#057958",}} />
+      <Stack.Screen
+        name="subcategory"
+        options={{ headerShown: true }}
+      />
     </Stack>
   );
 }

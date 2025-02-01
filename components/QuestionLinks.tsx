@@ -83,15 +83,17 @@ export default function QuestionLinks() {
         />
       </View>
 
-      <View style={[styles.searchContainer, themeStyles.contrast]}>
+      <Pressable
+        style={[styles.searchContainer, themeStyles.contrast]}
+        onPress={() => router.push("/(search)")}
+      >
         <TextInput
           placeholder="Suche nach Fragen..."
           editable={false} // Prevents keyboard from opening
           style={styles.searchInput}
           placeholderTextColor={"gray"}
-          onPress={() => router.push("/(search)")}
         />
-      </View>
+      </Pressable>
 
       <View style={styles.bodyContainer}>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
@@ -107,7 +109,11 @@ export default function QuestionLinks() {
           >
             Kategorien
           </ThemedText>
-          <Ionicons name="chevron-forward" size={25} color="#057958" style={{paddingRight: 15}} />
+          <Ionicons
+            name="chevron-forward"
+            size={25}
+            style={{ paddingRight: 15 }}
+          />
         </View>
 
         <FlatList
@@ -136,23 +142,26 @@ export default function QuestionLinks() {
                 },
                 pressedIndex === index
                   ? {
-                      // Shadow when pressed
                       shadowColor: "#000",
-                      shadowOffset: { width: 0, height: 4 }, // More pronounced shadow
-                      shadowOpacity: 0.3,
-                      shadowRadius: 6,
-                      elevation: 8,
+                      shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
+                      shadowOpacity: 0.2,
+                      shadowRadius: 3,
+
+                      // Android Shadow
+                      elevation: 5, // Adjust for stronger or softer shadow
                       backgroundColor:
-                        colorScheme === "dark" ? "#242c40" : "#e8f5e9",
+                        colorScheme === "dark" ? "#242c40" : "#E8E8E8",
                       top: 2,
                     }
                   : {
                       // Default shadow
+                      // iOS Shadow
                       shadowColor: "#000",
-                      shadowOffset: { width: 0, height: 2 },
+                      shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
                       shadowOpacity: 0.2,
                       shadowRadius: 4,
-                      elevation: 5,
+                      // Android Shadow
+                      elevation: 5, // Adjust for stronger or softer shadow
                       backgroundColor:
                         colorScheme === "dark" ? "#34495e" : "#fff",
                     },
@@ -195,7 +204,11 @@ export default function QuestionLinks() {
           >
             Aktuelle Fragen
           </ThemedText>
-          <Ionicons name="chevron-down" size={25} color="#057958" style={{paddingRight: 15}} />
+          <Ionicons
+            name="chevron-down"
+            size={25}
+            style={{ paddingRight: 15 }}
+          />
         </View>
         <LatestQuestions />
       </View>
@@ -213,12 +226,12 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
-    marginHorizontal: 16,
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderWidth: 0.3,
+    marginHorizontal: 15,
+    borderRadius: 10,
+    height: 40,
+    paddingHorizontal: 10,
   },
   searchInput: {
     flex: 1,

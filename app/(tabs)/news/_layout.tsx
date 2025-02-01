@@ -18,7 +18,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <MenuProvider>
-        <Stack>
+        <Stack screenOptions={{headerTintColor: "#000"}}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="addNews" options={{ headerShown: false }} />
         </Stack>
