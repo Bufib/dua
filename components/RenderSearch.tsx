@@ -120,7 +120,7 @@ const RenderSearch = () => {
               style={[styles.searchBarInput, themeStyles.text]}
               onChangeText={handleSearchTextChange}
               value={searchText}
-              placeholder="Suche nach Fragen..."
+              placeholder="Suche nach einer Frage"
               keyboardType="default"
               ref={searchRef}
               placeholderTextColor={"gray"}

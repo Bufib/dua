@@ -20,7 +20,7 @@ export const Colors = {
     newsMenuFixieren: "#388e3c",
     newsMenuBearbeiten: "#2563EB",
     newsMenuLoeschen: "#DC2626",
-
+    placeholder: "#495057",
     white: "#FFFFFF",
     indexCategoryTextBorder: "#808080",
     black: "#000000",
@@ -63,7 +63,7 @@ export const Colors = {
     newsMenuFixieren: "#4caf50",
     newsMenuBearbeiten: "#60A5FA",
     newsMenuLoeschen: "#EF4444",
-
+    placeholder: "#d0d0c0",
     white: "#FFFFFF",
     indexCategoryTextBorder: "#808080",
     black: "#000000",
@@ -90,6 +90,9 @@ export const Colors = {
     pickerContainerBorder: "#FFFFFF",
   },
   universal: {
+    primary: "#057958",
+    secondar: "#2ea853",
+    third: "#fbf9f1",
     white: "#ffffff",
     black: "#000000",
     link: "rgb(10, 132, 255)",
@@ -108,6 +111,7 @@ export const Colors = {
     indexItemBackgroundColor: "#4fa1b8",
     error: "#DC2626",
     QuestionLinksIconContainer: "#057958",
+
   },
 };
 

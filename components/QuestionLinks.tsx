@@ -1,70 +1,32 @@
 import React, { useState } from "react";
-import {
-  View,
-  StyleSheet,
-  useWindowDimensions,
-  ScrollView,
-  FlatList,
-  Button,
-} from "react-native";
-import { ThemedView } from "./ThemedView";
-import { Link, router } from "expo-router";
+import { View, StyleSheet, useWindowDimensions, FlatList } from "react-native";
+import { router } from "expo-router";
 import { Pressable } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import { coustomTheme } from "../utils/coustomTheme";
-import { Text } from "react-native";
-import { Colors } from "@/constants/Colors";
-import { useAuthStore } from "@/stores/authStore";
-import { ThemedText } from "./ThemedText";
-import { QuestionType } from "@/utils/types";
-import { getLatestQuestions } from "@/utils/initializeDatabase";
-import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LatestQuestions from "./LatestQuestions";
-import RenderSearch from "./RenderSearch";
 import { TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { ThemedText } from "./ThemedText";
+import { categories } from "@/utils/categories";
+import { Colors } from "@/constants/Colors";
 
 export default function QuestionLinks() {
   const themeStyles = coustomTheme();
   const { width } = useWindowDimensions();
 
   // Dynamically calculate the size of each element based on screen width
-  const elementSize = width > 400 ? 120 : 100; // Element
+  const elementSize = width > 400 ? 120 : 100; // Size of each small square
   const fontSize = width > 400 ? 12 : 10; // Font of element text
   const iconSize = width > 400 ? 60 : 40; // Icon in element
   const imageSize = width > 400 ? 300 : 200; // Header image
-  const gap = width > 400 ? 30 : 10; // Header image
+  const gap = width > 400 ? 30 : 10; // Header image gap
+
+  // For square to change color on pressed
   const [pressedIndex, setPressedIndex] = useState<number | null>(null);
   const colorScheme = useColorScheme();
-
-  const categories = [
-    {
-      name: "Rechtsfragen",
-      image: require("@/assets/images/rechtsfragen.png"),
-    },
-    {
-      name: "Quran",
-      image: require("@/assets/images/quran.png"),
-    },
-    {
-      name: "Geschichte",
-      image: require("@/assets/images/geschichte.png"),
-    },
-    {
-      name: "Glaubensfragen",
-      image: require("@/assets/images/glaubensfragen.png"),
-    },
-    {
-      name: "Ethik",
-      image: require("@/assets/images/ethik.png"),
-    },
-    {
-      name: "Ratschläge",
-      image: require("@/assets/images/ratschlaege.png"),
-    },
-  ];
 
   return (
     <SafeAreaView
@@ -90,23 +52,23 @@ export default function QuestionLinks() {
       >
         <View style={styles.searchInputContainer}>
           <TextInput
-            placeholder="Suche nach Fragen..."
+            placeholder="Suche nach einer Frage"
             editable={false}
-            style={[styles.searchInput, { flex: 1 }]} // Add flex: 1 to take full width
-            placeholderTextColor={"gray"}
+            style={styles.searchInput}
+            placeholderTextColor={themeStyles.placeholder.color}
             pointerEvents="none" // This ensures the parent Pressable handles the touch
           />
           <Ionicons
             name="search"
             size={20}
-            color="gray"
+            color={themeStyles.placeholder.color}
             style={{ marginLeft: 8 }}
           />
         </View>
       </Pressable>
 
       <View style={styles.bodyContainer}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View style={styles.categoryContainer}>
           <ThemedText
             style={[
               styles.bodyContainerText,
@@ -151,34 +113,13 @@ export default function QuestionLinks() {
                   width: elementSize,
                   height: elementSize,
                 },
-                pressedIndex === index
-                  ? {
-                      shadowColor: "#000",
-                      shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
-                      shadowOpacity: 0.2,
-                      shadowRadius: 3,
-
-                      // Android Shadow
-                      elevation: 5, // Adjust for stronger or softer shadow
-                      backgroundColor:
-                        colorScheme === "dark" ? "#242c40" : "#E8E8E8",
-                      top: 2,
-                    }
-                  : {
-                      // iOS Shadow
-                      shadowColor: "#000",
-                      shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
-                      shadowOpacity: 0.2,
-                      shadowRadius: 4,
-                      // Android Shadow
-                      elevation: 5, // Adjust for stronger or softer shadow
-                      backgroundColor:
-                        colorScheme === "dark" ? "#34495e" : "#fff",
-                    },
-                // themeStyles.contrast,
+                pressedIndex === index && styles.categoryPressed, // Change shadow and position on button press
+                {
+                  backgroundColor: colorScheme === "dark" ? "#34495e" : "#fff",
+                },
               ]}
             >
-              <View style={styles.buttonContentContainerNormal}>
+              <View style={styles.categoryButtonContainer}>
                 <View
                   style={[
                     styles.iconContainer,
@@ -205,14 +146,14 @@ export default function QuestionLinks() {
       </View>
 
       <View style={styles.footerContainer}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View style={styles.footerHeaderContainer}>
           <ThemedText
             style={[
-              styles.footerContainerHeaderText,
+              styles.footerHeaderContainerText,
               { fontSize: fontSize * 2, fontWeight: "500", lineHeight: 32 },
             ]}
           >
-            Aktuelle Fragen
+            Neuesten Fragen
           </ThemedText>
           <Ionicons
             name="chevron-down"
@@ -251,12 +192,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   searchInput: {
+    flex: 1,
     fontSize: 16,
-    height: "100%", // This ensures the TextInput takes full height
+    height: "100%", 
   },
   bodyContainer: {
     flexDirection: "column",
   },
+  categoryContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
   bodyContainerText: {
     fontWeight: "500",
     marginHorizontal: 20,
@@ -280,24 +227,38 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 7,
+
+    // iOS Shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+
+    // Android Shadow
+    elevation: 5,
   },
 
-  buttonContentContainerNormal: {
+  categoryPressed: {
+    top: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+
+    // Android Shadow
+    elevation: 5,
+  },
+  categoryButtonContainer: {
     gap: 10,
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  buttonContentContainerAskQuestion: {
-    flexDirection: "row",
-    alignItems: "center",
   },
 
   iconContainer: {
     borderRadius: 90,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#057958",
+    backgroundColor: Colors.universal.primary,
   },
   elementTextContainer: {},
 
@@ -313,7 +274,11 @@ const styles = StyleSheet.create({
   footerContainer: {
     flex: 1,
   },
-  footerContainerHeaderText: {
+  footerHeaderContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  footerHeaderContainerText: {
     fontWeight: "500",
     marginLeft: 20,
   },

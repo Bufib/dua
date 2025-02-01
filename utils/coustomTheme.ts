@@ -31,6 +31,9 @@ export const lightTheme = {
   borderColor: {
     borderColor: Colors.light.borderColor,
   },
+  placeholder: {
+    color: Colors.light.placeholder
+  }
 };
 
 export const darkTheme = {
@@ -63,6 +66,9 @@ export const darkTheme = {
   borderColor: {
     borderColor: Colors.dark.borderColor,
   },
+  placeholder: {
+    color: Colors.dark.placeholder
+  }
 };
 
 export const coustomTheme = () => {
