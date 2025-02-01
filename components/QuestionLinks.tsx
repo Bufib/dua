@@ -18,11 +18,11 @@ export default function QuestionLinks() {
   const { width } = useWindowDimensions();
 
   // Dynamically calculate the size of each element based on screen width
-  const elementSize = width > 400 ? 120 : 100; // Size of each small square
-  const fontSize = width > 400 ? 12 : 10; // Font of element text
-  const iconSize = width > 400 ? 60 : 40; // Icon in element
-  const imageSize = width > 400 ? 300 : 200; // Header image
-  const gap = width > 400 ? 30 : 10; // Header image gap
+  const elementSize = width > 375 ? 120 : 100; // Size of each small square
+  const fontSize = width > 375 ? 12 : 10; // Font of element text
+  const iconSize = width > 375 ? 60 : 40; // Icon in element
+  const imageSize = width > 375 ? 300 : 200; // Header image
+  const gap = width > 375 ? 30 : 20; // Header image gap
 
   // For square to change color on pressed
   const [pressedIndex, setPressedIndex] = useState<number | null>(null);
