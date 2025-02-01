@@ -86,13 +86,23 @@ export default function QuestionLinks() {
       <Pressable
         style={[styles.searchContainer, themeStyles.contrast]}
         onPress={() => router.push("/(search)")}
+        android_ripple={{ color: "rgba(0, 0, 0, 0.1)" }} // Add ripple effect for better feedback
       >
-        <TextInput
-          placeholder="Suche nach Fragen..."
-          editable={false} // Prevents keyboard from opening
-          style={styles.searchInput}
-          placeholderTextColor={"gray"}
-        />
+        <View style={styles.searchInputContainer}>
+          <TextInput
+            placeholder="Suche nach Fragen..."
+            editable={false}
+            style={[styles.searchInput, { flex: 1 }]} // Add flex: 1 to take full width
+            placeholderTextColor={"gray"}
+            pointerEvents="none" // This ensures the parent Pressable handles the touch
+          />
+          <Ionicons
+            name="search"
+            size={20}
+            color="gray"
+            style={{ marginLeft: 8 }}
+          />
+        </View>
       </Pressable>
 
       <View style={styles.bodyContainer}>
@@ -154,7 +164,6 @@ export default function QuestionLinks() {
                       top: 2,
                     }
                   : {
-                      // Default shadow
                       // iOS Shadow
                       shadowColor: "#000",
                       shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
@@ -225,17 +234,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   searchContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginHorizontal: 15,
     borderRadius: 10,
     height: 40,
     paddingHorizontal: 10,
+    borderWidth: 0.2,
+  },
+  searchInputContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   searchInput: {
-    flex: 1,
     fontSize: 16,
+    height: '100%', // This ensures the TextInput takes full height
   },
   bodyContainer: {
     flexDirection: "column",

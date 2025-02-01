@@ -4,7 +4,7 @@ const tintColorDark = "#fff";
 export const Colors = {
   light: {
     text: "#000000",
-    background: "#e8f5e9",
+    background: "#fbf9f1",
     tint: tintColorLight,
     tabIconDefault: "#ccc",
     tabIconSelected: tintColorLight,
@@ -115,5 +115,5 @@ export const Colors = {
  // hellgrün: #2ea853
  // dunkelgrün  "#057958"
  // background: "#e8f5e9",
-
+// alternative beige: fbf9f1
  // alternative  background: "#F7FDF8",

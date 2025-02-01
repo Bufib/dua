@@ -143,7 +143,7 @@ export default function SignUpScreen() {
           setShowVerificationModal(false);
           Toast.show({
             type: "success",
-            text1: "Registrieren Erfolgreich!",
+            text1: "Registrierung erfolgreich!",
             topOffset: 60,
           });
           router.replace("/login");
@@ -563,10 +563,10 @@ export default function SignUpScreen() {
         <View style={styles.modalOverlay}>
           <View style={[styles.modalContent, themeStyles.contrast]}>
             <ThemedText style={styles.modalTitle}>
-              E-Mail Verifikation
+              E-Mail-Verifizierung
             </ThemedText>
             <ThemedText style={styles.modalSubtitle}>
-              Bitte gebe den Code ein, welcher an {currentEmail} gesendet wurde.
+              Bitte gib den Code ein, der an {currentEmail} gesendet wurde.
             </ThemedText>
             <TextInput
               style={[styles.input, themeStyles.text]}

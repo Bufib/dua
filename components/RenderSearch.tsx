@@ -185,6 +185,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 40,
     paddingHorizontal: 10,
+    borderWidth: 0.2,
+
   },
   searchBarInput: {
     flex: 1,

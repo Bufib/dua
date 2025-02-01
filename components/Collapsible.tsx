@@ -51,7 +51,22 @@ export function Collapsible({
         </ThemedText>
       </TouchableOpacity>
       {isOpen && (
-        <ThemedView style={[styles.content, themeStyles.contrast]}>
+        <ThemedView
+          style={[
+            styles.content,
+            themeStyles.contrast,
+            {
+              // iOS Shadow
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
+              shadowOpacity: 0.2,
+              shadowRadius: 4,
+              // Android Shadow
+              elevation: 5, // Adjust for stronger or softer shadow
+              backgroundColor: colorScheme === "dark" ? "#34495e" : "#fff",
+            },
+          ]}
+        >
           {children}
         </ThemedView>
       )}
@@ -69,9 +84,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginHorizontal: 5,
     padding: 12,
-    borderTopWidth: 2,
-    borderBottomRightRadius: 8,
-    borderBottomLeftRadius: 8,
+    borderRadius: 7
   },
   image: {
     width: 80,
