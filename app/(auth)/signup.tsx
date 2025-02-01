@@ -580,17 +580,29 @@ export default function SignUpScreen() {
               <ActivityIndicator style={styles.modalButton} />
             ) : (
               <View style={styles.modalButtonsContainer}>
-                <Pressable onPress={handleVerification}>
-                  <Text>Verifizieren</Text>
+                <Pressable
+                  style={styles.verifyButton}
+                  onPress={handleVerification}
+                >
+                  <Text style={styles.verifiyText}>Verifizieren</Text>
                 </Pressable>
                 <View style={styles.buttonSpacer} />
-                <Pressable onPress={() => setShowVerificationModal(false)}>
-                  <Text>Abbrechen</Text>
+                <Pressable
+                  onPress={() => setShowVerificationModal(false)}
+                  style={[
+                    styles.verifyButton,
+                    { backgroundColor: "gray" },
+                  ]}
+                >
+                  <Text style={styles.verifiyText}>Abbrechen</Text>
                 </Pressable>
 
                 <View style={styles.buttonSpacer} />
-                <Pressable onPress={resendVerificationCode}>
-                  <Text>Code erneut senden </Text>
+                <Pressable
+                  onPress={resendVerificationCode}
+                  style={styles.resendButton}
+                >
+                  <Text style={styles.resendText}>Code erneut senden </Text>
                 </Pressable>
               </View>
             )}
@@ -698,9 +710,27 @@ const styles = StyleSheet.create({
   },
   modalButtonsContainer: {
     flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
     marginTop: 16,
+    gap: 5,
+  },
+  verifyButton: {
+    width: "100%",
+    backgroundColor: "#057958",
+    alignSelf: "center",
+    justifyContent: "center",
+    borderRadius: 7,
+  },
+  verifiyText: {
+    color: "#fff",
+    fontSize: 18,
+    padding: 10,
+    textAlign: "center",
+  },
+  resendButton: {
+    alignSelf: "flex-end",
+  },
+  resendText: {
+    textDecorationLine: "underline",
   },
   buttonSpacer: {
     width: 16,

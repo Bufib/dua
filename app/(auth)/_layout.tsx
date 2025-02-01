@@ -29,6 +29,7 @@ export default function RootLayout() {
                   size={30}
                   style={{ marginLeft: -16 }}
                   onPress={() => router.back()}
+                  color={colorScheme === "dark" ? "#d0d0c0" : "#000"}
                 />
               );
             },
@@ -47,6 +48,7 @@ export default function RootLayout() {
                   size={30}
                   style={{ marginLeft: -16 }}
                   onPress={() => router.back()}
+                  color={colorScheme === "dark" ? "#d0d0c0" : "#000"}
                 />
               );
             },
@@ -65,6 +67,7 @@ export default function RootLayout() {
                   size={30}
                   style={{ marginLeft: -16 }}
                   onPress={() => router.back()}
+                  color={colorScheme === "dark" ? "#d0d0c0" : "#000"}
                 />
               );
             },
@@ -83,6 +86,7 @@ export default function RootLayout() {
                   size={30}
                   style={{ marginLeft: -16 }}
                   onPress={() => router.back()}
+                  color={colorScheme === "dark" ? "#d0d0c0" : "#000"}
                 />
               );
             },

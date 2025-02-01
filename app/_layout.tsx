@@ -115,7 +115,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <SupabaseRealtimeProvider>
           <SQLiteProvider databaseName="islam-fragen.db">
-            <Stack screenOptions={{headerTintColor: colorScheme === "dark" ? "#fff" : "#000"}}>
+            <Stack screenOptions={{headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000"}}>
               <Stack.Screen name="index" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />

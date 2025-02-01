@@ -21,7 +21,6 @@ export default function RootLayout() {
           options={{
             headerShown: true,
             headerTitle: "Deine Fragen",
-            headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000",
             
             headerLeft: () => {
               return (

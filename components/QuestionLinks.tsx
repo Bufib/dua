@@ -123,6 +123,7 @@ export default function QuestionLinks() {
             name="chevron-forward"
             size={25}
             style={{ paddingRight: 15 }}
+            color={colorScheme === "dark" ? "#d0d0c0" : "#000"}
           />
         </View>
 
@@ -217,6 +218,7 @@ export default function QuestionLinks() {
             name="chevron-down"
             size={25}
             style={{ paddingRight: 15 }}
+            color={colorScheme === "dark" ? "#d0d0c0" : "#000"}
           />
         </View>
         <LatestQuestions />
@@ -234,9 +236,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   searchContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginHorizontal: 15,
     borderRadius: 10,
     height: 40,
@@ -245,12 +247,12 @@ const styles = StyleSheet.create({
   },
   searchInputContainer: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   searchInput: {
     fontSize: 16,
-    height: '100%', // This ensures the TextInput takes full height
+    height: "100%", // This ensures the TextInput takes full height
   },
   bodyContainer: {
     flexDirection: "column",
