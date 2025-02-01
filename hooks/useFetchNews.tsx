@@ -53,7 +53,12 @@ export const useFetchNews = () => {
     },
     initialPageParam: 0,
     getNextPageParam: (lastPage, allPages) => {
-      return lastPage.length === PAGE_SIZE ? allPages.length : undefined;
+      // If the last page is empty or less than PAGE_SIZE, there are no more pages.
+      if (!lastPage || lastPage.length === 0 || lastPage.length < PAGE_SIZE) {
+        return undefined;
+      }
+      // Otherwise, use the current number of pages as the next page parameter.
+      return allPages.length;
     },
     maxPages: 4,
     staleTime: 86400 * 1000, // 24 hours

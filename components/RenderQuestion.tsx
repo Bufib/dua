@@ -297,7 +297,6 @@ const styles = StyleSheet.create({
   answerText: {},
   textIconContainer: {
     flexDirection: "column",
-    gap: 10,
   },
   hasCopiedContainer: {
     flexDirection: "row",

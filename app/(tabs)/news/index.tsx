@@ -21,6 +21,7 @@ import NoInternet from "@/components/NoInternet";
 import { FlashList } from "@shopify/flash-list";
 import { NewsItemType } from "@/hooks/useFetchNews";
 import { useSupabaseRealtime } from "@/components/SupabaseRealtimeProvider";
+import { Colors } from "@/constants/Colors";
 export default function NewsFeed() {
   const {
     allNews: news,
@@ -57,7 +58,7 @@ export default function NewsFeed() {
           />
         ) : (
           <Pressable onPress={() => fetchNextPage()}>
-            <Text>Mehr laden</Text>
+            <ThemedText style={styles.loadMoreText}>Mehr laden</ThemedText>
           </Pressable>
         )}
       </ThemedView>
@@ -194,7 +195,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   loadMoreContainer: {
-    alignItems: "center",
+    alignItems: "flex-end",
+  },
+  loadMoreText: {
+    fontWeight: "700",
+    color: Colors.universal.primary
   },
   footerComponent: {},
 });
