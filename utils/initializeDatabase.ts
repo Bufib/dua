@@ -3,8 +3,7 @@ import { supabase } from "@/utils/supabase";
 import Storage from "expo-sqlite/kv-store";
 import { router } from "expo-router";
 import { questionsDatabaseUpate } from "@/constants/messages";
-import { QuestionType } from "./types";
-
+import { QuestionType, SearchResults } from "./types";
 
 export const initializeDatabase = async () => {
   // Check if version in Storage is up to date
@@ -412,15 +411,7 @@ export const getQuestionInternalURL = async (
 
 export const searchQuestions = async (
   searchTerm: string
-): Promise<
-  {
-    id: number;
-    category_name: string;
-    subcategory_name: string;
-    question: string;
-    title: string;
-  }[]
-> => {
+): Promise<SearchResults[]> => {
   try {
     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
 
@@ -447,10 +438,12 @@ export const searchQuestions = async (
   }
 };
 
-export const getLatestQuestions = async (limit: number = 10): Promise<QuestionType[]> => {
+export const getLatestQuestions = async (
+  limit: number = 10
+): Promise<QuestionType[]> => {
   try {
     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-    
+
     const rows = await db.getAllAsync<QuestionType>(
       `
       SELECT * FROM question 
@@ -459,7 +452,7 @@ export const getLatestQuestions = async (limit: number = 10): Promise<QuestionTy
       `,
       [limit]
     );
-    
+
     return rows;
   } catch (error) {
     console.error("Error retrieving latest questions:", error);
