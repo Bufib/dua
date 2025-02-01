@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Pressable, FlatList } from "react-native";
+import { View, StyleSheet, Pressable, FlatList } from "react-native";
 import { router } from "expo-router";
 import { getLatestQuestions } from "@/utils/initializeDatabase";
 import { QuestionType } from "@/utils/types";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "./ThemedText";
-import { ThemedView } from "./ThemedView";
 import { useColorScheme } from "react-native";
 
 const LatestQuestions: React.FC = () => {
   const [latestQuestions, setLatestQuestions] = useState<QuestionType[]>([]);
-  // themeStyles is in scope here
+
   const themeStyles = coustomTheme();
   const colorScheme = useColorScheme();
 
-  // 1) Move QuestionItem here:
   const QuestionItem = ({
     item,
     onPress,
@@ -27,18 +25,14 @@ const LatestQuestions: React.FC = () => {
         onPress={onPress}
         style={({ pressed }) => [
           styles.questionItem,
-          themeStyles.contrast, // now it's in scope
-          pressed && {
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
-            shadowOpacity: 0.2,
-            shadowRadius: 3,
-            // Android Shadow
-            elevation: 5, // Adjust for stronger or softer shadow
-            backgroundColor: colorScheme === "dark" ? "#242c40" : "#E8E8E8",
-            top: 2,
-          },
-        
+          themeStyles.contrast,
+
+          pressed &&
+            styles.pressed && {
+              backgroundColor: colorScheme === "dark" ? "#242c40" : "#E8E8E8",
+            },
+
+          ,
         ]}
       >
         <View style={styles.questionContent}>
@@ -117,7 +111,18 @@ const styles = StyleSheet.create({
     // Android Shadow
     elevation: 5, // Adjust for stronger or softer shadow
   },
-  pressed: {},
+
+  pressed: {
+    top: 2,
+    // iOS Shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+
+    // Android Shadow
+    elevation: 5, // Adjust for stronger or softer shadow,
+  },
   questionContent: {
     gap: 8,
   },

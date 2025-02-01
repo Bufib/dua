@@ -209,9 +209,9 @@ export default function LoginScreen() {
                 onPress={() => router.replace("/forgotPassword")}
                 style={styles.forgotPasswordButton}
               >
-                <Text style={{ textDecorationLine: "underline" }}>
+                <ThemedText style={{ textDecorationLine: "underline" }}>
                   Passwort vergessen?
-                </Text>
+                </ThemedText>
               </Pressable>
             </View>
 
@@ -240,7 +240,7 @@ export default function LoginScreen() {
               style={[styles.buttonContainer,{backgroundColor: "transparent", borderColor: "#057958"}]}
               onPress={() => router.replace("/signup")}
             >
-              <Text style={[styles.buttonText, {color: "#000", fontSize: 16, textDecorationLine: "underline"}]}>Jetzt kostenlos registrieren!</Text>
+              <ThemedText style={[styles.buttonText, { fontSize: 16, textDecorationLine: "underline"}]}>Jetzt kostenlos registrieren!</ThemedText>
             </Pressable>
           </View>
         </View>

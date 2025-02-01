@@ -19,15 +19,10 @@ import RenderLinkNewsItem from "@/components/RenderLinkNewsItem";
 import { useFetchUserQuestions } from "@/hooks/useFetchUserQuestions";
 import { useState } from "react";
 import NetInfo from "@react-native-community/netinfo";
-
-// Helper function to map statuses to colors
-
+import Toast from "react-native-toast-message";
 export default function QuestionDetailScreen() {
-  // 1. Grab the questionId from the URL
   const { questionId } = useLocalSearchParams();
-  // 2. Grab QueryClient to read from the cache
   const queryClient = useQueryClient();
-  // 3. Auth
   const { isLoggedIn, session } = useAuthStore();
   const userId = session?.user?.id ?? null;
   const themeStyles = coustomTheme();
@@ -40,7 +35,7 @@ export default function QuestionDetailScreen() {
     }
   }, [isLoggedIn]);
 
-  // 4. Subscribe to NetInfo once
+  // 4. Subscribe to NetInfo
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsConnected(state.isConnected);
@@ -48,9 +43,6 @@ export default function QuestionDetailScreen() {
     return () => unsubscribe();
   }, []);
 
-  // 5. Grab **non-paginated** data from the cache
-  //    NOTE: If your query key is ["questionsFromUser", userId],
-  //    be sure to include userId in the key below.
   const cachedQuestions = queryClient.getQueryData<QuestionFromUser[]>([
     "questionsFromUser",
     userId,
@@ -74,9 +66,11 @@ export default function QuestionDetailScreen() {
   // 7. Fallback if the question is not in the cache
   if (!question) {
     return (
-      <View style={styles.notFound}>
-        <Text>Question not found</Text>
-      </View>
+      <ThemedView style={styles.notFound}>
+        <ThemedText style={styles.notFoundText} type="subtitle">
+          Fragen wurden nicht gefunden!
+        </ThemedText>
+      </ThemedView>
     );
   }
 
@@ -90,9 +84,12 @@ export default function QuestionDetailScreen() {
         <RefreshControl
           refreshing={isRefetching}
           onRefresh={() => {
-            // If user is offline, skip or show a message
+            // If user is offline show a message
             if (!isConnected) {
-              // e.g. Alert.alert("Offline", "Kein Internet. Bitte später erneut versuchen.");
+              Toast.show({
+                type: "error",
+                text1: "Es bestehte keine Internetverbindung!",
+              });
               return;
             }
             refetch();
@@ -167,6 +164,9 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  notFoundText: {
+    color: Colors.universal.error,
   },
   header: {
     flexDirection: "column",

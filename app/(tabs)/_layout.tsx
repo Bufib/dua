@@ -10,12 +10,13 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAuthStore } from "@/stores/authStore";
 import { router } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-
+import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native";
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const { isLoggedIn } = useAuthStore();
 
   return (
+     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
@@ -100,6 +101,7 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </ThemeProvider>
   );
 }
 

@@ -123,7 +123,7 @@ const RenderSearch = () => {
               placeholder="Suche nach einer Frage"
               keyboardType="default"
               ref={searchRef}
-              placeholderTextColor={"gray"}
+              placeholderTextColor={themeStyles.placeholder.color}
             />
             {searchText && (
               <Feather

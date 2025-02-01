@@ -113,10 +113,12 @@ export default function QuestionLinks() {
                   width: elementSize,
                   height: elementSize,
                 },
-                pressedIndex === index && styles.categoryPressed, // Change shadow and position on button press
-                {
-                  backgroundColor: colorScheme === "dark" ? "#34495e" : "#fff",
-                },
+                themeStyles.contrast,
+                pressedIndex === index &&
+                  styles.categoryPressed && {
+                    backgroundColor:
+                      colorScheme === "dark" ? "#242c40" : "#E8E8E8",
+                  },
               ]}
             >
               <View style={styles.categoryButtonContainer}>
@@ -194,7 +196,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    height: "100%", 
+    height: "100%",
   },
   bodyContainer: {
     flexDirection: "column",
@@ -230,7 +232,7 @@ const styles = StyleSheet.create({
 
     // iOS Shadow
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 }, 
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
 
@@ -241,7 +243,7 @@ const styles = StyleSheet.create({
   categoryPressed: {
     top: 2,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 }, 
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
 
