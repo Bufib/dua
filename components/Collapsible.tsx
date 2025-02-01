@@ -56,14 +56,8 @@ export function Collapsible({
             styles.content,
             themeStyles.contrast,
             {
-              // iOS Shadow
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
-              shadowOpacity: 0.2,
-              shadowRadius: 4,
-              // Android Shadow
-              elevation: 5, // Adjust for stronger or softer shadow
-              backgroundColor: colorScheme === "dark" ? "#34495e" : "#fff",
+          
+              borderWidth: 0.5
             },
           ]}
         >

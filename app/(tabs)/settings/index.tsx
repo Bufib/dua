@@ -307,8 +307,6 @@
 //   },
 // });
 
-
-
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import {
   StyleSheet,
@@ -336,6 +334,7 @@ import handleOpenExternalUrl from "@/utils/handleOpenExternalUrl";
 import { Image } from "expo-image";
 import DeleteUserModal from "@/components/DeleteUserModal";
 import Toast from "react-native-toast-message";
+import useNotificationStore from "@/stores/notificationStore";
 
 const Settings = () => {
   const colorScheme = useColorScheme();
@@ -346,6 +345,7 @@ const Settings = () => {
   const [version, setVersion] = useState<string | null>("");
   const [questionCount, setQuestionCount] = useState<number | null>(0);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const  {getNotifications, toggleGetNotifications}  = useNotificationStore();
 
   const { session } = useAuthStore();
 
@@ -389,13 +389,20 @@ const Settings = () => {
     Storage.setItemSync("isDarkMode", `${!isDarkMode}`);
   };
 
+
+
   return (
-    <SafeAreaView style={[styles.container, themeStyles.defaultBackgorundColor]} edges={["top"]}>
+    <SafeAreaView
+      style={[styles.container, themeStyles.defaultBackgorundColor]}
+      edges={["top"]}
+    >
       <View style={styles.header}>
         <ThemedText style={styles.headerTitle}>Einstellungen</ThemedText>
-        <Pressable 
+        <Pressable
           style={styles.loginButton}
-          onPress={isLoggedIn ? handleLogout : () => router.push("/(auth)/login")}
+          onPress={
+            isLoggedIn ? handleLogout : () => router.push("/(auth)/login")
+          }
         >
           <ThemedText style={styles.loginButtonText}>
             {isLoggedIn ? "Abmelden" : "Anmelden"}
@@ -405,8 +412,10 @@ const Settings = () => {
 
       <ScrollView style={styles.scrollView}>
         <View style={styles.section}>
-          <ThemedText style={styles.sectionTitle}>Darstellung & Benachrichtigung</ThemedText>
-          
+          <ThemedText style={styles.sectionTitle}>
+            Darstellung & Benachrichtigung
+          </ThemedText>
+
           <View style={styles.settingRow}>
             <View>
               <ThemedText style={styles.settingTitle}>Dunkelmodus</ThemedText>
@@ -421,25 +430,31 @@ const Settings = () => {
                 false: Colors.light.trackColor,
                 true: Colors.dark.trackColor,
               }}
-              thumbColor={isDarkMode ? Colors.light.thumbColor : Colors.dark.thumbColor}
+              thumbColor={
+                isDarkMode ? Colors.light.thumbColor : Colors.dark.thumbColor
+              }
             />
           </View>
 
           <View style={styles.settingRow}>
             <View>
-              <ThemedText style={styles.settingTitle}>Benachrichtigungen</ThemedText>
+              <ThemedText style={styles.settingTitle}>
+                Benachrichtigungen
+              </ThemedText>
               <ThemedText style={styles.settingSubtitle}>
                 Push-Benachrichtigungen erhalten
               </ThemedText>
             </View>
             <Switch
-              value={isDarkMode}
-              onValueChange={toggleDarkMode}
+              value={getNotifications}
+              onValueChange={toggleGetNotifications}
               trackColor={{
                 false: Colors.light.trackColor,
                 true: Colors.dark.trackColor,
               }}
-              thumbColor={isDarkMode ? Colors.light.thumbColor : Colors.dark.thumbColor}
+              thumbColor={
+                isDarkMode ? Colors.light.thumbColor : Colors.dark.thumbColor
+              }
             />
           </View>
         </View>
@@ -447,19 +462,23 @@ const Settings = () => {
         {isLoggedIn && (
           <View style={styles.section}>
             <ThemedText style={styles.sectionTitle}>Account</ThemedText>
-            
+
             <Pressable
               style={styles.settingButton}
               onPress={() => router.push("/(tabs)/settings/changePassword")}
             >
-              <ThemedText style={styles.settingButtonText}>Passwort ändern</ThemedText>
+              <ThemedText style={styles.settingButtonText}>
+                Passwort ändern
+              </ThemedText>
             </Pressable>
 
             <Pressable
               style={[styles.settingButton, styles.deleteButton]}
               onPress={() => setOpenDeleteModal(true)}
             >
-              <ThemedText style={[styles.settingButtonText, styles.deleteButtonText]}>
+              <ThemedText
+                style={[styles.settingButtonText, styles.deleteButtonText]}
+              >
                 Account löschen
               </ThemedText>
             </Pressable>
@@ -480,7 +499,7 @@ const Settings = () => {
           <ThemedText style={styles.questionCount}>
             Fragen in der Datenbank: {questionCount}
           </ThemedText>
-          
+
           {isAdmin && isLoggedIn && (
             <ThemedText style={styles.versionText}>
               Version: {version}
@@ -492,7 +511,7 @@ const Settings = () => {
           <Pressable onPress={() => router.push("/settings/about")}>
             <ThemedText style={styles.footerLink}>Über die App</ThemedText>
           </Pressable>
-          
+
           <Pressable
             onPress={() =>
               Linking.openURL(
@@ -502,7 +521,7 @@ const Settings = () => {
           >
             <ThemedText style={styles.footerLink}>Datenschutz</ThemedText>
           </Pressable>
-          
+
           <Pressable onPress={() => router.push("/settings/impressum")}>
             <ThemedText style={styles.footerLink}>Impressum</ThemedText>
           </Pressable>
@@ -524,17 +543,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   loginButton: {
     paddingVertical: 8,
@@ -542,8 +561,8 @@ const styles = StyleSheet.create({
   },
   loginButtonText: {
     color: Colors.universal.link,
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 19,
+    fontWeight: "500",
   },
   scrollView: {
     flex: 1,
@@ -551,24 +570,24 @@ const styles = StyleSheet.create({
   section: {
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderBottomColor: "rgba(0,0,0,0.1)",
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 20,
     opacity: 0.8,
   },
   settingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: 12,
     marginBottom: 8,
   },
   settingTitle: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
     marginBottom: 4,
   },
   settingSubtitle: {
@@ -577,23 +596,23 @@ const styles = StyleSheet.create({
   },
   settingButton: {
     padding: 16,
-    backgroundColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: "rgba(0,0,0,0.05)",
     borderRadius: 10,
     marginBottom: 12,
   },
   settingButtonText: {
     fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
+    fontWeight: "500",
+    textAlign: "center",
   },
   deleteButton: {
-    backgroundColor: 'rgba(255,0,0,0.1)',
+    backgroundColor: "rgba(255,0,0,0.1)",
   },
   deleteButtonText: {
-    color: '#ff4444',
+    color: "#ff4444",
   },
   paypalButton: {
-    alignItems: 'center',
+    alignItems: "center",
     padding: 20,
   },
   paypalImage: {
@@ -601,7 +620,7 @@ const styles = StyleSheet.create({
     aspectRatio: 2,
   },
   infoSection: {
-    alignItems: 'center',
+    alignItems: "center",
     padding: 20,
   },
   questionCount: {
@@ -614,11 +633,11 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    flexDirection: "row",
+    justifyContent: "space-evenly",
     padding: 20,
     borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.1)',
+    borderTopColor: "rgba(0,0,0,0.1)",
   },
   footerLink: {
     color: Colors.universal.link,

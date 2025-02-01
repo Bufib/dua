@@ -20,6 +20,8 @@ import NetInfo from "@react-native-community/netinfo";
 import { noInternet } from "@/constants/messages";
 import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { SupabaseRealtimeProvider } from "@/components/SupabaseRealtimeProvider";
+import useNotificationStore from "@/stores/notificationStore";
+import { useFontSizeStore } from "@/stores/fontSizeStore";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 const queryClient = new QueryClient();
@@ -33,6 +35,7 @@ export default function RootLayout() {
   const [isSessionRestored, setIsSessionRestored] = useState(false);
   const [isConnected, setIsConnected] = useState<boolean | null>(true);
   const { expoPushToken, notification } = usePushNotifications();
+  const [storesHydrated, setStoresHydrated] = useState(false);
 
   // Musst be before 'if (!dbInitialized)' or 'Rendered more hooks' appearce because if (!loaded || !dbInitialized) -> we return and the useEffect benath it doesn't get used
   useEffect(() => {
@@ -59,6 +62,20 @@ export default function RootLayout() {
     }
   }, [isConnected]);
 
+  useEffect(() => {
+    const hydrateStores = async () => {
+      await Promise.all([
+        useAuthStore.persist.rehydrate(),
+        useFontSizeStore.persist.rehydrate(),
+        useNotificationStore.persist.rehydrate(),
+      ]);
+
+      setStoresHydrated(true);
+    };
+
+    hydrateStores();
+  }, []);
+
   // Session restoration effect
   useEffect(() => {
     const initSession = async () => {
@@ -84,13 +101,13 @@ export default function RootLayout() {
 
   // Hide splash screen when everything is ready
   useEffect(() => {
-    if (dbInitialized && isSessionRestored) {
+    if (dbInitialized && isSessionRestored && storesHydrated) {
       SplashScreen.hideAsync();
     }
-  }, [dbInitialized, isSessionRestored]);
+  }, [dbInitialized, isSessionRestored, storesHydrated]);
 
-  if (!dbInitialized || !isSessionRestored) {
-    return null;
+  if (!dbInitialized || !isSessionRestored || !storesHydrated) {
+    return null; // Prevent rendering until everything is ready
   }
 
   return (
@@ -98,7 +115,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <SupabaseRealtimeProvider>
           <SQLiteProvider databaseName="islam-fragen.db">
-            <Stack screenOptions={{headerTintColor: "#000"}}>
+            <Stack screenOptions={{headerTintColor: colorScheme === "dark" ? "#fff" : "#000"}}>
               <Stack.Screen name="index" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
@@ -108,7 +125,6 @@ export default function RootLayout() {
                   headerShown: true,
                   headerBackTitle: "Zurück",
                   headerTitle: "Suche",
-                
                 }}
               />
               <Stack.Screen

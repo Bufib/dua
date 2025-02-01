@@ -15,17 +15,20 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerTintColor: "#000" }}>
+   <Stack screenOptions={{headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000"}}>
         <Stack.Screen
           name="index"
           options={{
             headerShown: true,
             headerTitle: "Deine Fragen",
+            headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000",
+            
             headerLeft: () => {
               return (
                 <Ionicons
                   name="chevron-back-outline"
                   size={30}
+                  color={colorScheme === "dark" ? "#d0d0c0" : "#000"}
                   style={{ marginLeft: -16 }}
                   onPress={() =>
                     router.canGoBack()

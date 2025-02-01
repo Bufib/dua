@@ -22,7 +22,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack
         screenOptions={{
-         headerTintColor: "#000",
+         headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000",
           headerTitle: (props) => (
             <ThemedView
               style={{

@@ -15,7 +15,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{headerTintColor: "#000"}}>
+    <Stack screenOptions={{headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000"}}>
         <Stack.Screen name="index" />
       </Stack>
     </ThemeProvider>

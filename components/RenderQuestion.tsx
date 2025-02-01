@@ -6,7 +6,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "react-native";
-import {  getQuestion } from "@/utils/initializeDatabase";
+import { getQuestion } from "@/utils/initializeDatabase";
 import { useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 import { Stack } from "expo-router";
@@ -117,9 +117,24 @@ const RenderQuestion = ({
       style={[styles.scrollViewStyles, themeStyles.defaultBackgorundColor]}
       contentContainerStyle={styles.scrollViewContent}
       showsVerticalScrollIndicator={false}
-  >
-    <NoInternet />
-      <View style={[styles.questionContainer, themeStyles.contrast]}>
+    >
+      <NoInternet />
+      <View
+        style={[
+          styles.questionContainer,
+          themeStyles.contrast,
+          {
+            // iOS Shadow
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 }, // X: 0, Y: 2
+            shadowOpacity: 0.2,
+            shadowRadius: 4,
+            // Android Shadow
+            elevation: 5, // Adjust for stronger or softer shadow
+            backgroundColor: colorScheme === "dark" ? "#34495e" : "#fff",
+          },
+        ]}
+      >
         <ThemedText style={[styles.questionText, { fontSize, lineHeight }]}>
           {question?.question}
         </ThemedText>
@@ -252,7 +267,6 @@ export default RenderQuestion;
 const styles = StyleSheet.create({
   scrollViewStyles: {
     flex: 1,
-
   },
   scrollViewContent: {
     gap: 20,
@@ -274,9 +288,8 @@ const styles = StyleSheet.create({
   singleAnswer: {
     marginHorizontal: 5,
     padding: 12,
-    borderTopWidth: 2,
-    borderBottomRightRadius: 8,
-    borderBottomLeftRadius: 8,
+    borderWidth: 0.5,
+    borderRadius: 7
   },
   questionText: {
     textAlign: "center",

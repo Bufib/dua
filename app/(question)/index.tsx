@@ -82,12 +82,12 @@ export default function question() {
       <Stack.Screen
         options={{
           title: questionTitle,
+          
           headerRight: () => (
             <View style={styles.headerRightContainer}>
               <Ionicons
                 name="text"
                 size={25}
-                color={colorScheme === "light" ? "#000" : "#fff"}
                 onPress={() => setModalVisible(true)} // Open modal
               />
               {isFavorite ? (
@@ -112,7 +112,7 @@ export default function question() {
               <Ionicons
                 name="chevron-back-outline"
                 size={30}
-                     
+                color={colorScheme === "dark" ? "#d0d0c0" : "#000"}
                 style={{ marginLeft: -16 }}
                 onPress={() => router.back()}
               />
