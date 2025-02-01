@@ -372,15 +372,13 @@ export default function SignUpScreen() {
     if (!token) return;
 
     if (["error", "expired"].includes(token)) {
-      if (!showCaptcha) {
-        console.log("Captcha expired or error but it was not active.");
-        return;
-      }
       setShowCaptcha(false);
-      Alert.alert(
-        "Fehler",
-        "2. Captcha-Überprüfung fehlgeschlagen. Bitte versuche es erneut."
-      );
+      if (showCaptcha) {
+        Alert.alert(
+          "Fehler",
+          "Captcha-Überprüfung fehlgeschlagen. Bitte versuche es erneut."
+        );
+      }
     } else if (token === "cancel") {
       setShowCaptcha(false);
       Alert.alert("Fehler", cancleCaptcha);
@@ -428,7 +426,7 @@ export default function SignUpScreen() {
               <TextInput
                 style={[styles.input, themeStyles.text]}
                 placeholder="Benutzername"
-                 placeholderTextColor="gray"
+                placeholderTextColor="gray"
                 onChangeText={onChange}
                 value={value}
                 autoCapitalize="none"
@@ -447,7 +445,7 @@ export default function SignUpScreen() {
               <TextInput
                 style={[styles.input, themeStyles.text]}
                 placeholder="Email"
-                 placeholderTextColor="gray"
+                placeholderTextColor="gray"
                 onChangeText={onChange}
                 value={value}
                 keyboardType="email-address"
@@ -499,7 +497,7 @@ export default function SignUpScreen() {
                 <TextInput
                   style={[styles.passwordInput, themeStyles.text]}
                   placeholder="Passwort bestätigen"
-                   placeholderTextColor="gray"
+                  placeholderTextColor="gray"
                   onChangeText={onChange}
                   value={value}
                   secureTextEntry={!showConfirmPassword}

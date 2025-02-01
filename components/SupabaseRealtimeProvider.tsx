@@ -1,5 +1,3 @@
-
-
 import React, {
   createContext,
   useContext,
@@ -9,7 +7,7 @@ import React, {
 } from "react";
 import { supabase } from "@/utils/supabase";
 import { useQueryClient } from "@tanstack/react-query";
-import { userQuestionsNewAnswerForQuestions } from "@/constants/messages";
+import { userQuestionsNewAnswerForQuestions, userQuestionInputNewQuestion } from "@/constants/messages";
 import { useAuthStore } from "@/stores/authStore";
 
 type SupabaseRealtimeContextType = {
@@ -32,7 +30,7 @@ export const SupabaseRealtimeProvider = ({
   const [userId, setUserId] = useState<string | null>(null);
   const [hasNewNewsData, setHasNewNewsData] = useState(false);
   const queryClient = useQueryClient();
-  const {isAdmin} = useAuthStore();
+  const { isAdmin } = useAuthStore();
   const clearNewNewsFlag = () => setHasNewNewsData(false);
 
   /**
@@ -78,6 +76,7 @@ export const SupabaseRealtimeProvider = ({
 
     const userQuestionsChannel = supabase
       .channel(`user_questions_${userId}`)
+
       .on(
         "postgres_changes",
         {
@@ -88,7 +87,13 @@ export const SupabaseRealtimeProvider = ({
         },
         async (payload) => {
           console.log("user_question event:", payload.eventType, payload);
+          if (payload.eventType === "INSERT")  {
+            userQuestionInputNewQuestion();
+
+          } else {
           userQuestionsNewAnswerForQuestions();
+
+          }
           await queryClient.invalidateQueries({
             queryKey: ["questionsFromUser", userId],
             refetchType: "all",
@@ -124,20 +129,17 @@ export const SupabaseRealtimeProvider = ({
             await queryClient.invalidateQueries({
               queryKey: ["news"],
               refetchType: "all",
-            
             });
-            console.log("here")
+            console.log("here");
           }
         }
       )
       .subscribe();
-  
+
     return () => {
       newsChannel.unsubscribe();
     };
   }, [queryClient, isAdmin]);
-
-  
 
   return (
     <SupabaseRealtimeContext.Provider

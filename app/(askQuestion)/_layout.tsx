@@ -15,7 +15,7 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{headerTintColor: "#000"}}>
+      <Stack screenOptions={{ headerTintColor: "#000" }}>
         <Stack.Screen
           name="index"
           options={{
@@ -26,9 +26,12 @@ export default function RootLayout() {
                 <Ionicons
                   name="chevron-back-outline"
                   size={30}
-                 
                   style={{ marginLeft: -16 }}
-                  onPress={() => router.back()}
+                  onPress={() =>
+                    router.canGoBack()
+                      ? router.back()
+                      : router.replace("/(tabs)/home/")
+                  }
                 />
               );
             },
@@ -36,7 +39,7 @@ export default function RootLayout() {
         />
         <Stack.Screen
           name="askQuestion"
-          options={{ headerShown: true, headerTitle: "" ,}}
+          options={{ headerShown: true, headerTitle: "" }}
         />
         <Stack.Screen
           name="[questionId]"

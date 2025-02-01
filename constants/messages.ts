@@ -91,6 +91,19 @@ export const userQuestionsNewAnswerForQuestions = () => {
     text1: "Neue Nachricht verfügbar",
     text1Style: { fontWeight: "500" },
     topOffset: 60,
+ onPress() {
+     router.replace("/(askQuestion)/")
+ },
+  });
+};
+
+export const userQuestionInputNewQuestion = () => {
+  return Toast.show({
+    type: "info",
+    text1: "Deine Frage wurde abgeschickt!",
+    text1Style: { fontWeight: "500" },
+    topOffset: 60,
+
   });
 };
 
