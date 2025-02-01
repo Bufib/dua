@@ -24,7 +24,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import LatestQuestions from "./LatestQuestions";
 import RenderSearch from "./RenderSearch";
 import { TextInput } from "react-native";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function QuestionLinks() {
   const themeStyles = coustomTheme();
@@ -107,12 +107,7 @@ export default function QuestionLinks() {
           >
             Kategorien
           </ThemedText>
-          <MaterialCommunityIcons
-            name="gesture-swipe-right"
-            size={30}
-            color="#057958"
-            style={{ marginRight: 20 }}
-          />
+          <Ionicons name="chevron-forward" size={25} color="#057958" style={{paddingRight: 15}} />
         </View>
 
         <FlatList
@@ -200,12 +195,7 @@ export default function QuestionLinks() {
           >
             Aktuelle Fragen
           </ThemedText>
-          <MaterialCommunityIcons
-            name="gesture-swipe-down"
-            size={30}
-            color="#057958"
-            style={{ marginRight: 20 }}
-          />
+          <Ionicons name="chevron-down" size={25} color="#057958" style={{paddingRight: 15}} />
         </View>
         <LatestQuestions />
       </View>

@@ -6,7 +6,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "react-native";
-import { QuestionType, getQuestion } from "@/utils/initializeDatabase";
+import {  getQuestion } from "@/utils/initializeDatabase";
 import { useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 import { Stack } from "expo-router";
@@ -16,6 +16,7 @@ import * as Clipboard from "expo-clipboard";
 import Feather from "@expo/vector-icons/Feather";
 import Markdown from "react-native-markdown-display";
 import NoInternet from "./NoInternet";
+import { QuestionType } from "@/utils/types";
 type RenderQuestionProps = {
   category: string;
   subcategory: string;

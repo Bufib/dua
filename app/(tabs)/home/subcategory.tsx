@@ -4,14 +4,13 @@ import { useLocalSearchParams } from "expo-router";
 import { Stack } from "expo-router";
 import RenderSubcategoryItems from "@/components/RenderSubcategoryItems";
 
-export default function categories({
-  category,
-  subcategory,
-}: {
-  category: string;
-  subcategory: string;
-}) {
-  console.log(category, subcategory);
+type params = {
+  subcategory: string,
+  category: string
+}
+export default function categories({}) {
+  const { subcategory, category } = useLocalSearchParams<params>();
+
   return (
     <View style={styles.container}>
       <Stack.Screen
