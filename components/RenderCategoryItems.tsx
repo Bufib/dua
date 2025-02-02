@@ -45,7 +45,9 @@ function RenderCategoryItems({ category }: { category: string }) {
   if (error && !isLoading && subcategories.length === 0) {
     return (
       <ThemedView style={styles.centeredContainer}>
-        <ThemedText style={styles.error} type="subtitle">{error}</ThemedText>
+        <ThemedText style={styles.error} type="subtitle">
+          {error}
+        </ThemedText>
       </ThemedView>
     );
   }

@@ -175,6 +175,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   headerContainer: {
+    marginTop: 10,
     justifyContent: "center",
     alignItems: "center",
   },

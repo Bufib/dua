@@ -126,11 +126,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#2ea853", // adjust color as needed
     justifyContent: "center",
     alignItems: "center",
-    elevation: 4, // gives a small shadow on Android
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
     borderWidth: 1,
     borderColor: "#057958",
   },

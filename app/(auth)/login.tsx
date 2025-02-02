@@ -230,7 +230,7 @@ export default function LoginScreen() {
               onPress={handleSubmit(onSubmit)}
               disabled={isLoading}
             >
-              <Text style={styles.buttonText}>
+              <Text style={[styles.buttonText, {color: "#fff"}]}>
                 {isLoading ? "Wird geladen..." : "Anmelden"}
               </Text>
             </Pressable>
@@ -320,7 +320,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     padding: 10,
     textAlign: "center",
-    color: "#fff"
   },
 });
 

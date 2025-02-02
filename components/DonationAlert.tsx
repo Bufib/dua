@@ -67,11 +67,9 @@ const DonationAlert: React.FC<DonationAlertProps> = ({
 
         {/* Message */}
         <ThemedText style={styles.messageText}>
-          Wenn dir unsere App gefällt, kannst du uns mit einer kleinen Spende
-          unterstützen. {"\n\n"}
-          Jede Spende hilft uns, die App weiterzuentwickeln und neue Funktionen
-          hinzuzufügen.{"\n\n"}
-          Vielen Dank für deine Unterstützung! 🙏
+          Mit deiner Unterstützung können wir fortfahren und weiterhin für dich
+          da sein. {"\n\n"}
+          Vielen Dank!
         </ThemedText>
 
         {/* PayPal Donate Button */}
