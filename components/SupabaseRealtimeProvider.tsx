@@ -161,6 +161,7 @@ import { supabase } from "@/utils/supabase";
 import { useQueryClient } from "@tanstack/react-query";
 import { userQuestionsNewAnswerForQuestions } from "@/constants/messages";
 import { useAuthStore } from "@/stores/authStore";
+import Toast from "react-native-toast-message";
 
 type SupabaseRealtimeContextType = {
   userId: string | null;
@@ -238,7 +239,14 @@ export const SupabaseRealtimeProvider = ({
         },
         async (payload) => {
           console.log("user_question event:", payload.eventType, payload);
-          userQuestionsNewAnswerForQuestions();
+          if (payload.eventType === "INSERT") {
+            Toast.show({
+              type: "success",
+              text1: "Deine Frage wurde erfolgreich abgeschickt!",
+            });
+          } else {
+            userQuestionsNewAnswerForQuestions();
+          }
           await queryClient.invalidateQueries({
             queryKey: ["questionsFromUser", userId],
             refetchType: "all",

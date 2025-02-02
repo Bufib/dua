@@ -181,7 +181,7 @@ export const usePushNotifications = (): PushNotificationState => {
         .from("pending_notification")
         .insert({
           user_id: userId,
-          expo_push_token: expoPushToken,
+          expo_push_token: expoPushToken.data,
         })
         .then(({ error }) => {
           if (error) {
