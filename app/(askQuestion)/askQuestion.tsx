@@ -532,6 +532,7 @@ import { QuestionType, SearchResults } from "@/utils/types";
 import { searchQuestions } from "@/utils/initializeDatabase";
 import Entypo from "@expo/vector-icons/Entypo";
 import { FlatList } from "react-native";
+import DonationAlert from "@/components/DonationAlert";
 // A simple debounce hook
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -639,6 +640,7 @@ export default function AskQuestionScreen() {
   const session = useAuthStore((state) => state.session);
   const username = useAuthStore((state) => state.username);
   const colorScheme = useColorScheme();
+const [isDonationVisible, setDonationVisible] = useState(false)
   // State for the modal that will show similar questions
   const [showSimilarModal, setShowSimilarModal] = useState(false);
   const [similarQuestions, setSimilarQuestions] = useState<SearchResults[]>([]);
@@ -738,7 +740,7 @@ export default function AskQuestionScreen() {
       if (submissionError) throw submissionError;
       reset();
       askQuestionQuestionSendSuccess();
-      router.replace("/(tabs)/home");
+     setDonationVisible(true)
     } catch (err: any) {
       setError(err.message);
       console.log(err);
@@ -1029,6 +1031,11 @@ export default function AskQuestionScreen() {
           </View>
         </View>
       </Modal>
+        {/* Donation Alert Modal */}
+        <DonationAlert isVisible={isDonationVisible} onClose={() => {
+          setDonationVisible(false)
+          router.replace("/(tabs)/home/")
+        }} />
     </KeyboardAvoidingView>
   );
 }
