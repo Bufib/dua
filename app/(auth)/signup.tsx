@@ -414,8 +414,8 @@ export default function SignUpScreen() {
         contentContainerStyle={styles.scrollViewContent}
       >
         <View style={[styles.contentContainer, themeStyles.contrast]}>
-          <ThemedText style={styles.title} type="title">
-            Registrieren
+          <ThemedText style={styles.title} type="subtitle">
+           Erstelle einen Account, um einen Gelehrten eine Frage stellen zu könnnen.
           </ThemedText>
 
           {/* Username Field */}
@@ -632,7 +632,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   title: {
-    fontWeight: "bold",
     marginBottom: 24,
     textAlign: "center",
   },

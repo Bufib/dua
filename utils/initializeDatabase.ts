@@ -4,20 +4,79 @@ import Storage from "expo-sqlite/kv-store";
 import { router } from "expo-router";
 import { questionsDatabaseUpate } from "@/constants/messages";
 import { QuestionType, SearchResults } from "./types";
+import {
+  checkInternetConnection,
+  setupConnectivityListener,
+} from "./checkNetwork";
+import debounce from "lodash/debounce";
+import { Alert } from "react-native";
 
+// Flag to ensure only one initialization runs at a time.
+let isInitializing = false;
+
+/**
+ * Wraps initializeDatabase to avoid concurrent executions.
+ */
+export const safeInitializeDatabase = async () => {
+  if (isInitializing) {
+    console.log("Database initialization is already running. Skipping.");
+    return;
+  }
+  // Now its true
+  isInitializing = true;
+  try {
+    await initializeDatabase();
+  } finally {
+    isInitializing = false;
+  }
+};
+
+// Create a debounced version of safeInitializeDatabase (3 seconds delay).
+const debouncedSafeInitializeDatabase = debounce(() => {
+  safeInitializeDatabase();
+}, 3000);
+
+/**
+ * Main function to initialize the local database with remote data.
+ */
 export const initializeDatabase = async () => {
-  // Check if version in Storage is up to date
-  const checkVersion = async () => {
-    const versionFromStorage = await Storage.getItem("version");
-    const versionFromSupabase = await fetchVersionFromSupabase();
+  // Check for an active internet connection.
+  const isOnline = await checkInternetConnection();
+  if (!isOnline) {
+    console.warn("No internet connection. Running in offline mode.");
 
-    // Check for version mismatch
-    if (versionFromStorage !== versionFromSupabase) {
-      await fetchQuestionsFromSupabase();
-      await fetchPayPalLink();
-      await Storage.setItemSync("version", versionFromSupabase);
+    // Set up a connectivity listener to re-initialize once online.
+    setupConnectivityListener(() => {
+      console.log("Internet connection restored. Re-initializing database...");
+      debouncedSafeInitializeDatabase();
+    });
+
+    // Return early if offline.
+    return;
+  }
+
+  // Check if version in Storage is up to date.
+  // Check if version in Storage is up to date.
+  const checkVersion = async () => {
+    try {
+      const versionFromStorage = await Storage.getItem("version");
+      const versionFromSupabase = await fetchVersionFromSupabase();
+
+      // If there's a version mismatch, sync questions and PayPal link.
+      if (versionFromStorage !== versionFromSupabase) {
+        await fetchQuestionsFromSupabase();
+        await fetchPayPalLink();
+        await Storage.setItemSync("version", versionFromSupabase);
+      }
+    } catch (error: any) {
+      console.error(
+        "Error during version check and data synchronization:",
+        error
+      );
+      Alert.alert("Fehler", error?.message);
     }
   };
+
   await checkVersion();
   setupSubscriptions();
 };
