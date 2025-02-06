@@ -22,6 +22,7 @@ function RenderFavoriteQuestions() {
   const [isLoading, setIsLoading] = useState(true);
   const themeStyle = coustomTheme();
   const colorScheme = useColorScheme();
+  const { triggerRefreshFavorites } = useRefreshFavorites();
 
   /* When adding to favorites, it won't show until refreshing -> store forces to refresh because of state change */
   const { refreshTriggerFavorites } = useRefreshFavorites();
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
   },
   flatListStyle: {
     paddingTop: 20,
-    gap: 20
+    gap: 20,
   },
   item: {
     flexDirection: "row",
