@@ -276,9 +276,23 @@ export const SupabaseRealtimeProvider = ({
           console.log("New notification added:", payload);
 
           // 🚀 Call the Edge Function when a new notification is inserted
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
+          if (!session) {
+            console.error("No active session found");
+            return;
+          }
+
           const response = await fetch(
             "https://tdjuwrsspauybgfywlfr.supabase.co/functions/v1/sendPushNotifications",
-            { method: "POST" }
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+              },
+            }
           );
 
           if (response.ok) {

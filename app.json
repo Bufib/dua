@@ -18,10 +18,8 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.hadi_ea.islamfragen",
-      "googleServicesFile": "./android/app/google-services.json",
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ]
+      "googleServicesFile": "/Users/hadielali/islam-fragen-new/islam-fragen/google-services.json",
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
       "bundler": "metro",

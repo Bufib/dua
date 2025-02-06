@@ -26,7 +26,7 @@ yarn-debug.*
 yarn-error.*
 
 # macOS
-.DS_Storea
+.DS_Store
 *.pem
 
 # local env files
@@ -37,3 +37,9 @@ yarn-error.*
 
 app-example
 
+# **folder**
+/ios
+/**android**
+
+# expo
+expo-env.d.ts
