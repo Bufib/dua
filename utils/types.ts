@@ -1,3 +1,5 @@
+import { TextStyle, TextProps } from "react-native";
+
 export type QuestionType = {
   id: number;
   title: string;
@@ -13,8 +15,6 @@ export type QuestionType = {
 export type Paypal = {
   link: string;
 };
-
-
 
 export type SignUpFormValues = {
   username: string;
@@ -35,4 +35,16 @@ export type SearchResults = {
   subcategory_name: string;
   question: string;
   title: string;
+};
+
+export type BlinkingTextProps = {
+  text?: string;
+  style?: TextStyle;
+  lightColor?: string;
+  darkColor?: string;
+  blinkDuration?: number;
+  startDelay?: number;
+  useTheming?: boolean;
+  children?: React.ReactNode;
+  textProps?: Omit<TextProps, "style">;
 };

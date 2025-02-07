@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "islam-fragen",
-    "slug": "islam-fragen",
+    "name": "Islam-Fragen", // von klein zu groß
+    "slug": "Islam-Fragen", // von klein zu groß
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -65,7 +65,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./local/assets/favicon.png",
+          "icon": "./local/assets/notificationLogo.png",
           "color": "#e8f5e9",
           "defaultChannel": "default",
           "enableBackgroundRemoteNotifications": false

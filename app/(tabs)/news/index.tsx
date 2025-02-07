@@ -22,6 +22,7 @@ import { FlashList } from "@shopify/flash-list";
 import { NewsItemType } from "@/hooks/useFetchNews";
 import { useSupabaseRealtime } from "@/components/SupabaseRealtimeProvider";
 import { Colors } from "@/constants/Colors";
+import { Image } from "expo-image";
 export default function NewsFeed() {
   const {
     allNews: news,
@@ -116,8 +117,26 @@ export default function NewsFeed() {
       <NoInternet />
       {hasNewNewsData && !isAdmin && (
         <ThemedView style={styles.updateContainer}>
-          <Pressable onPress={handleRefreshAndScroll}>
-            <Text>Neuer Beitrag verfügbar</Text>
+          <Pressable
+            onPress={handleRefreshAndScroll}
+            style={{
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Image
+              source={require("@/assets/images/refresh.png")}
+              style={{ width: 70, height: 70 }}
+            />
+            <ThemedText
+              style={[
+                styles.newNews,
+                { color: colorScheme === "dark" ? "#2ea853" : "#057958" },
+              ]}
+            >
+              Neuer Beitrag verfügbar
+            </ThemedText>
           </Pressable>
         </ThemedView>
       )}
@@ -136,7 +155,7 @@ export default function NewsFeed() {
           />
         )}
       </ThemedView>
-   
+
       <FlashList
         ref={flatListRef}
         data={news}
@@ -194,12 +213,15 @@ const styles = StyleSheet.create({
     padding: 10,
     alignItems: "center",
   },
+  newNews: {
+    fontWeight: "600",
+  },
   loadMoreContainer: {
     alignItems: "flex-end",
   },
   loadMoreText: {
     fontWeight: "700",
-    color: Colors.universal.primary
+    color: Colors.universal.primary,
   },
   footerComponent: {},
 });
