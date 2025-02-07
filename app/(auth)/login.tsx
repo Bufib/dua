@@ -148,7 +148,7 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
         <View style={[styles.contentContainer, themeStyles.contrast]}>
           <ThemedText style={styles.title} type="title">
-          Benutzeranmeldung
+            Benutzeranmeldung
           </ThemedText>
 
           {/* EMAIL FIELD */}
@@ -162,6 +162,7 @@ export default function LoginScreen() {
                 placeholder="E-Mail"
                 keyboardType="email-address"
                 autoCapitalize="none"
+                autoCorrect={false}
                 onChangeText={onChange}
                 value={value}
               />
@@ -184,6 +185,9 @@ export default function LoginScreen() {
                   secureTextEntry={!showPassword}
                   onChangeText={onChange}
                   value={value}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="off"
                 />
                 <Pressable
                   onPress={() => setShowPassword((prev) => !prev)}
@@ -230,17 +234,27 @@ export default function LoginScreen() {
               onPress={handleSubmit(onSubmit)}
               disabled={isLoading}
             >
-              <Text style={[styles.buttonText, {color: "#fff"}]}>
+              <Text style={[styles.buttonText, { color: "#fff" }]}>
                 {isLoading ? "Wird geladen..." : "Anmelden"}
               </Text>
             </Pressable>
 
             {/* SIGNUP */}
             <Pressable
-              style={[styles.buttonContainer,{backgroundColor: "transparent", borderColor: "#057958"}]}
+              style={[
+                styles.buttonContainer,
+                { backgroundColor: "transparent", borderColor: "#057958" },
+              ]}
               onPress={() => router.replace("/signup")}
             >
-              <ThemedText style={[styles.buttonText, { fontSize: 16, textDecorationLine: "underline"}]}>Jetzt kostenlos registrieren!</ThemedText>
+              <ThemedText
+                style={[
+                  styles.buttonText,
+                  { fontSize: 16, textDecorationLine: "underline" },
+                ]}
+              >
+                Jetzt kostenlos registrieren!
+              </ThemedText>
             </Pressable>
           </View>
         </View>
@@ -322,5 +336,3 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
-
-

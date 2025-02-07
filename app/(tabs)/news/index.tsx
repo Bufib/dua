@@ -104,7 +104,7 @@ export default function NewsFeed() {
         <ThemedView
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
-          <ThemedText>Es gibt derzeit noch keine Nachrichten!</ThemedText>
+          <ThemedText>Es gibt derzeit noch keine Neuigkeiten!</ThemedText>
         </ThemedView>
       </SafeAreaView>
     );

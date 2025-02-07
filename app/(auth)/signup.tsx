@@ -436,6 +436,8 @@ export default function SignUpScreen() {
                 onChangeText={onChange}
                 value={value}
                 autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="off"
               />
             )}
           />
@@ -458,6 +460,7 @@ export default function SignUpScreen() {
                 value={value}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                autoCorrect={false}
               />
             )}
           />
@@ -480,6 +483,9 @@ export default function SignUpScreen() {
                   onChangeText={onChange}
                   value={value}
                   secureTextEntry={!showPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="off"
                 />
                 <Pressable
                   onPress={() => setShowPassword((prev) => !prev)}
@@ -511,6 +517,9 @@ export default function SignUpScreen() {
                   onChangeText={onChange}
                   value={value}
                   secureTextEntry={!showConfirmPassword}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  autoComplete="off"
                 />
                 <Pressable
                   onPress={() => setShowConfirmPassword((prev) => !prev)}
@@ -609,7 +618,7 @@ export default function SignUpScreen() {
                   onPress={resendVerificationCode}
                   style={styles.resendButton}
                 >
-                  <Text style={styles.resendText}>Code erneut senden </Text>
+                  <ThemedText style={styles.resendText}>Code erneut senden </ThemedText>
                 </Pressable>
               </View>
             )}
