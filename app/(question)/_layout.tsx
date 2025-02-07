@@ -34,7 +34,7 @@ export default function RootLayout() {
               <ThemedText
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                type="defaultSemiBold"
+                type="layoutNavigationText"
               >
                 {props.children}
               </ThemedText>

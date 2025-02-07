@@ -59,7 +59,7 @@ export const NewsItem = ({
         <AntDesign
           name="pushpin"
           size={24}
-          color={colorScheme === "dark" ? "#fff" : "#000"}
+          color={colorScheme === "dark" ? "#2ea853" : "#057958"}
           style={styles.pinIconStyle}
         />
       )}
