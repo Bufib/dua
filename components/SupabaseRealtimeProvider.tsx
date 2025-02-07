@@ -221,96 +221,96 @@ export const SupabaseRealtimeProvider = ({
     };
   }, [queryClient]);
 
-  /**
-   * User questions subscription
-   */
-  useEffect(() => {
-    if (!userId) return;
+  // /**
+  //  * User questions subscription
+  //  */
+  // useEffect(() => {
+  //   if (!userId) return;
 
-    const userQuestionsChannel = supabase
-      .channel(`user_questions_${userId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "user_question",
-          filter: `user_id=eq.${userId}`,
-        },
-        async (payload) => {
-          console.log("user_question event:", payload.eventType, payload);
-          if (payload.eventType === "INSERT") {
-            Toast.show({
-              type: "success",
-              text1: "Deine Frage wurde erfolgreich abgeschickt!",
-            });
-          } else {
-            userQuestionsNewAnswerForQuestions();
-          }
-          await queryClient.invalidateQueries({
-            queryKey: ["questionsFromUser", userId],
-            refetchType: "all",
-          });
-        }
-      )
-      .subscribe();
+  //   const userQuestionsChannel = supabase
+  //     .channel(`user_questions_${userId}`)
+  //     .on(
+  //       "postgres_changes",
+  //       {
+  //         event: "*",
+  //         schema: "public",
+  //         table: "user_question",
+  //         filter: `user_id=eq.${userId}`,
+  //       },
+  //       async (payload) => {
+  //         console.log("user_question event:", payload.eventType, payload);
+  //         if (payload.eventType === "INSERT") {
+  //           Toast.show({
+  //             type: "success",
+  //             text1: "Deine Frage wurde erfolgreich abgeschickt!",
+  //           });
+  //         } else {
+  //           userQuestionsNewAnswerForQuestions();
+  //         }
+  //         await queryClient.invalidateQueries({
+  //           queryKey: ["questionsFromUser", userId],
+  //           refetchType: "all",
+  //         });
+  //       }
+  //     )
+  //     .subscribe();
 
-    return () => {
-      userQuestionsChannel.unsubscribe();
-    };
-  }, [userId, queryClient]);
+  //   return () => {
+  //     userQuestionsChannel.unsubscribe();
+  //   };
+  // }, [userId, queryClient]);
 
-  useEffect(() => {
-    if (!userId) return; // ✅ Don't subscribe if the user isn't logged in
+  // useEffect(() => {
+  //   if (!userId) return; // ✅ Don't subscribe if the user isn't logged in
 
-    const notificationChannel = supabase
-      .channel("pending_notification_changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "pending_notification",
-        },
-        async (payload) => {
-          console.log("New notification added:", payload);
+  //   const notificationChannel = supabase
+  //     .channel("pending_notification_changes")
+  //     .on(
+  //       "postgres_changes",
+  //       {
+  //         event: "INSERT",
+  //         schema: "public",
+  //         table: "pending_notification",
+  //       },
+  //       async (payload) => {
+  //         console.log("New notification added:", payload);
 
-          // 🚀 Call the Edge Function when a new notification is inserted
-          const {
-            data: { session },
-          } = await supabase.auth.getSession();
+  //         // 🚀 Call the Edge Function when a new notification is inserted
+  //         const {
+  //           data: { session },
+  //         } = await supabase.auth.getSession();
 
-          if (!session) {
-            console.error("No active session found");
-            return;
-          }
+  //         if (!session) {
+  //           console.error("No active session found");
+  //           return;
+  //         }
 
-          const response = await fetch(
-            "https://tdjuwrsspauybgfywlfr.supabase.co/functions/v1/sendPushNotifications",
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${session.access_token}`,
-              },
-            }
-          );
+  //         const response = await fetch(
+  //           "https://tdjuwrsspauybgfywlfr.supabase.co/functions/v1/sendPushNotifications",
+  //           {
+  //             method: "POST",
+  //             headers: {
+  //               Authorization: `Bearer ${session.access_token}`,
+  //             },
+  //           }
+  //         );
 
-          if (response.ok) {
-            console.log("Edge function executed successfully!");
-          } else {
-            console.error(
-              "Error calling Edge Function:",
-              await response.text()
-            );
-          }
-        }
-      )
-      .subscribe();
+  //         if (response.ok) {
+  //           console.log("Edge function executed successfully!");
+  //         } else {
+  //           console.error(
+  //             "Error calling Edge Function:",
+  //             await response.text()
+  //           );
+  //         }
+  //       }
+  //     )
+  //     .subscribe();
 
-    return () => {
-      notificationChannel.unsubscribe();
-    };
-  }, [userId]);
+  //   return () => {
+  //     notificationChannel.unsubscribe();
+  //   };
+  // }, [userId]);
 
   /**
    * News subscription

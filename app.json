@@ -17,6 +17,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+
       "package": "com.hadi_ea.islamfragen",
       "googleServicesFile": "/Users/hadielali/islam-fragen-new/islam-fragen/google-services.json",
       "permissions": ["android.permission.RECORD_AUDIO"]
@@ -60,7 +61,16 @@
         }
       ],
       "expo-video",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "icon": "./local/assets/favicon.png",
+          "color": "#e8f5e9",
+          "defaultChannel": "default",
+          "enableBackgroundRemoteNotifications": false
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
