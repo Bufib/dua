@@ -378,10 +378,15 @@ export default function SignUpScreen() {
 
     if (["error", "expired"].includes(token)) {
       setShowCaptcha(false);
-      if (showCaptcha) {
+      if (showCaptcha && ["error"].includes(token)) {
         Alert.alert(
           "Fehler",
-          "Captcha-Überprüfung fehlgeschlagen. Bitte versuche es erneut."
+          "1. Captcha-Überprüfung fehlgeschlagen. Bitte versuche es erneut."
+        );
+      } else if (showCaptcha && ["expired"].includes(token)) {
+        Alert.alert(
+          "Fehler",
+          "2. Captcha-Überprüfung fehlgeschlagen. Bitte versuche es erneut."
         );
       }
     } else if (token === "cancel") {
@@ -485,7 +490,7 @@ export default function SignUpScreen() {
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  autoComplete="off"
+                  autoComplete="new-password"
                 />
                 <Pressable
                   onPress={() => setShowPassword((prev) => !prev)}
@@ -519,7 +524,7 @@ export default function SignUpScreen() {
                   secureTextEntry={!showConfirmPassword}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  autoComplete="off"
+                  autoComplete="new-password"
                 />
                 <Pressable
                   onPress={() => setShowConfirmPassword((prev) => !prev)}
@@ -618,7 +623,9 @@ export default function SignUpScreen() {
                   onPress={resendVerificationCode}
                   style={styles.resendButton}
                 >
-                  <ThemedText style={styles.resendText}>Code erneut senden </ThemedText>
+                  <ThemedText style={styles.resendText}>
+                    Code erneut senden{" "}
+                  </ThemedText>
                 </Pressable>
               </View>
             )}
