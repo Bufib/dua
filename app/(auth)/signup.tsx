@@ -52,9 +52,7 @@ const schema = z
         /^[a-zA-Z0-9_]+$/,
         "Der Benutzername darf nur Buchstaben, Zahlen und Unterstriche enthalten."
       ),
-    email: z
-      .string({ required_error: signUpEmailNotEmpty })
-      .email(signUpEmailNotEmpty),
+    email: z.string().email("Bitte gib eine gültige E-Mail-Adresse ein."),
     password: z
       .string({ required_error: signUpPasswordNotEmpty })
       .min(8, signUpUserPasswordMin)
@@ -106,12 +104,21 @@ export default function SignUpScreen() {
   const [verificationCode, setVerificationCode] = useState("");
   const [currentEmail, setCurrentEmail] = useState("");
   const [currentUsername, setCurrentUsername] = useState("");
+  const [customErrors, setCustomErrors] = useState({
+    username: "",
+    email: "",
+  });
 
   // Track verification attempts
   const [verificationAttempts, setVerificationAttempts] = useState(0);
 
   // Track resend attempts
   const [resendAttempts, setResendAttempts] = useState(0);
+
+  // UseEffect to reset errors when inputs change:
+  useEffect(() => {
+    setCustomErrors({ username: "", email: "" });
+  }, [control._formValues.username, control._formValues.email]);
 
   useEffect(() => {
     const {
@@ -204,6 +211,7 @@ export default function SignUpScreen() {
   /** 3. The main function that checks network & user existence, then opens captcha */
   const handleSignup = async (formData: SignUpFormValues) => {
     setIsLoading(true);
+    setCustomErrors({ username: "", email: "" }); // Reset form
     try {
       // 3.1 Check network
       const netInfo = await NetInfo.fetch();
@@ -219,14 +227,11 @@ export default function SignUpScreen() {
         formData.email
       );
 
-      if (usernameExists) {
-        Alert.alert(signUpErrorGeneral, signUpUserNameAlreadyInUsage);
-        setIsLoading(false);
-        return;
-      }
-      if (emailExists) {
-        Alert.alert(signUpErrorGeneral, signUpUserEmailAlreadyInUsage);
-        setIsLoading(false);
+      if (usernameExists || emailExists) {
+        setCustomErrors({
+          username: usernameExists ? signUpUserNameAlreadyInUsage : "",
+          email: emailExists ? signUpUserEmailAlreadyInUsage : "",
+        });
         return;
       }
 
@@ -415,7 +420,8 @@ export default function SignUpScreen() {
       >
         <View style={[styles.contentContainer, themeStyles.contrast]}>
           <ThemedText style={styles.title} type="subtitle">
-           Erstelle einen Account, um einen Gelehrten eine Frage stellen zu könnnen.
+            Erstelle einen Account, um einen Gelehrten eine Frage stellen zu
+            könnnen.
           </ThemedText>
 
           {/* Username Field */}
@@ -433,8 +439,10 @@ export default function SignUpScreen() {
               />
             )}
           />
-          {errors.username && (
-            <Text style={styles.error}>{errors.username.message}</Text>
+          {(errors.username || customErrors.username) && (
+            <Text style={styles.error}>
+              {errors.username?.message || customErrors.username}
+            </Text>
           )}
 
           {/* Email Field */}
@@ -453,8 +461,10 @@ export default function SignUpScreen() {
               />
             )}
           />
-          {errors.email && (
-            <Text style={styles.error}>{errors.email.message}</Text>
+          {(errors.email || customErrors.email) && (
+            <Text style={styles.error}>
+              {errors.email?.message || customErrors.email}
+            </Text>
           )}
 
           {/* Password Field */}
@@ -589,10 +599,7 @@ export default function SignUpScreen() {
                 <View style={styles.buttonSpacer} />
                 <Pressable
                   onPress={() => setShowVerificationModal(false)}
-                  style={[
-                    styles.verifyButton,
-                    { backgroundColor: "gray" },
-                  ]}
+                  style={[styles.verifyButton, { backgroundColor: "gray" }]}
                 >
                   <Text style={styles.verifiyText}>Abbrechen</Text>
                 </Pressable>
