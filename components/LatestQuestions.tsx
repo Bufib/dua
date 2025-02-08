@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    padding: 16,
+    padding: 15,
     gap: 12,
   },
   questionItem: {

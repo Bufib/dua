@@ -15,14 +15,19 @@ import { Colors } from "@/constants/Colors";
 
 export default function QuestionLinks() {
   const themeStyles = coustomTheme();
-  const { width } = useWindowDimensions();
-
+  const { width, height } = useWindowDimensions();
+  console.log(width, height);
   // Dynamically calculate the size of each element based on screen width
-  const elementSize = width > 375 ? 120 : 100; // Size of each small square
-  const fontSize = width > 375 ? 12 : 10; // Font of element text
-  const iconSize = width > 375 ? 60 : 40; // Icon in element
-  const imageSize = width > 375 ? 300 : 200; // Header image
-  const gap = width > 375 ? 30 : 20; // Header image gap
+  const elementSize =
+    width > 380 && height > 900 ? 120 : width < 380 && height > 750 ? 110 : 100; // Size of each small square
+  const fontSize =
+    width > 380 && height > 900 ? 13 : width < 380 && height > 750 ? 12 : 12; // Font of element text
+  const iconSize =
+    width > 380 && height > 900 ? 65 : width < 380 && height > 750 ? 60 : 55; // Icon in element
+  const imageSize =
+    width > 380 && height < 900 ? 300 : width < 380 && height > 750 ? 250 : 200; // Header image
+  const gap =
+    width > 380 && height < 900 ? 30 : width < 380 && height > 750 ? 20 : 10; // Header image gap
 
   // For square to change color on pressed
   const [pressedIndex, setPressedIndex] = useState<number | null>(null);
@@ -37,7 +42,9 @@ export default function QuestionLinks() {
         { gap: gap },
       ]}
     >
-      <View style={styles.headerContainer}>
+      <View
+        style={[styles.headerContainer, { marginTop: height > 750 ? 10 : 0 }]}
+      >
         <Image
           source={require("@/assets/images/icon.png")}
           style={[styles.imageHeader, { width: imageSize }]}
@@ -175,7 +182,6 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   headerContainer: {
-    marginTop: 10,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -209,7 +215,7 @@ const styles = StyleSheet.create({
 
   bodyContainerText: {
     fontWeight: "500",
-    marginHorizontal: 20,
+    marginHorizontal: 15,
     marginBottom: 10,
   },
 
@@ -218,9 +224,9 @@ const styles = StyleSheet.create({
     aspectRatio: 2,
   },
   flatListContent: {
-    gap: 20,
-    paddingRight: 20,
-    paddingLeft: 20,
+    gap: 7,
+    paddingRight: 15,
+    paddingLeft: 15,
     paddingVertical: 10,
   },
   flatListStyles: {},
@@ -252,7 +258,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   categoryButtonContainer: {
-    gap: 10,
+    gap: 5,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -283,6 +289,6 @@ const styles = StyleSheet.create({
   },
   footerHeaderContainerText: {
     fontWeight: "500",
-    marginLeft: 20,
+    marginLeft: 15,
   },
 });
