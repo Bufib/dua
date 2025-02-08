@@ -127,7 +127,7 @@ export default function QuestionDetailScreen() {
           <Text style={styles.bubbleText}>{question.question}</Text>
         </View>
 
-        {question.answer || question.internal_url || question.external_url ? (
+        {question.answer && (question.status === "Beantwortet" ||question.status === "Abgelehnt" )? (
           <View style={styles.answerBubble}>
             <Text style={styles.bubbleText}>{question.answer}</Text>
             <ThemedView style={styles.linksContainer}>

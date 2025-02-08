@@ -244,7 +244,11 @@ export const SupabaseRealtimeProvider = ({
               type: "success",
               text1: "Deine Frage wurde erfolgreich abgeschickt!",
             });
-          } else {
+          } else if (
+            payload.eventType === "UPDATE" &&
+            payload.new.status &&
+            ["Beantwortet", "Abgelehnt"].includes(payload.new.status) 
+          ) {
             userQuestionsNewAnswerForQuestions();
           }
           await queryClient.invalidateQueries({
