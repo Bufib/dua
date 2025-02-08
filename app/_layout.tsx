@@ -68,6 +68,7 @@ export default function RootLayout() {
         useAuthStore.persist.rehydrate(),
         useFontSizeStore.persist.rehydrate(),
         useNotificationStore.persist.rehydrate(),
+        useNotificationStore.getState().checkPermissions()
       ]);
 
       setStoresHydrated(true);
