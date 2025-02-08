@@ -52,7 +52,14 @@ const FontSizePickerModal: React.FC<FontSizePickerModalProps> = ({
       {/* Modal Background */}
       <Pressable style={styles.modalContainer} onPress={onClose}>
         {/* Modal Content */}
-        <Pressable style={[styles.pickerContainer, themeStyles.contrast]} onPress={() => {}}>
+        <Pressable
+          style={[
+            styles.pickerContainer,
+            themeStyles.contrast,
+            { borderColor: colorScheme === "dark" ? "#fff" : "#000" },
+          ]}
+          onPress={() => {}}
+        >
           <Picker
             selectedValue={pickerValue}
             onValueChange={(itemValue) => {
@@ -81,7 +88,6 @@ const FontSizePickerModal: React.FC<FontSizePickerModalProps> = ({
                     ? Colors.light.modalQuestionText
                     : Colors.dark.modalQuestionText
                 }
-                
               />
             ))}
           </Picker>
@@ -96,13 +102,14 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "Colors.universal.modalQuestionBlurredBackground,"
+    backgroundColor: Colors.universal.modalQuestionBlurredBackground,
   },
   pickerContainer: {
     width: 300,
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
+    borderWidth: 1,
   },
 });
 
