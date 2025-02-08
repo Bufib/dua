@@ -148,8 +148,9 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 import { useAuthStore } from "@/stores/authStore";
 import { supabase } from "@/utils/supabase";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import useNotificationStore from "@/stores/notificationStore";
+import { Linking } from "react-native";
 
 export interface PushNotificationState {
   expoPushToken?: Notifications.ExpoPushToken;
@@ -282,9 +283,14 @@ export const usePushNotifications = (): PushNotificationState => {
     function redirect(notification: Notifications.Notification) {
       const questionId = notification.request.content.data?.questionId;
       if (questionId) {
-        router.push({
-          pathname: "/(question)",
-        });
+        setTimeout(() => {
+          router.push({
+            pathname: "/(askQuestion)/[questionId]",
+            params: {
+              questionId,
+            },
+          });
+        }, 1);
       }
     }
 
@@ -300,6 +306,7 @@ export const usePushNotifications = (): PushNotificationState => {
 
       responseListener.current =
         Notifications.addNotificationResponseReceivedListener((response) => {
+          console.log("Notification response received:", response);
           redirect(response.notification);
         });
     }
