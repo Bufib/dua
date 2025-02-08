@@ -32,10 +32,10 @@ import { Colors } from "@/constants/Colors";
 // Login data schema
 const loginSchema = z.object({
   email: z
-    .string()
-    .nonempty("Bitte eine E-Mail angeben.")
-    .email("Bitte eine gültige E-Mail angeben."),
-  password: z.string().nonempty("Bitte ein Passwort angeben."),
+    .string({required_error: "Bitte E-Mail eingeben."})
+    .nonempty("Bitte E-Mail eingeben.")
+    .email("Bitte eine gültige E-Mail eingeben."),
+  password: z.string({required_error: "Bitte Password eingeben."}).nonempty("Bitte Passwort eingeben."),
 });
 
 // Tpyes & Schema

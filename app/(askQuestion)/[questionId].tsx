@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { QuestionFromUser } from "@/hooks/useFetchUserQuestions";
+import { QuestionFromUser } from "@/utils/types";
 import { useAuthStore } from "@/stores/authStore";
 import getStatusColor from "@/utils/getStatusColor";
 import { coustomTheme } from "@/utils/coustomTheme";
@@ -127,12 +127,13 @@ export default function QuestionDetailScreen() {
           <Text style={styles.bubbleText}>{question.question}</Text>
         </View>
 
-        {question.answer || question.internal_url ? (
+        {question.answer || question.internal_url || question.external_url ? (
           <View style={styles.answerBubble}>
             <Text style={styles.bubbleText}>{question.answer}</Text>
-            {question.internal_url && question.internal_url.length > 0 && (
-              <ThemedView style={styles.linksContainer}>
-                {question.internal_url.map((url, index) => (
+            <ThemedView style={styles.linksContainer}>
+              {question.internal_url &&
+                question.internal_url.length > 0 &&
+                question.internal_url.map((url, index) => (
                   <RenderLinkNewsItem
                     key={`internal-url-${index}-${url}`}
                     url={url}
@@ -140,8 +141,17 @@ export default function QuestionDetailScreen() {
                     isExternal={false}
                   />
                 ))}
-              </ThemedView>
-            )}
+              {question.external_url &&
+                question.external_url.length > 0 &&
+                question.external_url.map((url, index) => (
+                  <RenderLinkNewsItem
+                    key={`external-url-${index}-${url}`}
+                    url={url}
+                    index={index}
+                    isExternal={true}
+                  />
+                ))}
+            </ThemedView>
           </View>
         ) : (
           <View style={styles.waitingContainer}>

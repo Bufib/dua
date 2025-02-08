@@ -6,6 +6,7 @@ import { Platform } from "react-native";
 import { useAuthStore } from "@/stores/authStore";
 import { supabase } from "@/utils/supabase";
 import { useRouter } from "expo-router";
+import useNotificationStore from "@/stores/notificationStore";
 
 export interface PushNotificationState {
   expoPushToken?: Notifications.ExpoPushToken;
@@ -38,6 +39,8 @@ export const usePushNotifications = (): PushNotificationState => {
 
   // Function to register for push notifications
   async function registerForPushNotificationsAsync() {
+    const { getNotifications } = useNotificationStore.getState();
+    if (!getNotifications) return;
     let token;
     if (Device.isDevice) {
       const { status: existingStatus } =
@@ -74,16 +77,44 @@ export const usePushNotifications = (): PushNotificationState => {
   }
 
   // First useEffect: Register for notifications and save token
-  useEffect(() => {
-    registerForPushNotificationsAsync().then((token) => {
-      setExpoPushToken(token);
-    });
-  }, []);
+  const getNotifications = useNotificationStore(
+    (state) => state.getNotifications
+  );
 
-  // Second useEffect: Save the push token to Supabase if available
   useEffect(() => {
-    if (expoPushToken && userId) {
-      // Consider using upsert() if you want to avoid duplicate tokens.
+    if (getNotifications) {
+      registerForPushNotificationsAsync().then((token) => {
+        setExpoPushToken(token);
+      });
+    } else {
+      setExpoPushToken(undefined);
+      // Clean up listeners
+      if (notificationListener.current) {
+        Notifications.removeNotificationSubscription(
+          notificationListener.current
+        );
+      }
+      if (responseListener.current) {
+        Notifications.removeNotificationSubscription(responseListener.current);
+      }
+    }
+  }, [getNotifications]);
+
+  // Second useEffect: Save/Remove the push token to/from Supabase
+  useEffect(() => {
+    const { getNotifications } = useNotificationStore.getState();
+
+    if (!getNotifications && userId) {
+      // Remove token from Supabase when notifications are disabled
+      supabase
+        .from("pending_notification")
+        .delete()
+        .eq("user_id", userId)
+        .then(({ error }) => {
+          if (error) console.error("Error removing push token:", error);
+        });
+    } else if (expoPushToken && userId) {
+      // Insert token when notifications are enabled
       supabase
         .from("pending_notification")
         .insert({
@@ -91,31 +122,47 @@ export const usePushNotifications = (): PushNotificationState => {
           expo_push_token: expoPushToken.data,
         })
         .then(({ error }) => {
-          if (error) {
-            console.error("Error saving push token:", error);
-            // In production, you might want to report this error to your error monitoring service.
-          }
+          if (error) console.error("Error saving push token:", error);
         });
     }
-  }, [expoPushToken, userId]);
+  }, [
+    expoPushToken,
+    userId,
+    useNotificationStore((state) => state.getNotifications),
+  ]);
 
   // Third useEffect: Set up notification listeners
   useEffect(() => {
-    notificationListener.current =
-      Notifications.addNotificationReceivedListener((notification) => {
-        setNotification(notification);
+    const { getNotifications } = useNotificationStore.getState();
+    let isMounted = true;
+
+    function redirect(notification: Notifications.Notification) {
+      const questionId = notification.request.content.data?.questionId;
+      if (questionId) {
+        router.push({
+          pathname: "/(question)",
+        });
+      }
+    }
+
+    if (getNotifications) {
+      // Check for any pending notifications
+      Notifications.getLastNotificationResponseAsync().then((response) => {
+        if (!isMounted || !response?.notification) return;
+        redirect(response.notification);
       });
 
-    responseListener.current =
-      Notifications.addNotificationResponseReceivedListener((response) => {
-        const questionId =
-          response.notification.request.content.data?.questionId;
-        if (questionId) {
-          router.push(`/question/${questionId}`);
-        }
-      });
+      notificationListener.current =
+        Notifications.addNotificationReceivedListener(setNotification);
+
+      responseListener.current =
+        Notifications.addNotificationResponseReceivedListener((response) => {
+          redirect(response.notification);
+        });
+    }
 
     return () => {
+      isMounted = false;
       if (notificationListener.current) {
         Notifications.removeNotificationSubscription(
           notificationListener.current
@@ -125,7 +172,7 @@ export const usePushNotifications = (): PushNotificationState => {
         Notifications.removeNotificationSubscription(responseListener.current);
       }
     };
-  }, []);
+  }, [useNotificationStore((state) => state.getNotifications)]);
 
   return {
     expoPushToken,

@@ -175,20 +175,7 @@ import { supabase } from "@/utils/supabase";
 import { userQuestionsNewAnswerForQuestions } from "@/constants/messages";
 import { useSupabaseRealtime } from "@/components/SupabaseRealtimeProvider";
 
-export type QuestionFromUser = {
-  id: string;
-  user_id: string;
-  question: string;
-  answer?: string;
-  status: "Beantwortet" | "Beantwortung steht noch aus" | "Abgelehnt";
-  marja: string;
-  title: string;
-  gender: string;
-  age: string;
-  internal_url: string[];
-  created_at: string;
-  approval_status: string
-};
+
 
 export type AskQuestionFormData = {
   title: string;

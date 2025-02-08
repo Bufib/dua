@@ -13,7 +13,6 @@ import NetInfo from "@react-native-community/netinfo";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   useFetchUserQuestions,
-  QuestionFromUser,
 } from "@/hooks/useFetchUserQuestions";
 import { useAuthStore } from "@/stores/authStore";
 import { formatDate } from "@/utils/formatDate";
@@ -25,7 +24,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { userQuestionErrorLoadingQuestions } from "@/constants/messages";
 import NoInternet from "@/components/NoInternet";
-
+import { QuestionFromUser } from "@/utils/types";
 import AntDesign from '@expo/vector-icons/AntDesign';
 export default function QuestionsList() {
   // 1. Check auth state from the store

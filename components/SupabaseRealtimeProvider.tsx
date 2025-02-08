@@ -221,44 +221,44 @@ export const SupabaseRealtimeProvider = ({
     };
   }, [queryClient]);
 
-  // /**
-  //  * User questions subscription
-  //  */
-  // useEffect(() => {
-  //   if (!userId) return;
+  /**
+   * User questions subscription
+   */
+  useEffect(() => {
+    if (!userId) return;
 
-  //   const userQuestionsChannel = supabase
-  //     .channel(`user_questions_${userId}`)
-  //     .on(
-  //       "postgres_changes",
-  //       {
-  //         event: "*",
-  //         schema: "public",
-  //         table: "user_question",
-  //         filter: `user_id=eq.${userId}`,
-  //       },
-  //       async (payload) => {
-  //         console.log("user_question event:", payload.eventType, payload);
-  //         if (payload.eventType === "INSERT") {
-  //           Toast.show({
-  //             type: "success",
-  //             text1: "Deine Frage wurde erfolgreich abgeschickt!",
-  //           });
-  //         } else {
-  //           userQuestionsNewAnswerForQuestions();
-  //         }
-  //         await queryClient.invalidateQueries({
-  //           queryKey: ["questionsFromUser", userId],
-  //           refetchType: "all",
-  //         });
-  //       }
-  //     )
-  //     .subscribe();
+    const userQuestionsChannel = supabase
+      .channel(`user_questions_${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "user_question",
+          filter: `user_id=eq.${userId}`,
+        },
+        async (payload) => {
+          console.log("user_question event:", payload.eventType, payload);
+          if (payload.eventType === "INSERT") {
+            Toast.show({
+              type: "success",
+              text1: "Deine Frage wurde erfolgreich abgeschickt!",
+            });
+          } else {
+            userQuestionsNewAnswerForQuestions();
+          }
+          await queryClient.invalidateQueries({
+            queryKey: ["questionsFromUser", userId],
+            refetchType: "all",
+          });
+        }
+      )
+      .subscribe();
 
-  //   return () => {
-  //     userQuestionsChannel.unsubscribe();
-  //   };
-  // }, [userId, queryClient]);
+    return () => {
+      userQuestionsChannel.unsubscribe();
+    };
+  }, [userId, queryClient]);
 
   // useEffect(() => {
   //   if (!userId) return; // ✅ Don't subscribe if the user isn't logged in

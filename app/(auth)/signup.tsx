@@ -52,7 +52,7 @@ const schema = z
         /^[a-zA-Z0-9_]+$/,
         "Der Benutzername darf nur Buchstaben, Zahlen und Unterstriche enthalten."
       ),
-    email: z.string().email("Bitte gib eine gültige E-Mail-Adresse ein."),
+    email: z.string({required_error: "E-mail darf nicht leer sein."}).email("Bitte gib eine gültige E-Mail-Adresse ein."),
     password: z
       .string({ required_error: signUpPasswordNotEmpty })
       .min(8, signUpUserPasswordMin)
@@ -377,18 +377,15 @@ export default function SignUpScreen() {
     if (!token) return;
 
     if (["error", "expired"].includes(token)) {
-      setShowCaptcha(false);
-      if (showCaptcha && ["error"].includes(token)) {
-        Alert.alert(
-          "Fehler",
-          "1. Captcha-Überprüfung fehlgeschlagen. Bitte versuche es erneut."
-        );
-      } else if (showCaptcha && ["expired"].includes(token)) {
-        Alert.alert(
-          "Fehler",
-          "2. Captcha-Überprüfung fehlgeschlagen. Bitte versuche es erneut."
-        );
+      if (captchaRef.current) {
+        captchaRef.current.hide();
       }
+      setShowCaptcha(false);
+      Alert.alert(
+        "Fehler",
+        "Captcha-Überprüfung fehlgeschlagen. Bitte versuche es erneut."
+      );
+      return;
     } else if (token === "cancel") {
       setShowCaptcha(false);
       Alert.alert("Fehler", cancleCaptcha);

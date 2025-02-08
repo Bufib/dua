@@ -73,13 +73,13 @@ export default function QuestionLinks() {
             style={[
               styles.bodyContainerText,
               {
-                fontSize: fontSize * 2,
+                fontSize: fontSize * 1.8,
                 fontWeight: "500",
                 lineHeight: 32,
               },
             ]}
           >
-            Kategorien
+            Kategorien (6)
           </ThemedText>
           <Ionicons
             name="chevron-forward"
@@ -152,10 +152,10 @@ export default function QuestionLinks() {
           <ThemedText
             style={[
               styles.footerHeaderContainerText,
-              { fontSize: fontSize * 2, fontWeight: "500", lineHeight: 32 },
+              { fontSize: fontSize * 1.8, fontWeight: "500", lineHeight: 32 },
             ]}
           >
-            Neue Fragen
+            Neue Fragen (10)
           </ThemedText>
           <Ionicons
             name="chevron-down"

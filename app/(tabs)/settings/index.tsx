@@ -345,7 +345,7 @@ const Settings = () => {
   const [version, setVersion] = useState<string | null>("");
   const [questionCount, setQuestionCount] = useState<number | null>(0);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const  {getNotifications, toggleGetNotifications}  = useNotificationStore();
+  const { getNotifications, toggleGetNotifications } = useNotificationStore();
 
   const { session } = useAuthStore();
 
@@ -388,8 +388,6 @@ const Settings = () => {
     // isDarkMode changes after re-rendering (state) so I have to set it !isDarkMode
     Storage.setItemSync("isDarkMode", `${!isDarkMode}`);
   };
-
-
 
   return (
     <SafeAreaView
@@ -508,10 +506,6 @@ const Settings = () => {
         </View>
 
         <View style={styles.footer}>
-          <Pressable onPress={() => router.push("/settings/about")}>
-            <ThemedText style={styles.footerLink}>Über die App</ThemedText>
-          </Pressable>
-
           <Pressable
             onPress={() =>
               Linking.openURL(
@@ -520,6 +514,10 @@ const Settings = () => {
             }
           >
             <ThemedText style={styles.footerLink}>Datenschutz</ThemedText>
+          </Pressable>
+
+          <Pressable onPress={() => router.push("/settings/about")}>
+            <ThemedText style={styles.footerLink}>Über die App</ThemedText>
           </Pressable>
 
           <Pressable onPress={() => router.push("/settings/impressum")}>
