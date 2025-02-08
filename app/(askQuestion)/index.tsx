@@ -11,9 +11,7 @@ import {
 import { Link, router, useFocusEffect } from "expo-router";
 import NetInfo from "@react-native-community/netinfo";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  useFetchUserQuestions,
-} from "@/hooks/useFetchUserQuestions";
+import { useFetchUserQuestions } from "@/hooks/useFetchUserQuestions";
 import { useAuthStore } from "@/stores/authStore";
 import { formatDate } from "@/utils/formatDate";
 import { Colors } from "@/constants/Colors";
@@ -25,7 +23,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { userQuestionErrorLoadingQuestions } from "@/constants/messages";
 import NoInternet from "@/components/NoInternet";
 import { QuestionFromUser } from "@/utils/types";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import AntDesign from "@expo/vector-icons/AntDesign";
 export default function QuestionsList() {
   // 1. Check auth state from the store
   const { isLoggedIn, session } = useAuthStore();
@@ -130,7 +128,13 @@ export default function QuestionsList() {
           <ThemedText style={styles.errorText}>
             {userQuestionErrorLoadingQuestions}
           </ThemedText>
-          <Pressable style={styles.retryButton} onPress={() => refetch}>
+          <Pressable
+            style={({ pressed }) => [
+              styles.retryButton,
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={() => refetch()}
+          >
             <ThemedText style={styles.retryButtonText}>
               Versuch es nochmal
             </ThemedText>
@@ -222,15 +226,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   retryButton: {
-    backgroundColor: Colors.universal.link,
+    backgroundColor: Colors.universal.primary,
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
+    transform: [{scale: 1}],
+  },
+  buttonPressed: {
+    transform: [{scale: 0.95}],
+    opacity: 0.9,
   },
   retryButtonText: {
-    color: "#fff",
+    color: '#fff',
     fontSize: 14,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   listContainer: {
     padding: 16,

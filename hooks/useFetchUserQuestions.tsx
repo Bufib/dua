@@ -175,8 +175,6 @@ import { supabase } from "@/utils/supabase";
 import { userQuestionsNewAnswerForQuestions } from "@/constants/messages";
 import { useSupabaseRealtime } from "@/components/SupabaseRealtimeProvider";
 
-
-
 export type AskQuestionFormData = {
   title: string;
   question: string;
@@ -194,6 +192,7 @@ export const useFetchUserQuestions = () => {
   const queryResult = useQuery({
     queryKey: ["questionsFromUser", userId],
     queryFn: async () => {
+      console.log("Current userId:", userId);
       if (!userId) throw new Error("Not authenticated");
 
       const { data, error } = await supabase
@@ -202,7 +201,7 @@ export const useFetchUserQuestions = () => {
         .eq("user_id", userId)
         .order("update_answered_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: true });
-
+        console.log("Supabase response:", { data, error });
       if (error) {
         throw new Error(error.message);
       }
