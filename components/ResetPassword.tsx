@@ -19,6 +19,9 @@ import { useEffect } from "react";
 import { supabase } from "@/utils/supabase";
 import { useLocalSearchParams, router } from "expo-router";
 import { Colors } from "@/constants/Colors";
+import { ThemedView } from "./ThemedView";
+import { ThemedText } from "./ThemedText";
+import { coustomTheme } from "@/utils/coustomTheme";
 
 /**
  * Enhanced Zod Schema:
@@ -60,6 +63,7 @@ export function ResetPassword() {
   // Show/hide password fields
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const themeStyles = coustomTheme();
 
   const colorScheme = useColorScheme();
 
@@ -215,14 +219,14 @@ export function ResetPassword() {
   };
 
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       {/* CODE FIELD */}
       <Controller
         control={control}
         name="code"
         render={({ field: { onChange, value } }) => (
           <TextInput
-            style={styles.input}
+            style={[styles.input, themeStyles.contrast, themeStyles.text]}
             placeholder="Reset-Code eingeben"
             onChangeText={onChange}
             value={value}
@@ -237,9 +241,9 @@ export function ResetPassword() {
         control={control}
         name="newPassword"
         render={({ field: { onChange, value } }) => (
-          <View style={styles.passwordContainer}>
+          <View style={[styles.passwordContainer, themeStyles.contrast]}>
             <TextInput
-              style={styles.passwordInput}
+              style={[styles.passwordInput, themeStyles.text]}
               placeholder="Neues Passwort eingeben"
               onChangeText={onChange}
               value={value}
@@ -275,9 +279,9 @@ export function ResetPassword() {
         control={control}
         name="confirmPassword"
         render={({ field: { onChange, value } }) => (
-          <View style={styles.passwordContainer}>
+          <View style={[styles.passwordContainer, themeStyles.contrast]}>
             <TextInput
-              style={styles.passwordInput}
+              style={[styles.passwordInput, themeStyles.text]}
               placeholder="Passwort bestätigen"
               onChangeText={onChange}
               value={value}
@@ -312,14 +316,20 @@ export function ResetPassword() {
       {loading ? (
         <ActivityIndicator
           style={styles.loadingIndicator}
-          color={Colors.universal.link}
+          color={Colors.universal.primary}
         />
       ) : (
-        <Pressable onPress={handleSubmit(handleUpdatePassword)}>
-          <Text>Passwort aktualisieren</Text>
+        <Pressable
+          style={({ pressed }) => [
+            styles.resetButton,
+            pressed && styles.buttonPressed,
+          ]}
+          onPress={handleSubmit(handleUpdatePassword)}
+        >
+          <Text style={styles.resetButtonText}>Passwort aktualisieren</Text>
         </Pressable>
       )}
-    </View>
+    </ThemedView>
   );
 }
 
@@ -345,6 +355,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 6,
     marginBottom: 16,
+  },
+  resetButton: {
+    marginTop: 5,
+    alignSelf: "center",
+    padding: 10,
+    borderRadius: 7,
+    backgroundColor: Colors.universal.primary,
+  },
+  buttonPressed: {
+    transform: [{ scale: 0.95 }],
+    opacity: 0.9,
+  },
+  resetButtonText: {
+    fontSize: 16,
+    color: "#fff",
   },
   passwordInput: {
     flex: 1,

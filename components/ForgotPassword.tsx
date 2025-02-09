@@ -14,6 +14,9 @@ import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Colors } from "@/constants/Colors";
+import { coustomTheme } from "@/utils/coustomTheme";
+import { ThemedText } from "./ThemedText";
+import { ThemedView } from "./ThemedView";
 
 // Define validation schema with Zod
 const schema = z.object({
@@ -30,6 +33,7 @@ type ForgotPasswordFormValues = {
 
 export function ForgotPassword() {
   const [loading, setLoading] = useState(false);
+  const themeStyles = coustomTheme();
 
   const {
     control,
@@ -64,14 +68,14 @@ export function ForgotPassword() {
   };
 
   return (
-    <View style={styles.container}>
+    <ThemedView style={styles.container}>
       <Controller
         control={control}
         name="email"
         render={({ field: { onChange, value } }) => (
           <TextInput
-            style={styles.input}
-            placeholder="E-Mail Adresse eingeben"
+            style={[styles.input, themeStyles.contrast, themeStyles.text]}
+            placeholder="Deine E-Mail-Adresse"
             onChangeText={onChange}
             value={value}
             autoCapitalize="none"
@@ -81,10 +85,17 @@ export function ForgotPassword() {
       />
       {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
 
-      <Pressable onPress={handleSubmit(handleResetPassword)} disabled={loading}>
-        <Text>Reset-Code anfordern"</Text>
+      <Pressable
+        style={({ pressed }) => [
+          styles.resetButton,
+          pressed && styles.buttonPressed,
+        ]}
+        onPress={handleSubmit(handleResetPassword)}
+        disabled={loading}
+      >
+        <ThemedText style={styles.resetButtonText}>Reset-Code anfordern</ThemedText>
       </Pressable>
-    </View>
+    </ThemedView>
   );
 }
 
@@ -98,8 +109,22 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     padding: 12,
     borderWidth: 1,
-
-    borderRadius: 6,
+    borderRadius: 7,
+  },
+  resetButton: {
+    marginTop: 5,
+    alignSelf: "center",
+    padding: 10,
+    borderRadius: 7,
+    backgroundColor: Colors.universal.primary,
+  },
+  buttonPressed: {
+    transform: [{scale: 0.95}],
+    opacity: 0.9,
+  },
+  resetButtonText: {
+    fontSize: 16,
+    color: "#fff",
   },
   error: {
     color: Colors.universal.error,

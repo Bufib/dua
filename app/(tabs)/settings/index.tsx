@@ -465,9 +465,9 @@ const Settings = () => {
               style={styles.settingButton}
               onPress={() => router.push("/(tabs)/settings/changePassword")}
             >
-              <ThemedText style={styles.settingButtonText}>
+              <Text style={styles.settingButtonText}>
                 Passwort ändern
-              </ThemedText>
+              </Text>
             </Pressable>
 
             <Pressable
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingLeft: 20,
     paddingVertical: 15,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0,0,0,0.1)",
@@ -594,9 +594,9 @@ const styles = StyleSheet.create({
   },
   settingButton: {
     padding: 16,
-    backgroundColor: "rgba(0,0,0,0.05)",
     borderRadius: 10,
     marginBottom: 12,
+    backgroundColor: "#ccc"
   },
   settingButtonText: {
     fontSize: 16,

@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Alert,
   useColorScheme,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { z } from "zod";
 import { supabase } from "@/utils/supabase";
@@ -67,21 +69,20 @@ const ChangePassword = () => {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "USER_UPDATED") {
+        supabase.auth.signOut();
+        router.replace("/login");
         Toast.show({
           type: "success",
-          text1: "Passwort erfolgreich aktualisiert!",
+          text1: "Passwort geändert. Bitte melde dich erneut an.",
           topOffset: 60,
         });
         setOldPassword("");
         setPassword("");
         setConfirmPassword("");
-        router.push("/(tabs)/settings/");
       }
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const changeUserPassword = async () => {
@@ -93,14 +94,13 @@ const ChangePassword = () => {
         password: password,
       });
 
-      if (error) {
-        console.log(error);
-        throw error;
+      if (error) throw error;
+    } catch (error) {
+      if (error instanceof Error) {
+        Alert.alert("Fehler", error.message);
+      } else {
+        Alert.alert("Fehler", "Ein unbekannter Fehler ist aufgetreten");
       }
-      // Success handling moved to event listener
-    } catch (error: any) {
-      console.log(error);
-      Alert.alert("Fehler", error.message);
     } finally {
       setLoading(false);
     }
@@ -150,7 +150,7 @@ const ChangePassword = () => {
       } = await supabase.auth.getUser();
 
       if (userError || !user) {
-        Alert.alert("Fehler", "Benutzerdaten konnten nicht abgerufen werden.");
+        Alert.alert("Fehler", userError?.message);
         setLoading(false);
         return;
       }
@@ -184,122 +184,124 @@ const ChangePassword = () => {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText style={styles.title}>Passwort ändern</ThemedText>
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <ThemedView style={styles.container}>
+        <ThemedText style={styles.title}>Passwort ändern</ThemedText>
 
-      {/* Old Password Input */}
-      <View style={styles.inputContainer}>
-        <ThemedText style={styles.label}>Altes Passwort</ThemedText>
-        <View style={[styles.passwordContainer, themeStyles.contrast]}>
-          <TextInput
-            style={[styles.passwordInput, themeStyles.text]}
-            value={oldPassword}
-            onChangeText={setOldPassword}
-            secureTextEntry={!showOldPassword}
-            placeholder="Altes Passwort eingeben"
-            placeholderTextColor="#666"
-          />
-          <Pressable
-            onPress={() => setShowOldPassword(!showOldPassword)}
-            style={styles.eyeIcon}
-          >
-            {showOldPassword ? (
-              <Feather
-                name="eye"
-                size={24}
-                color={colorScheme === "dark" ? "#fff" : "#000"}
-              />
-            ) : (
-              <Feather
-                name="eye-off"
-                size={24}
-                color={colorScheme === "dark" ? "#fff" : "#000"}
-              />
-            )}
-          </Pressable>
+        {/* Old Password Input */}
+        <View style={styles.inputContainer}>
+          <ThemedText style={styles.label}>Altes Passwort</ThemedText>
+          <View style={[styles.passwordContainer, themeStyles.contrast]}>
+            <TextInput
+              style={[styles.passwordInput, themeStyles.text]}
+              value={oldPassword}
+              onChangeText={setOldPassword}
+              secureTextEntry={!showOldPassword}
+              placeholder="Altes Passwort eingeben"
+              placeholderTextColor="#666"
+            />
+            <Pressable
+              onPress={() => setShowOldPassword(!showOldPassword)}
+              style={styles.eyeIcon}
+            >
+              {showOldPassword ? (
+                <Feather
+                  name="eye"
+                  size={24}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
+                />
+              ) : (
+                <Feather
+                  name="eye-off"
+                  size={24}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
+                />
+              )}
+            </Pressable>
+          </View>
+          {renderError("oldPassword")}
         </View>
-        {renderError("oldPassword")}
-      </View>
 
-      {/* New Password Input */}
-      <View style={styles.inputContainer}>
-        <ThemedText style={styles.label}>Neues Passwort</ThemedText>
-        <View style={[styles.passwordContainer, themeStyles.contrast]}>
-          <TextInput
-            style={[styles.passwordInput, themeStyles.text]}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
-            placeholder="Neues Passwort eingeben"
-            placeholderTextColor="#666"
-          />
-          <Pressable
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.eyeIcon}
-          >
-            {showPassword ? (
-              <Feather
-                name="eye"
-                size={24}
-                color={colorScheme === "dark" ? "#fff" : "#000"}
-              />
-            ) : (
-              <Feather
-                name="eye-off"
-                size={24}
-                color={colorScheme === "dark" ? "#fff" : "#000"}
-              />
-            )}
-          </Pressable>
+        {/* New Password Input */}
+        <View style={styles.inputContainer}>
+          <ThemedText style={styles.label}>Neues Passwort</ThemedText>
+          <View style={[styles.passwordContainer, themeStyles.contrast]}>
+            <TextInput
+              style={[styles.passwordInput, themeStyles.text]}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              placeholder="Neues Passwort eingeben"
+              placeholderTextColor="#666"
+            />
+            <Pressable
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeIcon}
+            >
+              {showPassword ? (
+                <Feather
+                  name="eye"
+                  size={24}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
+                />
+              ) : (
+                <Feather
+                  name="eye-off"
+                  size={24}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
+                />
+              )}
+            </Pressable>
+          </View>
+          {renderError("password")}
         </View>
-        {renderError("password")}
-      </View>
 
-      {/* Confirm Password Input */}
-      <View style={styles.inputContainer}>
-        <ThemedText style={styles.label}>Passwort bestätigen</ThemedText>
-        <View style={[styles.passwordContainer, themeStyles.contrast]}>
-          <TextInput
-            style={[styles.passwordInput, themeStyles.text]}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry={!showConfirmPassword}
-            placeholder="Passwort bestätigen"
-            placeholderTextColor="#666"
-          />
-          <Pressable
-            onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-            style={styles.eyeIcon}
-          >
-            {showConfirmPassword ? (
-              <Feather
-                name="eye"
-                size={24}
-                color={colorScheme === "dark" ? "#fff" : "#000"}
-              />
-            ) : (
-              <Feather
-                name="eye-off"
-                size={24}
-                color={colorScheme === "dark" ? "#fff" : "#000"}
-              />
-            )}
-          </Pressable>
+        {/* Confirm Password Input */}
+        <View style={styles.inputContainer}>
+          <ThemedText style={styles.label}>Passwort bestätigen</ThemedText>
+          <View style={[styles.passwordContainer, themeStyles.contrast]}>
+            <TextInput
+              style={[styles.passwordInput, themeStyles.text]}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!showConfirmPassword}
+              placeholder="Passwort bestätigen"
+              placeholderTextColor="#666"
+            />
+            <Pressable
+              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+              style={styles.eyeIcon}
+            >
+              {showConfirmPassword ? (
+                <Feather
+                  name="eye"
+                  size={24}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
+                />
+              ) : (
+                <Feather
+                  name="eye-off"
+                  size={24}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
+                />
+              )}
+            </Pressable>
+          </View>
+          {renderError("confirmPassword")}
         </View>
-        {renderError("confirmPassword")}
-      </View>
 
-      {/* Submit Button */}
-      <Pressable
-        style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={handlePasswordChange}
-        disabled={loading}
-      >
-        <ThemedText style={styles.buttonText}>
-          {loading ? "Wird aktualisiert..." : "Passwort aktualisieren"}
-        </ThemedText>
-      </Pressable>
-    </ThemedView>
+        {/* Submit Button */}
+        <Pressable
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handlePasswordChange}
+          disabled={loading}
+        >
+          <ThemedText style={styles.buttonText}>
+            {loading ? "Wird aktualisiert..." : "Passwort aktualisieren"}
+          </ThemedText>
+        </Pressable>
+      </ThemedView>
+    </TouchableWithoutFeedback>
   );
 };
 
