@@ -17,17 +17,24 @@ export default function QuestionLinks() {
   const themeStyles = coustomTheme();
   const { width, height } = useWindowDimensions();
   console.log(width, height);
+  /*  const elementSize = width > 380 ? 120 : 110; // Size of each small square
+  const fontSize = width > 380 ? 13 : 12; // Font of element text
+  const iconSize = width > 380 ? 65 : 60; // Icon in element
+  const imageSize = width > 380 ? 300 : 250; // Header image
+  const gap = width > 380 ? 30 : 20; // Header image gap
+  */
+
   // Dynamically calculate the size of each element based on screen width
   const elementSize =
-    width > 380 && height > 900 ? 120 : width < 380 && height > 750 ? 110 : 100; // Size of each small square
+    width > 380 && height > 900 ? 120 : width < 380 && height > 750 ? 110 : 90; // Size of each small square
   const fontSize =
-    width > 380 && height > 900 ? 13 : width < 380 && height > 750 ? 12 : 12; // Font of element text
+    width > 380 && height > 900 ? 13 : width < 380 && height > 750 ? 12 : 11; // Font of element text
   const iconSize =
-    width > 380 && height > 900 ? 65 : width < 380 && height > 750 ? 60 : 55; // Icon in element
+    width > 380 && height > 900 ? 65 : width < 380 && height > 750 ? 60 : 50; // Icon in element
   const imageSize =
-    width > 380 && height < 900 ? 300 : width < 380 && height > 750 ? 250 : 200; // Header image
+    width > 380 && height > 900 ? 300 : width < 380 && height > 750 ? 250 : 200; // Header image
   const gap =
-    width > 380 && height < 900 ? 30 : width < 380 && height > 750 ? 20 : 10; // Header image gap
+    width > 380 && height > 900 ? 30 : width < 380 && height > 750 ? 20 : 15; // Header image gap
 
   // For square to change color on pressed
   const [pressedIndex, setPressedIndex] = useState<number | null>(null);
@@ -128,7 +135,9 @@ export default function QuestionLinks() {
                   },
               ]}
             >
-              <View style={styles.categoryButtonContainer}>
+              <View
+                style={[styles.categoryButtonContainer, { gap: (iconSize / 10) - 1 }]}
+              >
                 <View
                   style={[
                     styles.iconContainer,
@@ -258,7 +267,6 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   categoryButtonContainer: {
-    gap: 5,
     alignItems: "center",
     justifyContent: "center",
   },
