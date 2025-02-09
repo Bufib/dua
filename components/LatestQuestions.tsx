@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Pressable, FlatList } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Pressable,
+  FlatList,
+  ActivityIndicator,
+  Text,
+} from "react-native";
 import { router } from "expo-router";
 import { getLatestQuestions } from "@/utils/initializeDatabase";
 import { QuestionType } from "@/utils/types";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "./ThemedText";
 import { useColorScheme } from "react-native";
+import { ThemedView } from "./ThemedView";
 
 const LatestQuestions: React.FC = () => {
   const [latestQuestions, setLatestQuestions] = useState<QuestionType[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const themeStyles = coustomTheme();
   const colorScheme = useColorScheme();
@@ -51,16 +60,31 @@ const LatestQuestions: React.FC = () => {
 
   useEffect(() => {
     const loadLatestQuestions = async () => {
+      setIsLoading(true);
       try {
         const questions = await getLatestQuestions();
         setLatestQuestions(questions);
       } catch (error) {
         console.error("Error loading latest questions:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     loadLatestQuestions();
   }, []);
+
+  // While loading
+  if (isLoading) {
+    return (
+      <ThemedView
+        style={{ flex: 1, marginTop: 20, gap: 10, alignItems: "center" }}
+      >
+        <ThemedText>Fragen werden geladen</ThemedText>
+        <ActivityIndicator />
+      </ThemedView>
+    );
+  }
 
   const renderItem = ({ item }: { item: QuestionType }) => (
     <QuestionItem
