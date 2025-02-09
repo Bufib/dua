@@ -13,6 +13,10 @@ import { supabase } from "@/utils/supabase";
 import { router } from "expo-router";
 import Feather from "@expo/vector-icons/Feather";
 import Toast from "react-native-toast-message";
+import { ThemedView } from "@/components/ThemedView";
+import { ThemedText } from "@/components/ThemedText";
+import { Colors } from "@/constants/Colors";
+import { coustomTheme } from "@/utils/coustomTheme";
 
 // Password validation schema
 const passwordSchema = z
@@ -49,6 +53,7 @@ const ChangePassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
+  const themeStyles = coustomTheme();
 
   // Eye toggle states
   const [showOldPassword, setShowOldPassword] = useState(false);
@@ -156,8 +161,8 @@ const ChangePassword = () => {
       });
 
       if (signInError) {
-        Alert.alert("Fehler", "Dein altes Passwort ist nicht korrekt!");
         setLoading(false);
+        Alert.alert("Fehler", "Dein altes Passwort ist nicht korrekt!");
         return;
       }
       // Old password is correct, change password
@@ -179,15 +184,15 @@ const ChangePassword = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Passwort ändern</Text>
+    <ThemedView style={styles.container}>
+      <ThemedText style={styles.title}>Passwort ändern</ThemedText>
 
       {/* Old Password Input */}
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Altes Passwort</Text>
-        <View style={styles.passwordContainer}>
+        <ThemedText style={styles.label}>Altes Passwort</ThemedText>
+        <View style={[styles.passwordContainer, themeStyles.contrast]}>
           <TextInput
-            style={styles.passwordInput}
+            style={[styles.passwordInput, themeStyles.text]}
             value={oldPassword}
             onChangeText={setOldPassword}
             secureTextEntry={!showOldPassword}
@@ -218,10 +223,10 @@ const ChangePassword = () => {
 
       {/* New Password Input */}
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Neues Passwort</Text>
-        <View style={styles.passwordContainer}>
+        <ThemedText style={styles.label}>Neues Passwort</ThemedText>
+        <View style={[styles.passwordContainer, themeStyles.contrast]}>
           <TextInput
-            style={styles.passwordInput}
+            style={[styles.passwordInput, themeStyles.text]}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
@@ -252,10 +257,10 @@ const ChangePassword = () => {
 
       {/* Confirm Password Input */}
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Passwort bestätigen</Text>
-        <View style={styles.passwordContainer}>
+        <ThemedText style={styles.label}>Passwort bestätigen</ThemedText>
+        <View style={[styles.passwordContainer, themeStyles.contrast]}>
           <TextInput
-            style={styles.passwordInput}
+            style={[styles.passwordInput, themeStyles.text]}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry={!showConfirmPassword}
@@ -270,13 +275,13 @@ const ChangePassword = () => {
               <Feather
                 name="eye"
                 size={24}
-               color={colorScheme === "dark" ? "#fff" : "#000"}
+                color={colorScheme === "dark" ? "#fff" : "#000"}
               />
             ) : (
               <Feather
                 name="eye-off"
                 size={24}
-               color={colorScheme === "dark" ? "#fff" : "#000"}
+                color={colorScheme === "dark" ? "#fff" : "#000"}
               />
             )}
           </Pressable>
@@ -290,11 +295,11 @@ const ChangePassword = () => {
         onPress={handlePasswordChange}
         disabled={loading}
       >
-        <Text style={styles.buttonText}>
+        <ThemedText style={styles.buttonText}>
           {loading ? "Wird aktualisiert..." : "Passwort aktualisieren"}
-        </Text>
+        </ThemedText>
       </Pressable>
-    </View>
+    </ThemedView>
   );
 };
 
@@ -304,13 +309,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#fff",
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 30,
-    color: "#1a1a1a",
   },
   inputContainer: {
     marginBottom: 20,
@@ -318,40 +321,36 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     marginBottom: 8,
-    color: "#333",
     fontWeight: "500",
   },
   passwordContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
   },
   passwordInput: {
     flex: 1,
     padding: 15,
     fontSize: 16,
-    color: "#1a1a1a",
   },
   eyeIcon: {
     padding: 10,
   },
   errorText: {
-    color: "#dc3545",
+    color: Colors.universal.error,
     fontSize: 14,
     marginTop: 5,
   },
   button: {
-    backgroundColor: "#007AFF",
+    backgroundColor: Colors.universal.primary,
     borderRadius: 8,
     padding: 15,
     alignItems: "center",
     marginTop: 20,
   },
   buttonDisabled: {
-    backgroundColor: "#99c4ff",
+    backgroundColor: "#888",
   },
   buttonText: {
     color: "#fff",

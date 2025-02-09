@@ -109,7 +109,7 @@ export const Colors = {
     questionBoxQuestionText: "#666",
     introductionBackground: "#4fa1b8",
     indexItemBackgroundColor: "#4fa1b8",
-    error: "#DC2626",
+    error: "#dc3545",
     QuestionLinksIconContainer: "#057958",
 
   },
