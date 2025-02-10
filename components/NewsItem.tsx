@@ -54,7 +54,6 @@ export const NewsItem = ({
 
   return (
     <View style={[styles.newsItem, themeStyles.contrast]}>
-     
       {is_pinned && (
         <AntDesign
           name="pushpin"
@@ -82,7 +81,7 @@ export const NewsItem = ({
         <ThemedView style={styles.linksContainer}>
           {external_url.map((url, index) => (
             <RenderLinkNewsItem
-            key={`external-url-${index}-${url}`} 
+              key={`external-url-${index}-${url}`}
               url={url}
               index={index}
               isExternal={true}
@@ -95,7 +94,7 @@ export const NewsItem = ({
         <ThemedView style={styles.linksContainer}>
           {internal_url.map((url, index) => (
             <RenderLinkNewsItem
-            key={`internal-url-${index}-${url}`} 
+              key={`internal-url-${index}-${url}`}
               url={url}
               index={index}
               isExternal={false}
@@ -112,7 +111,7 @@ export const NewsItem = ({
             pagingEnabled
             snapToInterval={screenWidth} // Ensure snapping aligns with image width
             snapToAlignment="center"
-            decelerationRate="fast" 
+            decelerationRate="fast"
             showsHorizontalScrollIndicator={false}
             onMomentumScrollEnd={handleScrollEnd}
             keyExtractor={(item, index) => `${item}-${index}`}
@@ -130,14 +129,13 @@ export const NewsItem = ({
           {/* Dots Pagination */}
           <View style={styles.dotsContainer}>
             {image_url.map((_, index) => (
-              <Pressable
-                key={index}
-                onPress={() => handleDotPress(index)}
-              >
+              <Pressable key={index} onPress={() => handleDotPress(index)}>
                 <View
                   style={[
                     styles.dot,
-                    currentPage === index ? styles.activeDot : styles.inactiveDot,
+                    currentPage === index
+                      ? styles.activeDot
+                      : styles.inactiveDot,
                   ]}
                 />
               </Pressable>

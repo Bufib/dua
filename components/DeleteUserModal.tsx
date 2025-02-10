@@ -36,7 +36,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const themeStyles = coustomTheme();
-  const user = useAuthStore((state) => state.session?.user);
+  const user = useAuthStore((state) => state.session?.user)
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);

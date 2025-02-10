@@ -10,97 +10,102 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { useAuthStore } from "@/stores/authStore";
 import { router } from "expo-router";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native";
+import {
+  ThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+} from "@react-navigation/native";
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const { isLoggedIn } = useAuthStore();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   return (
-     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000",
-      }}
-    >
-      <Tabs.Screen
-        name="home"
-        options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="house.fill" color={color} />
-          ),
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Tabs
+        screenOptions={{
+          tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+          headerShown: false,
+          tabBarButton: HapticTab,
+          tabBarBackground: TabBarBackground,
+          headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000",
         }}
-      />
+      >
+        <Tabs.Screen
+          name="home"
+          options={{
+            title: "Home",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={28} name="house.fill" color={color} />
+            ),
+          }}
+        />
 
-      <Tabs.Screen
-        name="news"
-        options={{
-          title: "Neuigkeiten",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="newspaper" color={color} />
-          ),
-        }}
-      />
+        <Tabs.Screen
+          name="news"
+          options={{
+            title: "Neuigkeiten",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={28} name="newspaper" color={color} />
+            ),
+          }}
+        />
 
-      {/** This is the middle “Add” button. */}
-      <Tabs.Screen
-        name="user"
-        options={{
-          title: "",
-          tabBarLabel: () => null,
-          tabBarIcon: () => null,
-          tabBarButton: (props) => {
-            return (
-              <Pressable
-                {...props}
-                onPress={() => {
-                  if (isLoggedIn) {
-                    router.push("/(askQuestion)");
-                  } else {
-                    router.push("/(auth)/login");
-                  }
-                }}
-                style={styles.floatingButtonContainer}
-              >
-                {/* Add the icon or the symbol you want here */}
-                <View style={styles.floatingButton}>
-                  <MaterialCommunityIcons
-                    name="account-question-outline"
-                    size={26}
-                    color="#fff"
-                    style={{ marginLeft: 5 }} // Align in middle
-                  />
-                </View>
-              </Pressable>
-            );
-          },
-        }}
-      />
+        {/** This is the middle “Add” button. */}
+        <Tabs.Screen
+          name="user"
+          options={{
+            title: "",
+            tabBarLabel: () => null,
+            tabBarIcon: () => null,
+            tabBarButton: (props) => {
+              return (
+                <Pressable
+                  {...props}
+                  onPress={() => {
+                    if (isLoggedIn) {
+                      router.push("/(askQuestion)");
+                    } else {
+                      console.log(isLoggedIn)
+                      router.push("/(auth)/login");
+                    }
+                  }}
+                  style={styles.floatingButtonContainer}
+                >
+                  {/* Add the icon or the symbol you want here */}
+                  <View style={styles.floatingButton}>
+                    <MaterialCommunityIcons
+                      name="account-question-outline"
+                      size={26}
+                      color="#fff"
+                      style={{ marginLeft: 5 }} // Align in middle
+                    />
+                  </View>
+                </Pressable>
+              );
+            },
+          }}
+        />
 
-      <Tabs.Screen
-        name="favorites"
-        options={{
-          title: "Favoriten",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="star.fill" color={color} />
-          ),
-        }}
-      />
+        <Tabs.Screen
+          name="favorites"
+          options={{
+            title: "Favoriten",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={28} name="star.fill" color={color} />
+            ),
+          }}
+        />
 
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: "Einstellungen",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="gear.circle" color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+        <Tabs.Screen
+          name="settings"
+          options={{
+            title: "Einstellungen",
+            tabBarIcon: ({ color }) => (
+              <IconSymbol size={28} name="gear.circle" color={color} />
+            ),
+          }}
+        />
+      </Tabs>
     </ThemeProvider>
   );
 }

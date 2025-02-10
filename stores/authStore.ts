@@ -329,12 +329,14 @@ export const useAuthStore = create<AuthStore>()(
         }
       },
 
-      // Set a new session and determine user role
+      //  Set a new session and determine user role
       setSession: async (session: Session | null, persist: boolean) => {
         try {
           if (session) {
             // Fetch the user's role from the user_roles table
+            console.log(session.user.id);
             const { role, username } = await get().getUserRole(session.user.id);
+
             const isAdmin = role === "admin";
             const isModerator = role === "moderator";
 
@@ -369,11 +371,10 @@ export const useAuthStore = create<AuthStore>()(
           console.error("Failed to clear session:", error);
         }
       },
-
+    
       // Restore the session and user role from persisted storage
       restoreSession: async () => {
         try {
-          const { session } = get();
           const {
             data: { session: currentSession },
           } = await supabase.auth.getSession();

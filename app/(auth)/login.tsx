@@ -32,10 +32,12 @@ import { Colors } from "@/constants/Colors";
 // Login data schema
 const loginSchema = z.object({
   email: z
-    .string({required_error: "Bitte E-Mail eingeben."})
+    .string({ required_error: "Bitte E-Mail eingeben." })
     .nonempty("Bitte E-Mail eingeben.")
     .email("Bitte eine gültige E-Mail eingeben."),
-  password: z.string({required_error: "Bitte Password eingeben."}).nonempty("Bitte Passwort eingeben."),
+  password: z
+    .string({ required_error: "Bitte Password eingeben." })
+    .nonempty("Bitte Passwort eingeben."),
 });
 
 // Tpyes & Schema
@@ -58,36 +60,43 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [stayLoggedIn, setStayLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { setSession } = useAuthStore();
+
+  const clearSession = useAuthStore.getState().clearSession;
+  const setSession = useAuthStore.getState().setSession;
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn); // ✅ Triggers re-render only when isLoggedIn changes
+
 
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN") {
-        // Store session in your auth store
-        await setSession(session, stayLoggedIn);
-
-        // Clear form
-        reset();
-
-        // Show success toast
-        Toast.show({
-          type: "success",
-          text1: "Du wurdest erfolgreich angemeldet!",
-          text1Style: { fontSize: 14, fontWeight: "600" },
-          topOffset: 60,
-        });
-
-        // Navigate to home
-        router.replace("/(tabs)/user");
+        setIsLoading(true);
+        setTimeout(async () => {
+          try {
+            await setSession(session, stayLoggedIn);
+            reset();
+            Toast.show({
+              type: "success",
+              text1: "Du wurdest erfolgreich angemeldet!",
+              text1Style: { fontSize: 14, fontWeight: "600" },
+              topOffset: 60,
+            });
+            router.replace("/(askQuestion)/");
+          } catch (error) {
+            console.error("Error in auth state change:", error);
+            Alert.alert("Fehler", "Anmeldung fehlgeschlagen");
+          } finally {
+            setIsLoading(false);
+          }
+        }, 0);
+      } else if (event === "SIGNED_OUT") {
+        clearSession();
       }
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [stayLoggedIn]);
+    return () => subscription.unsubscribe();
+  }, []);
 
   const onSubmit = async (formData: LoginFormValues) => {
     //Check for network connection
@@ -108,6 +117,10 @@ export default function LoginScreen() {
   async function loginWithSupabase(email: string, password: string) {
     setIsLoading(true);
     try {
+      if (isLoggedIn) {
+        return;
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -133,8 +146,13 @@ export default function LoginScreen() {
         return;
       }
       // Success handling moved to auth state listener
-    } catch (error: any) {
-      Alert.alert(error, error.message || "Es gab einen Fehler beim Login.");
+    } catch (error) {
+      setIsLoading(false);
+      if (error instanceof Error) {
+        Alert.alert("Login fehlgeschlagen", error.message);
+      } else {
+        Alert.alert("Login fehlgeschlagen", "Es gab einen Fehler beim Login.");
+      }
     } finally {
       setIsLoading(false);
     }

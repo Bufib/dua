@@ -45,7 +45,7 @@ export default function NewsFeed() {
     flatListRef.current?.scrollToOffset({ offset: 0, animated: true }); // Scroll to the top
   };
 
-  const { isAdmin } = useAuthStore();
+  const isAdmin = useAuthStore((state) => state.isAdmin);
   const { hasNewNewsData, clearNewNewsFlag } = useSupabaseRealtime();
   const ListFooter = () => {
     if (!hasNextPage) return null;

@@ -219,6 +219,7 @@ const RenderQuestion = ({
                 </Markdown>
               </View>
             </Collapsible>
+            
             <Collapsible title="Sayid as-Sistani" marja="sistani">
               <View style={styles.textIconContainer}>
                 {hasCopiedSistani ? (

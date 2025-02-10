@@ -183,7 +183,9 @@ export const SupabaseRealtimeProvider = ({
   const [userId, setUserId] = useState<string | null>(null);
   const [hasNewNewsData, setHasNewNewsData] = useState(false);
   const queryClient = useQueryClient();
-  const { isAdmin } = useAuthStore();
+
+  const isAdmin = useAuthStore((state) => state.isAdmin);
+  const setSession = useAuthStore.getState().setSession
   const clearNewNewsFlag = () => setHasNewNewsData(false);
 
   /**
@@ -193,9 +195,14 @@ export const SupabaseRealtimeProvider = ({
     const getCurrentUser = async () => {
       try {
         const {
-          data: { user },
-        } = await supabase.auth.getUser();
-        setUserId(user?.id ?? null);
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) {
+          await setSession(session, true);
+          setUserId(session.user.id);
+        } else {
+          setUserId(null);
+        }
       } catch (error) {
         console.error("Error fetching user:", error);
         setUserId(null);
@@ -206,20 +213,50 @@ export const SupabaseRealtimeProvider = ({
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event) => {
-      console.log("Auth event triggered:", event);
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_OUT") {
         setUserId(null);
         queryClient.removeQueries({ queryKey: ["questionsFromUser"] });
-      } else {
-        await getCurrentUser();
+      } else if (event === "SIGNED_IN" && session) {
+        setUserId(session.user.id);
       }
     });
 
-    return () => {
-      subscription?.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, [queryClient]);
+
+  // useEffect(() => {
+  //   const getCurrentUser = async () => {
+  //     try {
+  //       const {
+  //         data: { user },
+  //       } = await supabase.auth.getUser();
+  //       setUserId(user?.id ?? null);
+  //     } catch (error) {
+  //       console.error("Error fetching user:", error);
+  //       setUserId(null);
+  //     }
+  //   };
+
+  //   getCurrentUser();
+
+  //   const {
+  //     data: { subscription },
+  //   } = supabase.auth.onAuthStateChange((event) => {
+  //     // ✅ No async in callback
+  //     console.log("Auth event triggered:", event);
+  //     if (event === "SIGNED_OUT") {
+  //       setUserId(null);
+  //       queryClient.removeQueries({ queryKey: ["questionsFromUser"] });
+  //     } else {
+  //       getCurrentUser();
+  //     }
+  //   });
+
+  //   return () => {
+  //     subscription?.unsubscribe();
+  //   };
+  // }, [queryClient]);
 
   /**
    * User questions subscription
@@ -247,7 +284,7 @@ export const SupabaseRealtimeProvider = ({
           } else if (
             payload.eventType === "UPDATE" &&
             payload.new.status &&
-            ["Beantwortet", "Abgelehnt"].includes(payload.new.status) 
+            ["Beantwortet", "Abgelehnt"].includes(payload.new.status)
           ) {
             userQuestionsNewAnswerForQuestions();
           }

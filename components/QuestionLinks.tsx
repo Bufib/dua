@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, useWindowDimensions, FlatList } from "react-native";
 import { router } from "expo-router";
 import { Pressable } from "react-native";
@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "./ThemedText";
 import { categories } from "@/utils/categories";
 import { Colors } from "@/constants/Colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function QuestionLinks() {
   const themeStyles = coustomTheme();
@@ -136,7 +137,10 @@ export default function QuestionLinks() {
               ]}
             >
               <View
-                style={[styles.categoryButtonContainer, { gap: (iconSize / 10) - 1 }]}
+                style={[
+                  styles.categoryButtonContainer,
+                  { gap: iconSize / 10 - 1 },
+                ]}
               >
                 <View
                   style={[

@@ -31,7 +31,7 @@ export default function RootLayout() {
 
   // Initialize database
   const dbInitialized = useInitializeDatabase();
-  const { restoreSession } = useAuthStore();
+  const restoreSession = useAuthStore((state) => state.restoreSession);
   const [isSessionRestored, setIsSessionRestored] = useState(false);
   const [isConnected, setIsConnected] = useState<boolean | null>(true);
   const { expoPushToken, notification } = usePushNotifications();

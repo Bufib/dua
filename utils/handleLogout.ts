@@ -4,7 +4,8 @@ import { Alert } from "react-native";
 import { logoutSuccess, logoutErrorGeneral } from "@/constants/messages";
 
 const handleLogout = async () => {
-  const { clearSession } = useAuthStore.getState(); // Access Zustand state directly
+  const clearSession = useAuthStore.getState().clearSession;
+
   try {
     await clearSession();
     logoutSuccess();

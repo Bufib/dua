@@ -17,6 +17,7 @@ import { Colors } from "@/constants/Colors";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
+import { useAuthStore } from "@/stores/authStore";
 
 // Define validation schema with Zod
 const schema = z.object({
@@ -34,6 +35,8 @@ type ForgotPasswordFormValues = {
 export function ForgotPassword() {
   const [loading, setLoading] = useState(false);
   const themeStyles = coustomTheme();
+  const clearSession = useAuthStore.getState().clearSession;
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   const {
     control,
@@ -46,6 +49,14 @@ export function ForgotPassword() {
   const handleResetPassword = async (data: ForgotPasswordFormValues) => {
     try {
       setLoading(true);
+      // Check if user is logged in and log them out first
+      if (isLoggedIn) {
+        console.log("User is logged in, logging out first...");
+        await clearSession();
+
+        // Wait briefly to allow logout process to complete
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
       const { error } = await supabase.auth.resetPasswordForEmail(data.email);
 
       if (error) throw error;
@@ -93,7 +104,9 @@ export function ForgotPassword() {
         onPress={handleSubmit(handleResetPassword)}
         disabled={loading}
       >
-        <ThemedText style={styles.resetButtonText}>Reset-Code anfordern</ThemedText>
+        <ThemedText style={styles.resetButtonText}>
+          Reset-Code anfordern
+        </ThemedText>
       </Pressable>
     </ThemedView>
   );
@@ -119,7 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.universal.primary,
   },
   buttonPressed: {
-    transform: [{scale: 0.95}],
+    transform: [{ scale: 0.95 }],
     opacity: 0.9,
   },
   resetButtonText: {

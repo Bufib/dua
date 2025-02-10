@@ -153,7 +153,6 @@ export function ResetPassword() {
         Alert.alert("Erfolg", "Dein Passwort wurde aktualisiert.", [
           {
             text: "OK",
-
             onPress: () => router.replace("/login"),
           },
         ]);

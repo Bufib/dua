@@ -26,7 +26,9 @@ import { QuestionFromUser } from "@/utils/types";
 import AntDesign from "@expo/vector-icons/AntDesign";
 export default function QuestionsList() {
   // 1. Check auth state from the store
-  const { isLoggedIn, session } = useAuthStore();
+
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const session = useAuthStore.getState().session;
   const colorScheme = useColorScheme();
   const themeStyles = coustomTheme();
 
@@ -36,9 +38,9 @@ export default function QuestionsList() {
   // 2. If not logged in, redirect to login
   useEffect(() => {
     if (!isLoggedIn) {
-      router.push("/(tabs)/(auth)/login");
+      router.push("/(auth)/login");
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, session]);
 
   // 3. Use our hook to fetch data
   const {
@@ -65,11 +67,11 @@ export default function QuestionsList() {
    */
   useFocusEffect(
     useCallback(() => {
-      // Only refetch if connected
-      if (isConnected) {
+      // Only refetch if connected and we have a session
+      if (isConnected && session) {
         refetch();
       }
-    }, [isConnected])
+    }, [isConnected, session])
   );
 
   // 6. Render item (memoized for performance)
@@ -230,16 +232,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
-    transform: [{scale: 1}],
+    transform: [{ scale: 1 }],
   },
   buttonPressed: {
-    transform: [{scale: 0.95}],
+    transform: [{ scale: 0.95 }],
     opacity: 0.9,
   },
   retryButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   listContainer: {
     padding: 16,

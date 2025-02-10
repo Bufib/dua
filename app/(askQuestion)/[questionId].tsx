@@ -23,7 +23,8 @@ import Toast from "react-native-toast-message";
 export default function QuestionDetailScreen() {
   const { questionId } = useLocalSearchParams();
   const queryClient = useQueryClient();
-  const { isLoggedIn, session } = useAuthStore();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const session = useAuthStore.getState().session;
   const userId = session?.user?.id ?? null;
   const themeStyles = coustomTheme();
   const [isConnected, setIsConnected] = useState<boolean | null>(true);
@@ -31,9 +32,9 @@ export default function QuestionDetailScreen() {
   // 4. If user is not logged in, redirect to login
   useEffect(() => {
     if (!isLoggedIn) {
-      router.replace("/(tabs)/renderItems/login");
+      router.push("/(auth)/login");
     }
-  }, [isLoggedIn]);
+  }, [isLoggedIn, session]);
 
   // 4. Subscribe to NetInfo
   useEffect(() => {
@@ -127,7 +128,9 @@ export default function QuestionDetailScreen() {
           <Text style={styles.bubbleText}>{question.question}</Text>
         </View>
 
-        {question.answer && (question.status === "Beantwortet" ||question.status === "Abgelehnt" )? (
+        {question.answer &&
+        (question.status === "Beantwortet" ||
+          question.status === "Abgelehnt") ? (
           <View style={styles.answerBubble}>
             <Text style={styles.bubbleText}>{question.answer}</Text>
             <ThemedView style={styles.linksContainer}>

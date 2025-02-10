@@ -340,14 +340,14 @@ const Settings = () => {
   const colorScheme = useColorScheme();
   const [isDarkMode, setIsDarkMode] = useState(colorScheme === "dark");
   const themeStyles = coustomTheme();
-  const { isLoggedIn, restoreSession, clearSession, isAdmin } = useAuthStore();
+  const clearSession = useAuthStore.getState().clearSession;
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const isAdmin = useAuthStore((state) => state.isAdmin);
   const [paypalLink, setPaypalLink] = useState<string>("");
   const [version, setVersion] = useState<string | null>("");
   const [questionCount, setQuestionCount] = useState<number | null>(0);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { getNotifications, toggleGetNotifications } = useNotificationStore();
-
-  const { session } = useAuthStore();
 
   const handleDeleteSuccess = () => {
     clearSession(); // SignOut and remove session
@@ -363,30 +363,42 @@ const Settings = () => {
   useEffect(() => {
     const savedColorSetting = Storage.getItemSync("isDarkMode");
     Appearance.setColorScheme(savedColorSetting === "true" ? "dark" : "light");
-  }, [isDarkMode]);
+  }, []);
 
   // Get paypal link and version and count
   useLayoutEffect(() => {
+    let isMounted = true; // ✅ Track if the component is still mounted
+
     const paypal = Storage.getItemSync("paypal");
-    if (paypal) {
-      setPaypalLink(paypal);
-    }
+    if (paypal) setPaypalLink(paypal);
 
     const version = Storage.getItemSync("version");
     setVersion(version);
+
     const countQuestions = async () => {
       const count = await getQuestionCount();
-      setQuestionCount(count);
+      if (isMounted) setQuestionCount(count);
     };
     countQuestions();
+
+    return () => {
+      isMounted = false; // ✅ Prevent state updates after unmount
+    };
   }, []);
 
   // Function to handle colorswitch
+  // const toggleDarkMode = async () => {
+  //   Appearance.setColorScheme(isDarkMode ? "light" : "dark");
+  //   setIsDarkMode((prev) => !prev);
+  //   // isDarkMode changes after re-rendering (state) so I have to set it !isDarkMode
+  //   Storage.setItemSync("isDarkMode", `${!isDarkMode}`);
+  // };
+
   const toggleDarkMode = async () => {
-    Appearance.setColorScheme(isDarkMode ? "light" : "dark");
-    setIsDarkMode((prev) => !prev);
-    // isDarkMode changes after re-rendering (state) so I have to set it !isDarkMode
-    Storage.setItemSync("isDarkMode", `${!isDarkMode}`);
+    const newDarkMode = !isDarkMode;
+    Storage.setItemSync("isDarkMode", `${newDarkMode}`);
+    setIsDarkMode(newDarkMode);
+    Appearance.setColorScheme(newDarkMode ? "dark" : "light");
   };
 
   return (
@@ -463,11 +475,9 @@ const Settings = () => {
 
             <Pressable
               style={styles.settingButton}
-              onPress={() => router.push("/(tabs)/settings/changePassword")}
+              onPress={() => router.push("/(auth)/forgotPassword")}
             >
-              <Text style={styles.settingButtonText}>
-                Passwort ändern
-              </Text>
+              <Text style={styles.settingButtonText}>Passwort ändern</Text>
             </Pressable>
 
             <Pressable
@@ -596,7 +606,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 10,
     marginBottom: 12,
-    backgroundColor: "#ccc"
+    backgroundColor: "#ccc",
   },
   settingButtonText: {
     fontSize: 16,
