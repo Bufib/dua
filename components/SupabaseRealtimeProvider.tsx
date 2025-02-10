@@ -185,7 +185,7 @@ export const SupabaseRealtimeProvider = ({
   const queryClient = useQueryClient();
 
   const isAdmin = useAuthStore((state) => state.isAdmin);
-  const setSession = useAuthStore.getState().setSession
+  const setSession = useAuthStore.getState().setSession;
   const clearNewNewsFlag = () => setHasNewNewsData(false);
 
   /**
@@ -369,6 +369,15 @@ export const SupabaseRealtimeProvider = ({
         },
         async (payload) => {
           console.log("news event:", payload.eventType, payload);
+
+          // Always delete immediately!
+          if (payload.eventType === "DELETE") {
+            await queryClient.invalidateQueries({
+              queryKey: ["news"],
+              refetchType: "all",
+            });
+          }
+
           if (!isAdmin) {
             setHasNewNewsData(true); // Only show update button for non-admin users
           } else {

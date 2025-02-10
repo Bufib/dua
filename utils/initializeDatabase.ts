@@ -215,32 +215,32 @@ const setupSubscriptions = () => {
     )
     .subscribe();
 
-  // Subscribe to changes in the `questions` table
-  supabase
-    .channel("question")
-    .on(
-      "postgres_changes",
-      { event: "*", schema: "public", table: "question" },
-      async (payload) => {
-        try {
-          // Update SQLite database based on the operation
-          if (
-            payload.eventType === "INSERT" ||
-            payload.eventType === "UPDATE"
-          ) {
-            const change = payload.new as QuestionType;
-            await syncSingleQuestion(change);
-          } else if (payload.eventType === "DELETE") {
-            await deleteQuestionFromSQLite(payload.old.id);
-          }
-          router.replace("/(tabs)/home/");
-          questionsDatabaseUpate();
-        } catch (error) {
-          console.error("Error handling Supabase subscription change:", error);
-        }
-      }
-    )
-    .subscribe();
+  // // Subscribe to changes in the `questions` table
+  // supabase
+  //   .channel("question")
+  //   .on(
+  //     "postgres_changes",
+  //     { event: "*", schema: "public", table: "question" },
+  //     async (payload) => {
+  //       try {
+  //         // Update SQLite database based on the operation
+  //         if (
+  //           payload.eventType === "INSERT" ||
+  //           payload.eventType === "UPDATE"
+  //         ) {
+  //           const change = payload.new as QuestionType;
+  //           await syncSingleQuestion(change);
+  //         } else if (payload.eventType === "DELETE") {
+  //           await deleteQuestionFromSQLite(payload.old.id);
+  //         }
+  //         router.replace("/(tabs)/home/");
+  //         questionsDatabaseUpate();
+  //       } catch (error) {
+  //         console.error("Error handling Supabase subscription change:", error);
+  //       }
+  //     }
+  //   )
+  //   .subscribe();
 
   supabase
     .channel("paypal")
