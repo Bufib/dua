@@ -12,6 +12,8 @@ import {
   Platform,
   ScrollView,
   Modal,
+  TouchableWithoutFeedback,
+  Keyboard,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -52,7 +54,9 @@ const schema = z
         /^[a-zA-Z0-9_]+$/,
         "Der Benutzername darf nur Buchstaben, Zahlen und Unterstriche enthalten."
       ),
-    email: z.string({required_error: "E-mail darf nicht leer sein."}).email("Bitte gib eine gültige E-Mail-Adresse ein."),
+    email: z
+      .string({ required_error: "E-mail darf nicht leer sein." })
+      .email("Bitte gib eine gültige E-Mail-Adresse ein."),
     password: z
       .string({ required_error: signUpPasswordNotEmpty })
       .min(8, signUpUserPasswordMin)
@@ -488,6 +492,7 @@ export default function SignUpScreen() {
                   autoCapitalize="none"
                   autoCorrect={false}
                   autoComplete="new-password"
+                  textContentType="newPassword"
                 />
                 <Pressable
                   onPress={() => setShowPassword((prev) => !prev)}
@@ -521,7 +526,8 @@ export default function SignUpScreen() {
                   secureTextEntry={!showConfirmPassword}
                   autoCapitalize="none"
                   autoCorrect={false}
-                  autoComplete="new-password"
+                  autoComplete="off"
+                  textContentType="none"
                 />
                 <Pressable
                   onPress={() => setShowConfirmPassword((prev) => !prev)}
@@ -581,53 +587,55 @@ export default function SignUpScreen() {
         transparent={true}
         animationType="fade"
       >
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, themeStyles.contrast]}>
-            <ThemedText style={styles.modalTitle}>
-              E-Mail-Verifizierung
-            </ThemedText>
-            <ThemedText style={styles.modalSubtitle}>
-              Bitte gib den Code ein, der an {currentEmail} gesendet wurde.
-            </ThemedText>
-            <TextInput
-              style={[styles.input, themeStyles.text]}
-              placeholder="Dein Verifizierungscode"
-              value={verificationCode}
-              onChangeText={setVerificationCode}
-              keyboardType="number-pad"
-              autoCapitalize="none"
-            />
-            {isLoading ? (
-              <ActivityIndicator style={styles.modalButton} />
-            ) : (
-              <View style={styles.modalButtonsContainer}>
-                <Pressable
-                  style={styles.verifyButton}
-                  onPress={handleVerification}
-                >
-                  <Text style={styles.verifiyText}>Verifizieren</Text>
-                </Pressable>
-                <View style={styles.buttonSpacer} />
-                <Pressable
-                  onPress={() => setShowVerificationModal(false)}
-                  style={[styles.verifyButton, { backgroundColor: "gray" }]}
-                >
-                  <Text style={styles.verifiyText}>Abbrechen</Text>
-                </Pressable>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, themeStyles.contrast]}>
+              <ThemedText style={styles.modalTitle}>
+                E-Mail-Verifizierung
+              </ThemedText>
+              <ThemedText style={styles.modalSubtitle}>
+                Bitte gib den Code ein, der an {currentEmail} gesendet wurde.
+              </ThemedText>
+              <TextInput
+                style={[styles.input, themeStyles.text]}
+                placeholder="Dein Verifizierungscode"
+                value={verificationCode}
+                onChangeText={setVerificationCode}
+                keyboardType="number-pad"
+                autoCapitalize="none"
+              />
+              {isLoading ? (
+                <ActivityIndicator style={styles.modalButton} />
+              ) : (
+                <View style={styles.modalButtonsContainer}>
+                  <Pressable
+                    style={styles.verifyButton}
+                    onPress={handleVerification}
+                  >
+                    <Text style={styles.verifiyText}>Verifizieren</Text>
+                  </Pressable>
+                  <View style={styles.buttonSpacer} />
+                  <Pressable
+                    onPress={() => setShowVerificationModal(false)}
+                    style={[styles.verifyButton, { backgroundColor: "gray" }]}
+                  >
+                    <Text style={styles.verifiyText}>Abbrechen</Text>
+                  </Pressable>
 
-                <View style={styles.buttonSpacer} />
-                <Pressable
-                  onPress={resendVerificationCode}
-                  style={styles.resendButton}
-                >
-                  <ThemedText style={styles.resendText}>
-                    Code erneut senden{" "}
-                  </ThemedText>
-                </Pressable>
-              </View>
-            )}
+                  <View style={styles.buttonSpacer} />
+                  <Pressable
+                    onPress={resendVerificationCode}
+                    style={styles.resendButton}
+                  >
+                    <ThemedText style={styles.resendText}>
+                      Code erneut senden{" "}
+                    </ThemedText>
+                  </Pressable>
+                </View>
+              )}
+            </View>
           </View>
-        </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </KeyboardAvoidingView>
   );

@@ -8,7 +8,10 @@ import {
   ActivityIndicator,
   Pressable,
   useColorScheme,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { supabase } from "@/utils/supabase";
@@ -36,7 +39,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
 }) => {
   const colorScheme = useColorScheme();
   const themeStyles = coustomTheme();
-  const user = useAuthStore((state) => state.session?.user)
+  const user = useAuthStore((state) => state.session?.user);
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -145,7 +148,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      
+
       if (!response.ok) {
         const respJson = await response.json();
         throw new Error(respJson.error || "Fehler beim Löschen des Accounts");
@@ -188,85 +191,90 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
                 Alle deine Daten werden permanent gelöscht.
               </ThemedText>
               <View style={styles.buttonRow}>
-                <TouchableOpacity
+                <Pressable
                   style={[styles.button, styles.deleteButton]}
                   onPress={handleProceedToPassword}
                 >
                   <Text style={styles.buttonTextDelete}>
                     Ja, Account löschen
                   </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
+                </Pressable>
+                <Pressable
                   style={[styles.button, styles.cancelButton]}
                   onPress={handleCancel}
                 >
                   <Text style={styles.buttonTextCancel}>Abbrechen</Text>
-                </TouchableOpacity>
+                </Pressable>
               </View>
             </>
           )}
 
           {showPasswordInput && (
-            <>
-              <ThemedText style={styles.title} type="title">
-                Passwort bestätigen
-              </ThemedText>
-              <ThemedText style={styles.subtitle}>
-                Bitte gib dein Passwort ein, um die Löschung zu bestätigen.
-              </ThemedText>
+            <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+              <View>
+                <ThemedText style={styles.title} type="title">
+                  Passwort bestätigen
+                </ThemedText>
+                <ThemedText style={styles.subtitle}>
+                  Bitte gib dein Passwort ein, um die Löschung zu bestätigen.
+                </ThemedText>
 
-              <View style={styles.passwordContainer}>
-                <TextInput
-                  style={[styles.passwordInput, themeStyles.text]}
-                  placeholder="Passwort"
-                  placeholderTextColor={
-                    colorScheme === "dark" ? "#888" : "#666"
-                  }
-                  secureTextEntry={!showPassword}
-                  value={password}
-                  onChangeText={setPassword}
-                  autoCapitalize="none"
-                />
-                <Pressable
-                  onPress={() => setShowPassword((prev) => !prev)}
-                  style={styles.eyeIcon}
-                >
-                  <Feather
-                    name={showPassword ? "eye" : "eye-off"}
-                    size={24}
-                    color={colorScheme === "dark" ? "#fff" : "#000"}
+                <View style={styles.passwordContainer}>
+                  <TextInput
+                    style={[styles.passwordInput, themeStyles.text]}
+                    placeholder="Passwort"
+                    placeholderTextColor={
+                      colorScheme === "dark" ? "#888" : "#666"
+                    }
+                    secureTextEntry={!showPassword}
+                    value={password}
+                    onChangeText={setPassword}
+                    autoCapitalize="none"
                   />
-                </Pressable>
-              </View>
+                  <Pressable
+                    onPress={() => setShowPassword((prev) => !prev)}
+                    style={styles.eyeIcon}
+                  >
+                    <Feather
+                      name={showPassword ? "eye" : "eye-off"}
+                      size={24}
+                      color={colorScheme === "dark" ? "#fff" : "#000"}
+                    />
+                  </Pressable>
+                </View>
 
-              {error && <Text style={styles.error}>{error}</Text>}
-              {loading && (
-                <ActivityIndicator size="small" color={Colors.universal.link} />
-              )}
+                {error && <Text style={styles.error}>{error}</Text>}
+                {loading && (
+                  <ActivityIndicator
+                    size="small"
+                    color={Colors.universal.link}
+                  />
+                )}
 
-              <View style={styles.buttonRow}>
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    styles.deleteButton,
-                    loading || password.length === 0
-                      ? styles.disabledButton
-                      : null,
-                  ]}
-                  onPress={handleConfirm}
-                  disabled={loading || password.length === 0}
-                >
-                  <Text style={styles.buttonTextDelete}>Bestätigen</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.button, styles.cancelButton]}
-                  onPress={handleCancel}
-                  disabled={loading}
-                >
-                  <Text style={styles.buttonTextCancel}>Abbrechen</Text>
-                </TouchableOpacity>
+                <View style={styles.buttonRow}>
+                  <Pressable
+                    style={[
+                      styles.button,
+                      styles.deleteButton,
+                      loading || password.length === 0
+                        ? styles.disabledButton
+                        : null,
+                    ]}
+                    onPress={handleConfirm}
+                    disabled={loading || password.length === 0}
+                  >
+                    <Text style={styles.buttonTextDelete}>Bestätigen</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[styles.button, styles.cancelButton]}
+                    onPress={handleCancel}
+                    disabled={loading}
+                  >
+                    <Text style={styles.buttonTextCancel}>Abbrechen</Text>
+                  </Pressable>
+                </View>
               </View>
-            </>
+            </TouchableWithoutFeedback>
           )}
         </View>
       </View>
@@ -338,12 +346,13 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
     marginTop: 20,
+    gap: 10,
   },
   button: {
     paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 5,
     borderRadius: 8,
     minWidth: 120,
     alignItems: "center",

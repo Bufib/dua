@@ -26,7 +26,6 @@ import { QuestionFromUser } from "@/utils/types";
 import AntDesign from "@expo/vector-icons/AntDesign";
 export default function QuestionsList() {
   // 1. Check auth state from the store
-
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const session = useAuthStore.getState().session;
   const colorScheme = useColorScheme();

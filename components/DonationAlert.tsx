@@ -63,12 +63,14 @@ const DonationAlert: React.FC<DonationAlertProps> = ({
         </Pressable>
 
         {/* Header */}
-        <ThemedText style={styles.headerText}>Unterstütze uns ❤️</ThemedText>
+        <ThemedText style={styles.headerText}>
+          Unterstütze uns {"\u2764\uFE0F"}
+        </ThemedText>
 
         {/* Message */}
         <ThemedText style={styles.messageText}>
           Mit deiner Unterstützung können wir fortfahren und weiterhin für dich
-          da sein. {"\n\n"}
+          da sein. {"\n"}
           Vielen Dank!
         </ThemedText>
 

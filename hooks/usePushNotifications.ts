@@ -15,8 +15,7 @@ export interface PushNotificationState {
 }
 
 export const usePushNotifications = (): PushNotificationState => {
-
-  const session = useAuthStore((state) => state.session)
+  const session = useAuthStore((state) => state.session);
   const userId = session?.user?.id ?? null;
   const router = useRouter();
 

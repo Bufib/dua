@@ -684,25 +684,24 @@ const styles = StyleSheet.create({
   },
   modalButtonContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-evenly",
   },
   modalButtonCancel: {
-    flex: 0.45,
-    paddingVertical: 12,
+    padding: 10,
     borderRadius: 8,
     backgroundColor: "#888",
-    alignItems: "center",
+    justifyContent: "center",
   },
   modalButtonSubmit: {
-    flex: 0.5,
-    paddingVertical: 12,
+    padding: 10,
     borderRadius: 8,
     backgroundColor: "#057958",
-    alignItems: "center",
+    justifyContent: "center",
   },
   modalButtonText: {
     fontSize: 16,
     fontWeight: "500",
     color: "#fff",
+    textAlign: "center",
   },
 });

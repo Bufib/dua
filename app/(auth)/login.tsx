@@ -327,13 +327,15 @@ const styles = StyleSheet.create({
   },
   stayAndPasswordContainer: {
     flexDirection: "column",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   stayLoggedInContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   forgotPasswordContainer: {
+   
+    marginBottom: 10,
     alignSelf: "flex-end",
   },
   forgotPasswordButton: {},

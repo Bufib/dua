@@ -56,7 +56,6 @@ export const initializeDatabase = async () => {
   }
 
   // Check if version in Storage is up to date.
-  // Check if version in Storage is up to date.
   const checkVersion = async () => {
     try {
       const versionFromStorage = await Storage.getItem("version");
