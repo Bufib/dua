@@ -98,7 +98,9 @@ const Settings = () => {
       edges={["top"]}
     >
       <View style={styles.header}>
-        <ThemedText style={styles.headerTitle}>Einstellungen</ThemedText>
+        <ThemedText style={styles.headerTitle} type="title">
+          Einstellungen
+        </ThemedText>
         <Pressable
           style={styles.loginButton}
           onPress={
@@ -255,10 +257,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0,0,0,0.1)",
   },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "700",
-  },
+  headerTitle: {},
   loginButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,

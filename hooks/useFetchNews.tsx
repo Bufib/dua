@@ -61,12 +61,11 @@ export const useFetchNews = () => {
       return allPages.length;
     },
     maxPages: 4,
-    staleTime: 86400 * 1000, // 24 hours
-    gcTime: Infinity,
-    // Add these options for better mobile performance
-    refetchOnMount: false,
+    staleTime: 900000,  // 15 min 
+    gcTime: 3600000, // 1 hour
+    refetchOnMount: true,
     refetchOnWindowFocus: false,
-    refetchOnReconnect: false,
+    refetchOnReconnect: true,
   });
 
   /**
