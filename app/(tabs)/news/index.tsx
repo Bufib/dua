@@ -349,7 +349,7 @@ export default function NewsFeed() {
             size={35}
             color={colorScheme === "dark" ? "#fff" : "#000"}
             style={styles.addIcon}
-            onPress={() => router.push("/news/addNews")}
+            onPress={() => router.push("/news/add")}
           />
         )}
       </ThemedView>

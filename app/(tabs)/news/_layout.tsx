@@ -20,6 +20,7 @@ export default function RootLayout() {
       <MenuProvider>
       <Stack screenOptions={{headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000"}}>
           <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="add" options={{ headerShown: false }} />
           <Stack.Screen name="addNews" options={{ headerShown: false }} />
         </Stack>
       </MenuProvider>

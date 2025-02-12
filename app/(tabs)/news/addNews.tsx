@@ -265,6 +265,7 @@ import {
   Image,
   Pressable,
   ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Controller } from "react-hook-form";
@@ -273,8 +274,11 @@ import { coustomTheme } from "@/utils/coustomTheme";
 import { Colors } from "@/constants/Colors";
 import { TitleSearchInput } from "@/components/TitleSearch";
 import { useAddNews } from "@/hooks/useAddNews";
+import { TabView, SceneMap } from "react-native-tab-view";
+import addPushMessage from "./addPushMessage";
+import { ThemedView } from "@/components/ThemedView";
 
-export default function AddNews() {
+export default function addNews() {
   const {
     control,
     handleSubmit,
@@ -290,10 +294,6 @@ export default function AddNews() {
 
   const renderForm = () => (
     <>
-      <ThemedText style={styles.header} type="title">
-        Nachricht hinzufügen
-      </ThemedText>
-
       <View style={[styles.card, themeStyles.contrast]}>
         {/* Title Input */}
         <ThemedText style={styles.label}>Title</ThemedText>
@@ -390,11 +390,12 @@ export default function AddNews() {
   );
 
   return (
-    <SafeAreaView
-      style={[styles.container, themeStyles.defaultBackgorundColor]}
-      edges={["top"]}
-    >
-      <ScrollView style={styles.scrollContainer}>
+    <ThemedView style={styles.container}>
+      <ScrollView
+        style={styles.scrollStyles}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* Render the entire Form */}
         {renderForm()}
 
@@ -420,17 +421,20 @@ export default function AddNews() {
           </ScrollView>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  scrollContainer: {
-    padding: 20,
+  container: {
+    flex: 1,
+    marginTop: 10,
   },
-  header: {
-    marginBottom: 20,
+  scrollStyles: {},
+
+  scrollContent: {
+    padding: 10,
+    paddingBottom: 40,
   },
   card: {
     borderRadius: 12,

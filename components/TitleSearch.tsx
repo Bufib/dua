@@ -296,6 +296,7 @@ import {
   ActivityIndicator,
   Modal,
   TouchableOpacity,
+  useColorScheme,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { searchQuestions } from "@/utils/initializeDatabase";
@@ -328,6 +329,7 @@ export const TitleSearchInput = ({
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const colorScheme = useColorScheme();
 
   useEffect(() => {
     if (value) {
@@ -411,7 +413,7 @@ export const TitleSearchInput = ({
         onPress={() => handleDeleteItem(item)}
         style={styles.deleteButton}
       >
-        <Feather name="trash-2" size={24} color="#000" />
+        <Feather name="trash-2" size={24} color={colorScheme === "dark" ? "#fff" : "#000"} />
       </Pressable>
     </View>
   );
