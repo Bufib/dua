@@ -15,7 +15,9 @@ const AddPushMessage: React.FC = () => {
   };
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView
+      style={styles.container}
+    >
       <View style={styles.formContainer}>
         <ThemedText style={styles.label}>Titel</ThemedText>
         <TextInput
