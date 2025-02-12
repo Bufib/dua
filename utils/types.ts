@@ -64,3 +64,11 @@ export type QuestionFromUser = {
   created_at: string;
   approval_status: string
 };
+
+export type Sizes = {
+  elementSize: number;
+  fontSize: number;
+  iconSize: number;
+  imageSize: number;
+  gap: number;
+}

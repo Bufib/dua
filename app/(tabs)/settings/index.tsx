@@ -26,7 +26,7 @@ import { Image } from "expo-image";
 import DeleteUserModal from "@/components/DeleteUserModal";
 import Toast from "react-native-toast-message";
 import useNotificationStore from "@/stores/notificationStore";
-
+import { useInitializeDatabase } from "@/hooks/useInitializeDatabase.ts";
 const Settings = () => {
   const colorScheme = useColorScheme();
   const [isDarkMode, setIsDarkMode] = useState(colorScheme === "dark");
@@ -39,6 +39,7 @@ const Settings = () => {
   const [questionCount, setQuestionCount] = useState<number | null>(0);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { getNotifications, toggleGetNotifications } = useNotificationStore();
+  const dbInitialized = useInitializeDatabase();
 
   const handleDeleteSuccess = () => {
     clearSession(); // SignOut and remove session
@@ -58,6 +59,8 @@ const Settings = () => {
 
   // Get paypal link and version and count
   useLayoutEffect(() => {
+    if (!dbInitialized) return;
+    
     let isMounted = true; // ✅ Track if the component is still mounted
 
     const paypal = Storage.getItemSync("paypal");
@@ -76,14 +79,6 @@ const Settings = () => {
       isMounted = false; // ✅ Prevent state updates after unmount
     };
   }, []);
-
-  // Function to handle colorswitch
-  // const toggleDarkMode = async () => {
-  //   Appearance.setColorScheme(isDarkMode ? "light" : "dark");
-  //   setIsDarkMode((prev) => !prev);
-  //   // isDarkMode changes after re-rendering (state) so I have to set it !isDarkMode
-  //   Storage.setItemSync("isDarkMode", `${!isDarkMode}`);
-  // };
 
   const toggleDarkMode = async () => {
     const newDarkMode = !isDarkMode;

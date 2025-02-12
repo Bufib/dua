@@ -14,7 +14,8 @@ import { SQLiteProvider } from "expo-sqlite";
 import Toast from "react-native-toast-message";
 import { Appearance } from "react-native";
 import { Storage } from "expo-sqlite/kv-store";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/utils/queryClient";
 import { useAuthStore } from "@/stores/authStore";
 import NetInfo from "@react-native-community/netinfo";
 import { noInternet } from "@/constants/messages";
@@ -22,9 +23,9 @@ import { usePushNotifications } from "@/hooks/usePushNotifications";
 import { SupabaseRealtimeProvider } from "@/components/SupabaseRealtimeProvider";
 import useNotificationStore from "@/stores/notificationStore";
 import { useFontSizeStore } from "@/stores/fontSizeStore";
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -68,7 +69,7 @@ export default function RootLayout() {
         useAuthStore.persist.rehydrate(),
         useFontSizeStore.persist.rehydrate(),
         useNotificationStore.persist.rehydrate(),
-        useNotificationStore.getState().checkPermissions()
+        useNotificationStore.getState().checkPermissions(),
       ]);
 
       setStoresHydrated(true);
@@ -102,12 +103,20 @@ export default function RootLayout() {
 
   // Hide splash screen when everything is ready
   useEffect(() => {
-    if (dbInitialized && isSessionRestored && storesHydrated) {
+    if (
+      (!isConnected || dbInitialized) &&
+      isSessionRestored &&
+      storesHydrated
+    ) {
       SplashScreen.hideAsync();
     }
-  }, [dbInitialized, isSessionRestored, storesHydrated]);
+  }, [dbInitialized, isSessionRestored, storesHydrated, isConnected]);
 
-  if (!dbInitialized || !isSessionRestored || !storesHydrated) {
+  if (
+    (!dbInitialized && isConnected) ||
+    !isSessionRestored ||
+    !storesHydrated
+  ) {
     return null; // Prevent rendering until everything is ready
   }
 
@@ -116,7 +125,11 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <SupabaseRealtimeProvider>
           <SQLiteProvider databaseName="islam-fragen.db">
-            <Stack screenOptions={{headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000"}}>
+            <Stack
+              screenOptions={{
+                headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000",
+              }}
+            >
               <Stack.Screen name="index" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />

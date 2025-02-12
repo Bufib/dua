@@ -142,7 +142,7 @@ const fetchQuestionsFromSupabase = async () => {
     await db.withExclusiveTransactionAsync(async (txn) => {
       // Prepare the statement inside the transaction
       const statement = await txn.prepareAsync(`
-        INSERT OR REPLACE INTO question 
+        INSERT OR REPLACE INTO question
         (id, title, question, answer, answer_sistani, answer_khamenei, category_name, subcategory_name, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
       `);
@@ -214,33 +214,6 @@ const setupSubscriptions = () => {
       }
     )
     .subscribe();
-
-  // // Subscribe to changes in the `questions` table
-  // supabase
-  //   .channel("question")
-  //   .on(
-  //     "postgres_changes",
-  //     { event: "*", schema: "public", table: "question" },
-  //     async (payload) => {
-  //       try {
-  //         // Update SQLite database based on the operation
-  //         if (
-  //           payload.eventType === "INSERT" ||
-  //           payload.eventType === "UPDATE"
-  //         ) {
-  //           const change = payload.new as QuestionType;
-  //           await syncSingleQuestion(change);
-  //         } else if (payload.eventType === "DELETE") {
-  //           await deleteQuestionFromSQLite(payload.old.id);
-  //         }
-  //         router.replace("/(tabs)/home/");
-  //         questionsDatabaseUpate();
-  //       } catch (error) {
-  //         console.error("Error handling Supabase subscription change:", error);
-  //       }
-  //     }
-  //   )
-  //   .subscribe();
 
   supabase
     .channel("paypal")
@@ -504,8 +477,8 @@ export const getLatestQuestions = async (
 
     const rows = await db.getAllAsync<QuestionType>(
       `
-      SELECT * FROM question 
-      ORDER BY datetime(created_at) ASC 
+      SELECT * FROM question
+      ORDER BY datetime(created_at) ASC
       LIMIT ?;
       `,
       [limit]

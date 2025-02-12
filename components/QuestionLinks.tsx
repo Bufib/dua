@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { View, StyleSheet, useWindowDimensions, FlatList } from "react-native";
 import { router } from "expo-router";
 import { Pressable } from "react-native";
@@ -12,30 +12,17 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "./ThemedText";
 import { categories } from "@/utils/categories";
 import { Colors } from "@/constants/Colors";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { returnSize } from "@/utils/sizes";
 
 export default function QuestionLinks() {
   const themeStyles = coustomTheme();
   const { width, height } = useWindowDimensions();
-  console.log(width, height);
-  /*  const elementSize = width > 380 ? 120 : 110; // Size of each small square
-  const fontSize = width > 380 ? 13 : 12; // Font of element text
-  const iconSize = width > 380 ? 65 : 60; // Icon in element
-  const imageSize = width > 380 ? 300 : 250; // Header image
-  const gap = width > 380 ? 30 : 20; // Header image gap
-  */
 
   // Dynamically calculate the size of each element based on screen width
-  const elementSize =
-    width > 380 && height > 900 ? 120 : width < 380 && height > 750 ? 110 : 90; // Size of each small square
-  const fontSize =
-    width > 380 && height > 900 ? 13 : width < 380 && height > 750 ? 12 : 11; // Font of element text
-  const iconSize =
-    width > 380 && height > 900 ? 65 : width < 380 && height > 750 ? 60 : 50; // Icon in element
-  const imageSize =
-    width > 380 && height > 900 ? 300 : width < 380 && height > 750 ? 250 : 200; // Header image
-  const gap =
-    width > 380 && height > 900 ? 30 : width < 380 && height > 750 ? 20 : 15; // Header image gap
+  const { elementSize, fontSize, iconSize, imageSize, gap } = returnSize(
+    width,
+    height
+  );
 
   // For square to change color on pressed
   const [pressedIndex, setPressedIndex] = useState<number | null>(null);
