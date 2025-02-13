@@ -60,7 +60,7 @@ const Settings = () => {
   // Get paypal link and version and count
   useLayoutEffect(() => {
     if (!dbInitialized) return;
-    
+
     let isMounted = true; // ✅ Track if the component is still mounted
 
     const paypal = Storage.getItemSync("paypal");
@@ -96,13 +96,20 @@ const Settings = () => {
         <ThemedText style={styles.headerTitle} type="title">
           Einstellungen
         </ThemedText>
+
         <Pressable
-          style={styles.loginButton}
           onPress={
             isLoggedIn ? handleLogout : () => router.push("/(auth)/login")
           }
+          style={({ pressed }) => [
+            styles.buttonContainer,
+            {
+              opacity: pressed ? 0.8 : 1,
+              transform: [{ scale: pressed ? 0.98 : 1 }],
+            },
+          ]}
         >
-          <ThemedText style={styles.loginButtonText}>
+          <ThemedText style={[styles.loginButtonText]}>
             {isLoggedIn ? "Abmelden" : "Anmelden"}
           </ThemedText>
         </Pressable>
@@ -256,6 +263,10 @@ const styles = StyleSheet.create({
   loginButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
+  },
+  buttonContainer: {
+    paddingRight: 15,
+    backgroundColor: "transparent"
   },
   loginButtonText: {
     color: Colors.universal.link,

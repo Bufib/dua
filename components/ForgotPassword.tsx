@@ -4,9 +4,11 @@ import {
   TextInput,
   Alert,
   StyleSheet,
-  Button,
+  KeyboardAvoidingView,
   Text,
   Pressable,
+  Platform,
+  Keyboard,
 } from "react-native";
 import { supabase } from "@/utils/supabase";
 import { router } from "expo-router";
@@ -18,6 +20,7 @@ import { coustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import { useAuthStore } from "@/stores/authStore";
+import { TouchableWithoutFeedback } from "react-native";
 
 // Define validation schema with Zod
 const schema = z.object({
@@ -79,43 +82,54 @@ export function ForgotPassword() {
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <Controller
-        control={control}
-        name="email"
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            style={[styles.input, themeStyles.contrast, themeStyles.text]}
-            placeholder="Deine E-Mail-Adresse"
-            onChangeText={onChange}
-            value={value}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-        )}
-      />
-      {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
-
-      <Pressable
-        style={({ pressed }) => [
-          styles.resetButton,
-          pressed && styles.buttonPressed,
-        ]}
-        onPress={handleSubmit(handleResetPassword)}
-        disabled={loading}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={[styles.container, themeStyles.defaultBackgorundColor]}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+        enabled
       >
-        <ThemedText style={styles.resetButtonText}>
-          Reset-Code anfordern
-        </ThemedText>
-      </Pressable>
-    </ThemedView>
+        <Controller
+          control={control}
+          name="email"
+          render={({ field: { onChange, value } }) => (
+            <TextInput
+              style={[styles.input, themeStyles.contrast, themeStyles.text]}
+              placeholder="Deine E-Mail-Adresse"
+              onChangeText={onChange}
+              value={value}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              onSubmitEditing={Keyboard.dismiss}
+              returnKeyType="done"
+            />
+          )}
+        />
+        {errors.email && (
+          <Text style={styles.error}>{errors.email.message}</Text>
+        )}
+
+        <Pressable
+          style={({ pressed }) => [
+            styles.resetButton,
+            pressed && styles.buttonPressed,
+          ]}
+          onPress={handleSubmit(handleResetPassword)}
+          disabled={loading}
+        >
+          <ThemedText style={styles.resetButtonText}>
+            Reset-Code anfordern
+          </ThemedText>
+        </Pressable>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
     justifyContent: "center",
   },
   input: {

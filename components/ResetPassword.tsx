@@ -392,6 +392,9 @@ import {
   Pressable,
   useColorScheme,
   ActivityIndicator,
+  Platform,
+  Keyboard,
+  KeyboardAvoidingView
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -404,6 +407,8 @@ import { Colors } from "@/constants/Colors";
 import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
 import { coustomTheme } from "@/utils/coustomTheme";
+import { TouchableWithoutFeedback } from "react-native";
+
 
 /**
  * Schema for resetting password.
@@ -567,7 +572,13 @@ export function ResetPassword() {
   }, []);
 
   return (
-    <ThemedView style={styles.container}>
+   <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+     <KeyboardAvoidingView
+       behavior={Platform.OS === "ios" ? "padding" : "height"}
+       style={[styles.container, themeStyles.defaultBackgorundColor]}
+       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+       enabled
+     >
       {/* CODE FIELD */}
       <Controller
         control={control}
@@ -689,7 +700,8 @@ export function ResetPassword() {
             : "Neuen Code anfordern"}
         </Text>
       </Pressable>
-    </ThemedView>
+   </KeyboardAvoidingView>
+       </TouchableWithoutFeedback>
   );
 }
 
