@@ -25,6 +25,8 @@ import useNotificationStore from "@/stores/notificationStore";
 import { useFontSizeStore } from "@/stores/fontSizeStore";
 import ReMountManager from "@/components/ReMountManager";
 import LoadingVideo from "@/components/LoadingVideo";
+import { View } from "react-native";
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -33,11 +35,13 @@ export default function RootLayout() {
 
   // Initialize database
   const dbInitialized = useInitializeDatabase();
+  console.log(dbInitialized);
   const restoreSession = useAuthStore((state) => state.restoreSession);
   const [isSessionRestored, setIsSessionRestored] = useState(false);
   const [isConnected, setIsConnected] = useState<boolean | null>(true);
   const { expoPushToken, notification } = usePushNotifications();
   const [storesHydrated, setStoresHydrated] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
 
   // Musst be before 'if (!dbInitialized)' or 'Rendered more hooks' appearce because if (!loaded || !dbInitialized) -> we return and the useEffect benath it doesn't get used
   useEffect(() => {
@@ -102,6 +106,22 @@ export default function RootLayout() {
     }
   }, [notification]);
 
+  // Debounce showing the loading video by 2 seconds
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+
+    if (!dbInitialized && isConnected) {
+      timer = setTimeout(() => {
+        setShowVideo(true);
+      }, 2000);
+    } else {
+      // If DB becomes initialized or connectivity changes, reset the flag
+      setShowVideo(false);
+    }
+
+    return () => clearTimeout(timer); // Properly clear the timeout on cleanup
+  }, [dbInitialized, isConnected]);
+
   // Hide splash screen when everything is ready
   useEffect(() => {
     if (dbInitialized && isSessionRestored && storesHydrated) {
@@ -116,19 +136,22 @@ export default function RootLayout() {
         text1: "Keine Internetverbindung",
         text2: "Daten können nicht geladen werden!",
       });
+      // Quits the useEffect tree
       return;
     }
 
-    Toast.show({
-      type: "info",
-      text1: "Daten werden geladen",
-    });
     SplashScreen.hideAsync();
   }, [dbInitialized, isSessionRestored, storesHydrated, isConnected]);
 
   // Show loading video
-  if (!dbInitialized && isConnected) {
-    return <LoadingVideo />;
+  if (!dbInitialized && isConnected && showVideo) {
+    return (
+      // Add this return
+      <View style={{ flex: 1 }}>
+        <LoadingVideo />
+        <Toast />
+      </View>
+    );
   }
 
   return (
