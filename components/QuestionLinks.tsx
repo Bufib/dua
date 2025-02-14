@@ -13,6 +13,7 @@ import { ThemedText } from "./ThemedText";
 import { categories } from "@/utils/categories";
 import { Colors } from "@/constants/Colors";
 import { returnSize } from "@/utils/sizes";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function QuestionLinks() {
   const themeStyles = coustomTheme();
@@ -27,6 +28,7 @@ export default function QuestionLinks() {
   // For square to change color on pressed
   const [pressedIndex, setPressedIndex] = useState<number | null>(null);
   const colorScheme = useColorScheme();
+
 
   return (
     <SafeAreaView

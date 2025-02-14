@@ -82,7 +82,7 @@ const AddPushMessage: React.FC = () => {
           disabled={isSending}
         >
           <Text style={styles.buttonText}>
-            {isSending ? "Sending..." : "Send Notification"}
+            {isSending ? "Wird gesendet..." : "Notification senden"}
           </Text>
         </Pressable>
       </View>

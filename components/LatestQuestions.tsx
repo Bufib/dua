@@ -14,11 +14,12 @@ import { coustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "./ThemedText";
 import { useColorScheme } from "react-native";
 import { ThemedView } from "./ThemedView";
+import { useInitializeDatabase } from "@/hooks/useInitializeDatabase.ts";
 
 const LatestQuestions: React.FC = () => {
   const [latestQuestions, setLatestQuestions] = useState<QuestionType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
+const dbInitialized = useInitializeDatabase();
   const themeStyles = coustomTheme();
   const colorScheme = useColorScheme();
 
@@ -72,7 +73,7 @@ const LatestQuestions: React.FC = () => {
     };
 
     loadLatestQuestions();
-  }, []);
+  }, [dbInitialized]);
 
   // While loading
   if (isLoading) {

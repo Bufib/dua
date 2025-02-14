@@ -92,7 +92,7 @@ export const Colors = {
   universal: {
     primary: "#057958",
     secondary: "#2ea853",
-    third: "#fbf9f1",
+    third: "#e8f5e9",
     white: "#ffffff",
     black: "#000000",
     link: "rgb(10, 132, 255)",

@@ -58,6 +58,10 @@ export const initializeDatabase = async () => {
   // Check if version in Storage is up to date.
   const checkVersion = async () => {
     try {
+          //! Add delay to your fetch calls for testing
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+await delay(300000); // 3 second delay
+
       const versionFromStorage = await Storage.getItem("version");
       const versionFromSupabase = await fetchVersionFromSupabase();
 

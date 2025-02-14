@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useLayoutEffect } from "react";
 import { View, Pressable, StyleSheet, Linking } from "react-native";
 import Modal from "react-native-modal";
 import { ThemedText } from "@/components/ThemedText";
@@ -7,6 +7,7 @@ import { useColorScheme } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useState } from "react";
 import { Storage } from "expo-sqlite/kv-store";
+import { useInitializeDatabase } from "@/hooks/useInitializeDatabase.ts";
 type DonationAlertProps = {
   isVisible: boolean;
   onClose: () => void;
@@ -17,24 +18,25 @@ const DonationAlert: React.FC<DonationAlertProps> = ({
   onClose,
 }) => {
   const colorScheme = useColorScheme();
-  const [paypalLink, setPaypalLink] = useState<string>("");
 
   const openPayPal = async () => {
-    const supported = await Linking.canOpenURL(paypalLink);
-    if (supported) {
-      await Linking.openURL(paypalLink);
-    } else {
-      console.error("Fehler beim Öffnen von PayPal.");
+    try {
+      const paypalLink = await Storage.getItem("paypal");
+      if (!paypalLink) {
+        console.error("PayPal link not found");
+        return;
+      }
+
+      const supported = await Linking.canOpenURL(paypalLink);
+      if (supported) {
+        await Linking.openURL(paypalLink);
+      } else {
+        console.error("Fehler beim Öffnen von PayPal.");
+      }
+    } catch (error) {
+      console.error("Error opening PayPal:", error);
     }
   };
-
-  // Get paypal link and version and count
-  useEffect(() => {
-    const paypal = Storage.getItemSync("paypal");
-    if (paypal) {
-      setPaypalLink(paypal);
-    }
-  }, []);
 
   return (
     <Modal
