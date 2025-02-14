@@ -28,6 +28,7 @@ import {
   loginPasswordNotEmpty,
 } from "@/constants/messages";
 import { Colors } from "@/constants/Colors";
+import NoInternet from "@/components/NoInternet";
 
 // Login data schema
 const loginSchema = z.object({
@@ -171,6 +172,8 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.formWrapper}>
+
+        <NoInternet />
           <View style={[styles.contentContainer, themeStyles.contrast]}>
             <ThemedText style={styles.title} type="title">
               Benutzeranmeldung

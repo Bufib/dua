@@ -408,6 +408,7 @@ import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { TouchableWithoutFeedback } from "react-native";
+import NoInternet from "./NoInternet";
 
 
 /**
@@ -579,6 +580,7 @@ export function ResetPassword() {
        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
        enabled
      >
+      <NoInternet />
       {/* CODE FIELD */}
       <Controller
         control={control}

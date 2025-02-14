@@ -127,7 +127,12 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
         });
 
       if (signInError) {
-        setError("Falsches Passwort!");
+        if (signInError.message === "Network request failed") {
+          setError("Keine Internetverbindung!");
+        } else {
+          setError(signInError.message);
+        }
+
         setLoading(false);
         return;
       }

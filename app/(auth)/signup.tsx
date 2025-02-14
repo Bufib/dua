@@ -43,6 +43,7 @@ import {
   cancleCaptcha,
 } from "@/constants/messages";
 import { SignUpFormValues, CaptchaEvent } from "@/utils/types";
+import NoInternet from "@/components/NoInternet";
 
 // Define validation schema with Zod
 const schema = z
@@ -424,6 +425,7 @@ export default function SignUpScreen() {
         style={styles.scrollViewContainer}
         contentContainerStyle={styles.scrollViewContent}
       >
+        <NoInternet />
         <View style={[styles.contentContainer, themeStyles.contrast]}>
           <ThemedText style={styles.title} type="subtitle">
             Erstelle einen Account, um einen Gelehrten eine Frage stellen zu

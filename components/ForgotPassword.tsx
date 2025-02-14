@@ -21,6 +21,7 @@ import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import { useAuthStore } from "@/stores/authStore";
 import { TouchableWithoutFeedback } from "react-native";
+import NoInternet from "./NoInternet";
 
 // Define validation schema with Zod
 const schema = z.object({
@@ -89,6 +90,7 @@ export function ForgotPassword() {
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
         enabled
       >
+       <NoInternet />
         <Controller
           control={control}
           name="email"
