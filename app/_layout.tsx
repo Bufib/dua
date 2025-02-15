@@ -127,7 +127,7 @@ export default function RootLayout() {
   }, [dbInitialized, isSessionRestored, storesHydrated, hasInternet]);
 
   // Show loading video
-  if (!dbInitialized && hasInternet && showVideo) {
+  if (!dbInitialized && showVideo) {
     return (
       // Add this return
       <View style={{ flex: 1 }}>

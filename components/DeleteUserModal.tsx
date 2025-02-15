@@ -202,7 +202,11 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
               <View style={styles.buttonRow}>
                 <Pressable
                   disabled={loading || !hasInternet}
-                  style={[styles.button, styles.deleteButton]}
+                  style={[
+                    styles.button,
+                    styles.deleteButton,
+                    (loading || !hasInternet) && styles.disabledButton,
+                  ]}
                   onPress={handleProceedToPassword}
                 >
                   <Text style={styles.buttonTextDelete}>
@@ -374,7 +378,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#6c757d",
   },
   disabledButton: {
-    opacity: 0.5,
+    opacity: 0.7,
   },
   buttonTextDelete: {
     color: "#fff",

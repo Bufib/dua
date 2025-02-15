@@ -185,9 +185,7 @@ export default function QuestionsList() {
       <Pressable
         style={[
           styles.askQuestionButton,
-          !hasInternet && {
-            backgroundColor: Colors.universal.fadeColor,
-          },
+          !hasInternet && styles.disabled
         ]}
         onPress={() => router.push("/(askQuestion)/askQuestion")}
         disabled={!hasInternet}
@@ -304,6 +302,9 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: "#057958",
     borderRadius: 99,
+  },
+  disabled: {
+    opacity: 0.7
   },
   askQuestionButtonText: {
     fontWeight: "600",

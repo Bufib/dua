@@ -246,7 +246,11 @@ const useNotificationStore = create<NotificationState>()(
               }
             }
           } catch (error) {
-            showPermissionAlert();
+            Alert.alert(
+              "Keine Internetverbindung",
+              "Die Änderungen konnte nicht vorgenommen werden, weil keine Internetverbindung besteht.",
+              [{ text: "OK" }]
+            );
           }
         },
       };

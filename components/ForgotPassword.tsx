@@ -117,7 +117,9 @@ export function ForgotPassword() {
           style={({ pressed }) => [
             styles.resetButton,
             pressed && styles.buttonPressed,
+            (loading || !hasInternet) && styles.disabledButton,
           ]}
+
           onPress={handleSubmit(handleResetPassword)}
           disabled={loading || !hasInternet}
         >
@@ -160,5 +162,8 @@ const styles = StyleSheet.create({
   error: {
     color: Colors.universal.error,
     marginBottom: 12,
+  },
+  disabledButton: {
+    opacity: 0.7,
   },
 });

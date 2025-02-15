@@ -679,13 +679,13 @@ export function ResetPassword() {
           />
         ) : (
           <Pressable
+            disabled={loading || !hasInternet}
             style={({ pressed }) => [
               styles.resetButton,
               pressed && styles.buttonPressed,
-            
+              (loading || !hasInternet) && styles.disable,
             ]}
             onPress={handleSubmit(handleUpdatePassword)}
-            disabled={loading || !hasInternet}
           >
             <Text style={styles.resetButtonText}>Passwort aktualisieren</Text>
           </Pressable>
@@ -700,6 +700,7 @@ export function ResetPassword() {
             style={[
               styles.resendButtonText,
               resendCount >= 3 && styles.disabledButton,
+              (loading || !hasInternet) && styles.disable,
             ]}
           >
             {resendCount >= 3
@@ -767,6 +768,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: Colors.universal.primary,
     textDecorationLine: "underline",
+  },
+  disable: {
+    opacity: 0.5
   },
   disabledButton: {
     color: Colors.universal.error,

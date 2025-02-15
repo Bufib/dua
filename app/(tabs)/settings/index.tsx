@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontSize: 14,
-    opacity: 0.5,
+    opacity: 0.7,
   },
   footer: {
     flexDirection: "row",

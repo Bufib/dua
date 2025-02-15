@@ -57,7 +57,10 @@ const QuestionSchema = z.object({
     ),
   question: z.string().min(1, "Bitte gebe deine Frage ein!"),
   age: z
-    .number({ invalid_type_error: "Bitte gebe dein Alter ein!", required_error: "Bitte gebe dein Alter ein!" })
+    .number({
+      invalid_type_error: "Bitte gebe dein Alter ein!",
+      required_error: "Bitte gebe dein Alter ein!",
+    })
     .min(1, "Bitte gebe dein Alter ein!"),
   gender: z
     .object({
@@ -441,9 +444,11 @@ export default function AskQuestionScreen() {
         </View>
         {/* SUBMIT BUTTON */}
         <Pressable
-          style={[styles.submitButton, loading && styles.submitButtonDisabled]}
+          style={[styles.submitButton, loading && styles.disabledButton,
+            (loading || !hasInternet) && styles.disabledButton,
+          ]}
           onPress={handleSubmit(handleAskQuestion)}
-          disabled={loading || !hasInternet}
+          disabled={loading || !hasInternet}
         >
           {loading ? (
             <ActivityIndicator color="#000" />
@@ -630,7 +635,7 @@ const styles = StyleSheet.create({
     marginTop: 24,
     marginBottom: 40,
   },
-  submitButtonDisabled: {
+  disabledButton: {
     opacity: 0.7,
   },
   submitButtonText: {
