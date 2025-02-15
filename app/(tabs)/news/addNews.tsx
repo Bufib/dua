@@ -277,6 +277,8 @@ import { useAddNews } from "@/hooks/useAddNews";
 import { TabView, SceneMap } from "react-native-tab-view";
 import addPushMessage from "./addPushMessage";
 import { ThemedView } from "@/components/ThemedView";
+import { NoInternet } from "@/components/NoInternet";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 
 export default function addNews() {
   const {
@@ -291,9 +293,11 @@ export default function addNews() {
   } = useAddNews();
 
   const themeStyles = coustomTheme();
+  const hasInternet = useConnectionStatus();
 
   const renderForm = () => (
-    <>
+    <ThemedView>
+      <NoInternet showToast={false} showUI={true} />
       <View style={[styles.card, themeStyles.contrast]}>
         {/* Title Input */}
         <ThemedText style={styles.label}>Title</ThemedText>
@@ -378,15 +382,15 @@ export default function addNews() {
 
       {/* Submit Button */}
       <Pressable
-        style={[styles.submitButton, uploading && styles.disabledButton]}
+        style={[styles.submitButton, (uploading || !hasInternet) && styles.disabled]}
         onPress={handleSubmit(onSubmit)}
-        disabled={uploading}
+        disabled={uploading || !hasInternet}
       >
         <Text style={styles.submitButtonText}>
           {uploading ? "Wird hochgeladen..." : "Hochladen"}
         </Text>
       </Pressable>
-    </>
+    </ThemedView>
   );
 
   return (
@@ -476,8 +480,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.universal.submitButton,
     alignItems: "center",
   },
-  disabledButton: {
-    backgroundColor: Colors.universal.fadeColor,
+  disabled: {
+   opacity: 0.5
   },
   submitButtonText: {
     color: "#fff",

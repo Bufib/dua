@@ -86,12 +86,12 @@ export function ForgotPassword() {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={[styles.container, themeStyles.defaultBackgorundColor]}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
-        enabled
-      >
+       <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={[styles.container, themeStyles.defaultBackgorundColor]}
+            keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+            enabled
+          >
         <NoInternet showUI={true} showToast={false} />
         <Controller
           control={control}
@@ -164,6 +164,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   disabledButton: {
-    opacity: 0.7,
+    opacity: 0.5,
   },
 });

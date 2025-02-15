@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
   warningSubText: {
     fontSize: 14,
     marginBottom: 20,
-    opacity: 0.7,
+    opacity: 0.5,
     textAlign: "center",
   },
   passwordContainer: {
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#6c757d",
   },
   disabledButton: {
-    opacity: 0.7,
+    opacity: 0.5,
   },
   buttonTextDelete: {
     color: "#fff",

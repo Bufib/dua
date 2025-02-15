@@ -28,6 +28,8 @@ import DeleteUserModal from "@/components/DeleteUserModal";
 import Toast from "react-native-toast-message";
 import useNotificationStore from "@/stores/notificationStore";
 import { useInitializeDatabase } from "@/hooks/useInitializeDatabase.ts";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
+import { NoInternet } from "@/components/NoInternet";
 const Settings = () => {
   const colorScheme = useColorScheme();
   const [isDarkMode, setIsDarkMode] = useState(colorScheme === "dark");
@@ -41,6 +43,7 @@ const Settings = () => {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { getNotifications, toggleGetNotifications } = useNotificationStore();
   const dbInitialized = useInitializeDatabase();
+  const hasInternet = useConnectionStatus();
 
   const handleDeleteSuccess = () => {
     clearSession(); // SignOut and remove session
@@ -118,6 +121,7 @@ const Settings = () => {
       </View>
 
       <ScrollView style={styles.scrollView}>
+        <NoInternet showToast={false} showUI={true} />
         <View style={styles.section}>
           {isLoggedIn ? (
             <ThemedText style={styles.sectionTitle}>
@@ -158,7 +162,7 @@ const Settings = () => {
               </View>
               <Switch
                 value={getNotifications}
-                onValueChange={toggleGetNotifications}
+                onValueChange={hasInternet ? toggleGetNotifications : undefined}
                 trackColor={{
                   false: Colors.light.trackColor,
                   true: Colors.dark.trackColor,
@@ -336,12 +340,12 @@ const styles = StyleSheet.create({
   },
   questionCount: {
     fontSize: 16,
-    opacity: 0.7,
+    opacity: 0.5,
     marginBottom: 8,
   },
   versionText: {
     fontSize: 14,
-    opacity: 0.7,
+    opacity: 0.5,
   },
   footer: {
     flexDirection: "row",

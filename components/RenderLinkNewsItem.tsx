@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   linkButtonPressed: {
-    opacity: 0.7,
+    opacity: 0.5,
   },
   linkText: {
     fontSize: 14,

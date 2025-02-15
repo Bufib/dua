@@ -171,8 +171,6 @@
 
 // export default useNotificationStore;
 
-
-
 // stores/notificationStore.ts
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
@@ -222,7 +220,8 @@ const useNotificationStore = create<NotificationState>()(
           try {
             if (!currentState) {
               if (currentPermission === "undetermined") {
-                const { status } = await Notifications.requestPermissionsAsync();
+                const { status } =
+                  await Notifications.requestPermissionsAsync();
                 set({ permissionStatus: status });
                 if (status !== "granted") {
                   showPermissionAlert();
@@ -241,7 +240,10 @@ const useNotificationStore = create<NotificationState>()(
               if (userId) {
                 await Promise.all([
                   supabase.from("user_token").delete().eq("user_id", userId),
-                  supabase.from("pending_notification").delete().eq("user_id", userId),
+                  supabase
+                    .from("pending_notification")
+                    .delete()
+                    .eq("user_id", userId),
                 ]);
               }
             }

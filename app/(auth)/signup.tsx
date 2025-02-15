@@ -219,7 +219,7 @@ export default function SignUpScreen() {
     setIsLoading(true);
     setCustomErrors({ username: "", email: "" }); // Reset form
     try {
-      
+
       // 3.1 Check network
       if (!hasInternet) {
         Alert.alert(noInternetHeader, noInternetBody);
@@ -419,9 +419,11 @@ export default function SignUpScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[styles.container, themeStyles.defaultBackgorundColor]}
-    >
+         behavior={Platform.OS === "ios" ? "padding" : "height"}
+         style={[styles.container, themeStyles.defaultBackgorundColor]}
+         keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+         enabled
+       >
       <ScrollView
         style={styles.scrollViewContainer}
         contentContainerStyle={styles.scrollViewContent}

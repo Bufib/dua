@@ -263,9 +263,12 @@ export default function LoginScreen() {
             {/* LOGIN BUTTON */}
             <View style={{ flexDirection: "column", gap: 3, marginTop: 10 }}>
               <Pressable
-                style={styles.buttonContainer}
+                style={[
+                  styles.buttonContainer,
+                  (isLoading || !hasInternet) && styles.disabled,
+                ]}
                 onPress={handleSubmit(onSubmit)}
-                disabled={isLoading}
+                disabled={isLoading || !hasInternet}
               >
                 <Text style={[styles.buttonText, { color: "#fff" }]}>
                   {isLoading ? "Wird geladen..." : "Anmelden"}
@@ -376,9 +379,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 7,
   },
+
   buttonText: {
     fontSize: 18,
     padding: 10,
     textAlign: "center",
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });

@@ -111,54 +111,54 @@ const RenderSearch = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
+      style={[styles.container, themeStyles.defaultBackgorundColor]}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      enabled
     >
-      <View style={[styles.container, themeStyles.defaultBackgorundColor]}>
-        <ThemedView style={styles.headerContainer}>
-          <ThemedView style={[styles.searchBarContainer, themeStyles.contrast]}>
-            <TextInput
-              style={[styles.searchBarInput, themeStyles.text]}
-              onChangeText={handleSearchTextChange}
-              value={searchText}
-              placeholder="Suche nach einer Frage"
-              keyboardType="default"
-              ref={searchRef}
-              placeholderTextColor={themeStyles.placeholder.color}
-            />
-            {searchText && (
-              <Feather
-                name="x-circle"
-                size={18}
-                color={colorScheme === "dark" ? "#fff" : "#000"}
-                onPress={() => handleSearchTextChange("")}
-                style={styles.xButton}
-              />
-            )}
-          </ThemedView>
-        </ThemedView>
-
-        <ThemedView style={styles.contentContainer}>
-          {loading ? (
-            <ActivityIndicator size="large" color="gray" />
-          ) : (
-            <FlatList
-              data={searchResults}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={renderItem}
-              showsVerticalScrollIndicator={false}
-              keyboardDismissMode="on-drag"
-              keyboardShouldPersistTaps="handled"
-              ListEmptyComponent={
-                searchText.trim() && !loading ? (
-                  <ThemedText style={styles.noResultsText}>
-                    Keine Ergebnisse gefunden.
-                  </ThemedText>
-                ) : null
-              }
+      <ThemedView style={styles.headerContainer}>
+        <ThemedView style={[styles.searchBarContainer, themeStyles.contrast]}>
+          <TextInput
+            style={[styles.searchBarInput, themeStyles.text]}
+            onChangeText={handleSearchTextChange}
+            value={searchText}
+            placeholder="Suche nach einer Frage"
+            keyboardType="default"
+            ref={searchRef}
+            placeholderTextColor={themeStyles.placeholder.color}
+          />
+          {searchText && (
+            <Feather
+              name="x-circle"
+              size={18}
+              color={colorScheme === "dark" ? "#fff" : "#000"}
+              onPress={() => handleSearchTextChange("")}
+              style={styles.xButton}
             />
           )}
         </ThemedView>
-      </View>
+      </ThemedView>
+
+      <ThemedView style={styles.contentContainer}>
+        {loading ? (
+          <ActivityIndicator size="large" color="gray" />
+        ) : (
+          <FlatList
+            data={searchResults}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={renderItem}
+            showsVerticalScrollIndicator={false}
+            keyboardDismissMode="on-drag"
+            keyboardShouldPersistTaps="handled"
+            ListEmptyComponent={
+              searchText.trim() && !loading ? (
+                <ThemedText style={styles.noResultsText}>
+                  Keine Ergebnisse gefunden.
+                </ThemedText>
+              ) : null
+            }
+          />
+        )}
+      </ThemedView>
     </KeyboardAvoidingView>
   );
 };
@@ -186,7 +186,6 @@ const styles = StyleSheet.create({
     height: 40,
     paddingHorizontal: 10,
     borderWidth: 0.2,
-
   },
   searchBarInput: {
     flex: 1,

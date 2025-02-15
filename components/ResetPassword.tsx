@@ -573,11 +573,11 @@ export function ResetPassword() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={[styles.container, themeStyles.defaultBackgorundColor]}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
-        enabled
-      >
+           behavior={Platform.OS === "ios" ? "padding" : "height"}
+           style={[styles.container, themeStyles.defaultBackgorundColor]}
+           keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+           enabled
+         >
         <NoInternet showUI={true} showToast={false} />
         {/* CODE FIELD */}
         <Controller

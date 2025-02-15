@@ -304,7 +304,7 @@ const styles = StyleSheet.create({
     borderRadius: 99,
   },
   disabled: {
-    opacity: 0.7
+    opacity: 0.5,
   },
   askQuestionButtonText: {
     fontWeight: "600",

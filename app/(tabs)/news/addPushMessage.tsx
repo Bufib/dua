@@ -1,20 +1,34 @@
 import React, { useState } from "react";
-import { StyleSheet, TextInput, Pressable, View, Alert, Text } from "react-native";
+import {
+  StyleSheet,
+  TextInput,
+  Pressable,
+  View,
+  Alert,
+  Text,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
 import { ThemedView } from "@/components/ThemedView";
 import { supabase } from "@/utils/supabase";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 
 const AddPushMessage: React.FC = () => {
   const themeStyles = coustomTheme();
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const hasInternet = useConnectionStatus();
 
   const handleSubmit = async () => {
     if (!title.trim() || !message.trim()) {
-      Alert.alert("Error", "Bitte gebe einen Titel und eine Nachricht ein!");
+      Alert.alert("Fehler", "Bitte gebe einen Titel und eine Nachricht ein!");
       return;
     }
 
@@ -34,59 +48,72 @@ const AddPushMessage: React.FC = () => {
       setMessage("");
     } catch (error) {
       console.error("Error sending notification:", error);
-      Alert.alert("Error", "Fehler beim senden. Bitte versuche es erneut!");
+      Alert.alert("Fehler", "Fehler beim senden. Bitte versuche es erneut!");
     } finally {
       setIsSending(false);
     }
   };
 
   return (
-    <ThemedView style={styles.container}>
-      <View style={styles.formContainer}>
-        <ThemedText style={styles.label}>Title</ThemedText>
-        <TextInput
-          style={[
-            styles.input,
-            {
-              backgroundColor: themeStyles.contrast.backgroundColor,
-              color: themeStyles.text.color,
-              borderWidth: 1.5,
-            },
-          ]}
-          placeholder="Title deiner Nachricht"
-          placeholderTextColor={"#888"}
-          value={title}
-          onChangeText={setTitle}
-        />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={[styles.container, themeStyles.defaultBackgorundColor]}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      enabled
+    >
+      <ScrollView
+        style={styles.scrollStyles}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <ThemedView style={{ flex: 1 }}>
+            <ThemedText style={styles.label}>Title</ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: themeStyles.contrast.backgroundColor,
+                  color: themeStyles.text.color,
+                  borderWidth: 1.5,
+                },
+              ]}
+              placeholder="Title deiner Nachricht"
+              placeholderTextColor={"#888"}
+              value={title}
+              onChangeText={setTitle}
+            />
 
-        <ThemedText style={styles.label}>Message</ThemedText>
-        <TextInput
-          style={[
-            styles.input,
-            styles.multilineInput,
-            {
-              backgroundColor: themeStyles.contrast.backgroundColor,
-              color: themeStyles.text.color,
-            },
-          ]}
-          placeholder="Der Nachrichtentext"
-          placeholderTextColor={"#888"}
-          value={message}
-          onChangeText={setMessage}
-          multiline
-        />
+            <ThemedText style={styles.label}>Message</ThemedText>
+            <TextInput
+              style={[
+                styles.input,
+                styles.multilineInput,
+                {
+                  backgroundColor: themeStyles.contrast.backgroundColor,
+                  color: themeStyles.text.color,
+                },
+              ]}
+              placeholder="Der Nachrichtentext"
+              placeholderTextColor={"#888"}
+              value={message}
+              onChangeText={setMessage}
+              multiline
+            />
 
-        <Pressable
-          style={[styles.button, isSending && styles.buttonDisabled]}
-          onPress={handleSubmit}
-          disabled={isSending}
-        >
-          <Text style={styles.buttonText}>
-            {isSending ? "Wird gesendet..." : "Notification senden"}
-          </Text>
-        </Pressable>
-      </View>
-    </ThemedView>
+            <Pressable
+              style={[styles.button, (isSending || !hasInternet) && styles.disabled]}
+              onPress={handleSubmit}
+              disabled={isSending || !hasInternet}
+            >
+              <Text style={styles.buttonText}>
+                {isSending ? "Wird gesendet..." : "Notification senden"}
+              </Text>
+            </Pressable>
+          </ThemedView>
+        </TouchableWithoutFeedback>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -95,9 +122,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
-  formContainer: {
+  scrollStyles: {
     flex: 1,
-    justifyContent: "center",
+  },
+  scrollContent: {
+    flexGrow: 1,
   },
   label: {
     fontSize: 16,
@@ -124,13 +153,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
     backgroundColor: Colors.universal.primary,
   },
-  buttonDisabled: {
-    opacity: 0.6,
+  disabled: {
+    opacity: 0.5,
   },
   buttonText: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#fff"
+    color: "#fff",
   },
 });
 

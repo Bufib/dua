@@ -279,10 +279,12 @@ export default function AskQuestionScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={[styles.container, themeStyles.defaultBackgorundColor]}
-    >
+   <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={[styles.container, themeStyles.defaultBackgorundColor]}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+        enabled
+      >
       <ScrollView
         style={styles.scrollViewStyle}
         contentContainerStyle={styles.scrollViewContent}
@@ -308,6 +310,7 @@ export default function AskQuestionScreen() {
                 placeholder="Titel deiner Frage"
                 style={themeStyles.text}
                 autoCapitalize="none"
+                autoCorrect={true}
               />
             )}
           />
@@ -378,6 +381,7 @@ export default function AskQuestionScreen() {
                 placeholder="Wie lautet deine Frage?"
                 style={themeStyles.text}
                 autoCapitalize="none"
+                autoCorrect={true}
               />
             )}
           />
@@ -636,7 +640,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   disabledButton: {
-    opacity: 0.7,
+    opacity: 0.5,
   },
   submitButtonText: {
     fontSize: 18,

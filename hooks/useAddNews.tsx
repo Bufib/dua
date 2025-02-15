@@ -211,8 +211,8 @@ export function useAddNews() {
       selectedImages.length === 0
     ) {
       Alert.alert(
-        "Error",
-        "The news content cannot be empty. Please fill in at least one field or add an image."
+        "Fehler",
+        "Die Nachricht kann nicht leer sein! Bitte gib mindestens einen Title ein oder lade ein Bild hoch."
       );
       return;
     }
