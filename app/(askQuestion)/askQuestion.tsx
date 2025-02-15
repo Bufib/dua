@@ -29,6 +29,8 @@ import { searchQuestions } from "@/utils/initializeDatabase";
 import Entypo from "@expo/vector-icons/Entypo";
 import { FlatList } from "react-native";
 import DonationAlert from "@/components/DonationAlert";
+import { NoInternet } from "@/components/NoInternet";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 // A simple debounce hook
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -55,7 +57,7 @@ const QuestionSchema = z.object({
     ),
   question: z.string().min(1, "Bitte gebe deine Frage ein!"),
   age: z
-    .number({ invalid_type_error: "Bitte gebe dein Alter ein!" })
+    .number({ invalid_type_error: "Bitte gebe dein Alter ein!", required_error: "Bitte gebe dein Alter ein!" })
     .min(1, "Bitte gebe dein Alter ein!"),
   gender: z
     .object({
@@ -136,6 +138,7 @@ export default function AskQuestionScreen() {
   const session = useAuthStore.getState().session;
   const username = useAuthStore.getState().username;
   const colorScheme = useColorScheme();
+  const hasInternet = useConnectionStatus();
   const [isDonationVisible, setDonationVisible] = useState(false);
   // State for the modal that will show similar questions
   const [showSimilarModal, setShowSimilarModal] = useState(false);
@@ -248,8 +251,7 @@ export default function AskQuestionScreen() {
   /** Called once user taps "Frage stellen" */
   const handleAskQuestion = async (formData: QuestionFormData) => {
     // Check if online
-    const netInfo = await NetInfo.fetch();
-    if (!netInfo.isConnected) {
+    if (!hasInternet) {
       Alert.alert("Keine Internetverbindung", "Bitte überprüfe dein Internet.");
       return;
     }
@@ -288,7 +290,7 @@ export default function AskQuestionScreen() {
             <ThemedText style={styles.errorText}>{error}</ThemedText>
           </ThemedView>
         )}
-
+        <NoInternet showUI={true} showToast={false} />
         <View style={[styles.formContainer, themeStyles.contrast]}>
           {/* TITLE */}
           <Controller
@@ -441,7 +443,7 @@ export default function AskQuestionScreen() {
         <Pressable
           style={[styles.submitButton, loading && styles.submitButtonDisabled]}
           onPress={handleSubmit(handleAskQuestion)}
-          disabled={loading}
+          disabled={loading || !hasInternet}
         >
           {loading ? (
             <ActivityIndicator color="#000" />

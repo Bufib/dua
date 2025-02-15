@@ -43,7 +43,8 @@ import {
   cancleCaptcha,
 } from "@/constants/messages";
 import { SignUpFormValues, CaptchaEvent } from "@/utils/types";
-import NoInternet from "@/components/NoInternet";
+import { NoInternet } from "@/components/NoInternet";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 
 // Define validation schema with Zod
 const schema = z
@@ -103,7 +104,7 @@ export default function SignUpScreen() {
   // hCaptcha
   const [showCaptcha, setShowCaptcha] = useState(false);
   const captchaRef = useRef<ConfirmHcaptcha | null>(null);
-
+  const hasInternet = useConnectionStatus();
   // Email verification
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
@@ -218,9 +219,9 @@ export default function SignUpScreen() {
     setIsLoading(true);
     setCustomErrors({ username: "", email: "" }); // Reset form
     try {
+      
       // 3.1 Check network
-      const netInfo = await NetInfo.fetch();
-      if (!netInfo.isConnected) {
+      if (!hasInternet) {
         Alert.alert(noInternetHeader, noInternetBody);
         setIsLoading(false);
         return;
@@ -425,7 +426,7 @@ export default function SignUpScreen() {
         style={styles.scrollViewContainer}
         contentContainerStyle={styles.scrollViewContent}
       >
-        <NoInternet />
+        <NoInternet showUI={true} showToast={false} />
         <View style={[styles.contentContainer, themeStyles.contrast]}>
           <ThemedText style={styles.title} type="subtitle">
             Erstelle einen Account, um einen Gelehrten eine Frage stellen zu

@@ -394,7 +394,7 @@ import {
   ActivityIndicator,
   Platform,
   Keyboard,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
@@ -408,8 +408,8 @@ import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { TouchableWithoutFeedback } from "react-native";
-import NoInternet from "./NoInternet";
-
+import { NoInternet } from "./NoInternet";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 
 /**
  * Schema for resetting password.
@@ -449,7 +449,7 @@ export function ResetPassword() {
   const [resendCount, setResendCount] = useState(0);
   const themeStyles = coustomTheme();
   const colorScheme = useColorScheme();
-
+  const hasInternet = useConnectionStatus();
   const {
     control,
     handleSubmit,
@@ -464,8 +464,7 @@ export function ResetPassword() {
       Alert.alert("Error", "E-mail wird benötigt!");
       return;
     }
-    const netInfo = await NetInfo.fetch();
-    if (!netInfo.isConnected) {
+    if (!hasInternet) {
       Alert.alert(
         "Keine Internetverbindung",
         "Bitte überprüfe deine Verbindung."
@@ -522,8 +521,7 @@ export function ResetPassword() {
       return;
     }
 
-    const netInfo = await NetInfo.fetch();
-    if (!netInfo.isConnected) {
+    if (!hasInternet) {
       Alert.alert(
         "Keine Internetverbindung",
         "Bitte überprüfe deinen Verbindung."
@@ -573,137 +571,144 @@ export function ResetPassword() {
   }, []);
 
   return (
-   <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-     <KeyboardAvoidingView
-       behavior={Platform.OS === "ios" ? "padding" : "height"}
-       style={[styles.container, themeStyles.defaultBackgorundColor]}
-       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
-       enabled
-     >
-      <NoInternet />
-      {/* CODE FIELD */}
-      <Controller
-        control={control}
-        name="code"
-        render={({ field: { onChange, value } }) => (
-          <TextInput
-            style={[styles.input, themeStyles.contrast, themeStyles.text]}
-            placeholder="Reset-Code eingeben"
-            onChangeText={onChange}
-            value={value}
-            keyboardType="number-pad"
-          />
-        )}
-      />
-      {errors.code && <Text style={styles.error}>{errors.code.message}</Text>}
-
-      {/* NEW PASSWORD FIELD */}
-      <Controller
-        control={control}
-        name="newPassword"
-        render={({ field: { onChange, value } }) => (
-          <View style={[styles.passwordContainer, themeStyles.contrast]}>
-            <TextInput
-              style={[styles.passwordInput, themeStyles.text]}
-              placeholder="Neues Passwort eingeben"
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry={!showPassword}
-            />
-            <Pressable
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
-            >
-              {showPassword ? (
-                <Feather
-                  name="eye"
-                  size={24}
-                  color={colorScheme === "dark" ? "#fff" : "#000"}
-                />
-              ) : (
-                <Feather
-                  name="eye-off"
-                  size={24}
-                  color={colorScheme === "dark" ? "#fff" : "#000"}
-                />
-              )}
-            </Pressable>
-          </View>
-        )}
-      />
-      {errors.newPassword && (
-        <Text style={styles.error}>{errors.newPassword.message}</Text>
-      )}
-
-      {/* CONFIRM PASSWORD FIELD */}
-      <Controller
-        control={control}
-        name="confirmPassword"
-        render={({ field: { onChange, value } }) => (
-          <View style={[styles.passwordContainer, themeStyles.contrast]}>
-            <TextInput
-              style={[styles.passwordInput, themeStyles.text]}
-              placeholder="Passwort bestätigen"
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry={!showConfirmPassword}
-            />
-            <Pressable
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              style={styles.eyeIcon}
-            >
-              {showConfirmPassword ? (
-                <Feather
-                  name="eye"
-                  size={24}
-                  color={colorScheme === "dark" ? "#fff" : "#000"}
-                />
-              ) : (
-                <Feather
-                  name="eye-off"
-                  size={24}
-                  color={colorScheme === "dark" ? "#fff" : "#000"}
-                />
-              )}
-            </Pressable>
-          </View>
-        )}
-      />
-      {errors.confirmPassword && (
-        <Text style={styles.error}>{errors.confirmPassword.message}</Text>
-      )}
-
-      {/* Submit button to update password */}
-      {loading ? (
-        <ActivityIndicator
-          style={styles.loadingIndicator}
-          color={Colors.universal.primary}
-        />
-      ) : (
-        <Pressable
-          style={({ pressed }) => [
-            styles.resetButton,
-            pressed && styles.buttonPressed,
-          ]}
-          onPress={handleSubmit(handleUpdatePassword)}
-        >
-          <Text style={styles.resetButtonText}>Passwort aktualisieren</Text>
-        </Pressable>
-      )}
-      {/* Resend Token button */}
-      <Pressable
-        style={styles.resendButton}
-        onPress={handleResendToken}
-        disabled={resendCount >= 3}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={[styles.container, themeStyles.defaultBackgorundColor]}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+        enabled
       >
-        <Text style={[styles.resendButtonText, resendCount >= 3 && styles.disabledButton]}>
-          {resendCount >= 3
-            ? "Maximale Versuche erreicht. Falls du wieder keinen code bekommen hast, versuche es später noch einmal!"
-            : "Neuen Code anfordern"}
-        </Text>
-      </Pressable>
-   </KeyboardAvoidingView>
-       </TouchableWithoutFeedback>
+        <NoInternet showUI={true} showToast={false} />
+        {/* CODE FIELD */}
+        <Controller
+          control={control}
+          name="code"
+          render={({ field: { onChange, value } }) => (
+            <TextInput
+              style={[styles.input, themeStyles.contrast, themeStyles.text]}
+              placeholder="Reset-Code eingeben"
+              onChangeText={onChange}
+              value={value}
+              keyboardType="number-pad"
+            />
+          )}
+        />
+        {errors.code && <Text style={styles.error}>{errors.code.message}</Text>}
+
+        {/* NEW PASSWORD FIELD */}
+        <Controller
+          control={control}
+          name="newPassword"
+          render={({ field: { onChange, value } }) => (
+            <View style={[styles.passwordContainer, themeStyles.contrast]}>
+              <TextInput
+                style={[styles.passwordInput, themeStyles.text]}
+                placeholder="Neues Passwort eingeben"
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry={!showPassword}
+              />
+              <Pressable
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+              >
+                {showPassword ? (
+                  <Feather
+                    name="eye"
+                    size={24}
+                    color={colorScheme === "dark" ? "#fff" : "#000"}
+                  />
+                ) : (
+                  <Feather
+                    name="eye-off"
+                    size={24}
+                    color={colorScheme === "dark" ? "#fff" : "#000"}
+                  />
+                )}
+              </Pressable>
+            </View>
+          )}
+        />
+        {errors.newPassword && (
+          <Text style={styles.error}>{errors.newPassword.message}</Text>
+        )}
+
+        {/* CONFIRM PASSWORD FIELD */}
+        <Controller
+          control={control}
+          name="confirmPassword"
+          render={({ field: { onChange, value } }) => (
+            <View style={[styles.passwordContainer, themeStyles.contrast]}>
+              <TextInput
+                style={[styles.passwordInput, themeStyles.text]}
+                placeholder="Passwort bestätigen"
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry={!showConfirmPassword}
+              />
+              <Pressable
+                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={styles.eyeIcon}
+              >
+                {showConfirmPassword ? (
+                  <Feather
+                    name="eye"
+                    size={24}
+                    color={colorScheme === "dark" ? "#fff" : "#000"}
+                  />
+                ) : (
+                  <Feather
+                    name="eye-off"
+                    size={24}
+                    color={colorScheme === "dark" ? "#fff" : "#000"}
+                  />
+                )}
+              </Pressable>
+            </View>
+          )}
+        />
+        {errors.confirmPassword && (
+          <Text style={styles.error}>{errors.confirmPassword.message}</Text>
+        )}
+
+        {/* Submit button to update password */}
+        {loading ? (
+          <ActivityIndicator
+            style={styles.loadingIndicator}
+            color={Colors.universal.primary}
+          />
+        ) : (
+          <Pressable
+            style={({ pressed }) => [
+              styles.resetButton,
+              pressed && styles.buttonPressed,
+            
+            ]}
+            onPress={handleSubmit(handleUpdatePassword)}
+            disabled={loading || !hasInternet}
+          >
+            <Text style={styles.resetButtonText}>Passwort aktualisieren</Text>
+          </Pressable>
+        )}
+        {/* Resend Token button */}
+        <Pressable
+          style={styles.resendButton}
+          onPress={handleResendToken}
+          disabled={resendCount >= 3 || loading || !hasInternet}
+        >
+          <Text
+            style={[
+              styles.resendButtonText,
+              resendCount >= 3 && styles.disabledButton,
+            ]}
+          >
+            {resendCount >= 3
+              ? "Maximale Versuche erreicht. Falls du wieder keinen code bekommen hast, versuche es später noch einmal!"
+              : "Neuen Code anfordern"}
+          </Text>
+        </Pressable>
+      </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -766,7 +771,7 @@ const styles = StyleSheet.create({
   disabledButton: {
     color: Colors.universal.error,
     textDecorationLine: "none",
-    lineHeight: 23
+    lineHeight: 23,
   },
   loadingIndicator: {
     marginVertical: 16,

@@ -7,6 +7,7 @@ import {
   Pressable,
   Text,
   ScrollView,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "react-native";
@@ -34,7 +35,7 @@ const Settings = () => {
   const clearSession = useAuthStore.getState().clearSession;
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const isAdmin = useAuthStore((state) => state.isAdmin);
-  const [paypalLink, setPaypalLink] = useState<string>("");
+  const [payPalLink, setPayPalLink] = useState<string | null>("");
   const [version, setVersion] = useState<string | null>("");
   const [questionCount, setQuestionCount] = useState<number | null>(0);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -57,28 +58,29 @@ const Settings = () => {
     Appearance.setColorScheme(savedColorSetting === "true" ? "dark" : "light");
   }, []);
 
-  // Get paypal link and version and count
-  useLayoutEffect(() => {
+  // Get version and count and paypal
+  useEffect(() => {
     if (!dbInitialized) return;
 
-    let isMounted = true; // ✅ Track if the component is still mounted
+    try {
+      // Get the version
+      const version = Storage.getItemSync("version");
+      setVersion(version);
 
-    const paypal = Storage.getItemSync("paypal");
-    if (paypal) setPaypalLink(paypal);
+      // Get the paypalLink
+      const paypal = Storage.getItemSync("paypal");
+      setPayPalLink(paypal);
 
-    const version = Storage.getItemSync("version");
-    setVersion(version);
-
-    const countQuestions = async () => {
-      const count = await getQuestionCount();
-      if (isMounted) setQuestionCount(count);
-    };
-    countQuestions();
-
-    return () => {
-      isMounted = false; // ✅ Prevent state updates after unmount
-    };
-  }, []);
+      // Get the version count
+      const countQuestions = async () => {
+        const count = await getQuestionCount();
+        setQuestionCount(count);
+      };
+      countQuestions();
+    } catch (error: any) {
+      Alert.alert("Fehler", error.message);
+    }
+  }, [dbInitialized]);
 
   const toggleDarkMode = async () => {
     const newDarkMode = !isDarkMode;
@@ -195,7 +197,7 @@ const Settings = () => {
 
         <Pressable
           style={styles.paypalButton}
-          onPress={() => handleOpenExternalUrl(paypalLink)}
+          onPress={() => payPalLink && handleOpenExternalUrl(payPalLink)}
         >
           <Image
             source={require("@/assets/images/paypal.png")}
@@ -266,7 +268,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     paddingRight: 15,
-    backgroundColor: "transparent"
+    backgroundColor: "transparent",
   },
   loginButtonText: {
     color: Colors.universal.link,

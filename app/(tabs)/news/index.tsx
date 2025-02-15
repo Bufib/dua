@@ -243,7 +243,7 @@ import { NewsItem } from "@/components/NewsItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAuthStore } from "@/stores/authStore";
 import { router } from "expo-router";
-import NoInternet from "@/components/NoInternet";
+import { NoInternet } from "@/components/NoInternet";
 import { FlashList } from "@shopify/flash-list";
 import { NewsItemType } from "@/hooks/useFetchNews";
 import { useSupabaseRealtime } from "@/components/SupabaseRealtimeProvider";
@@ -312,7 +312,7 @@ export default function NewsFeed() {
       style={[styles.container, themeStyles.defaultBackgorundColor]}
       edges={["top"]}
     >
-      <NoInternet />
+      <NoInternet showUI={true} showToast={false}/>
       {hasNewNewsData && !isAdmin && (
         <ThemedView style={styles.updateContainer}>
           <Pressable

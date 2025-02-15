@@ -28,7 +28,8 @@ import {
   loginPasswordNotEmpty,
 } from "@/constants/messages";
 import { Colors } from "@/constants/Colors";
-import NoInternet from "@/components/NoInternet";
+import { NoInternet } from "@/components/NoInternet";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 
 // Login data schema
 const loginSchema = z.object({
@@ -61,7 +62,7 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [stayLoggedIn, setStayLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
+  const hasInternet = useConnectionStatus();
   const clearSession = useAuthStore.getState().clearSession;
   const setSession = useAuthStore.getState().setSession;
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn); // ✅ Triggers re-render only when isLoggedIn changes
@@ -100,8 +101,7 @@ export default function LoginScreen() {
 
   const onSubmit = async (formData: LoginFormValues) => {
     //Check for network connection
-    const netInfo = await NetInfo.fetch();
-    if (!netInfo.isConnected) {
+    if (!hasInternet) {
       Alert.alert("Keine Internetverbindung", "Bitte überprüfe dein Internet.");
       return;
     }
@@ -172,8 +172,7 @@ export default function LoginScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.formWrapper}>
-
-        <NoInternet />
+          <NoInternet showUI={true} showToast={false} />
           <View style={[styles.contentContainer, themeStyles.contrast]}>
             <ThemedText style={styles.title} type="title">
               Benutzeranmeldung
@@ -316,9 +315,7 @@ const styles = StyleSheet.create({
   inputWrapper: {
     marginBottom: 8,
   },
-  errorContainer: {
-    
-  },
+  errorContainer: {},
   contentContainer: {
     borderWidth: 1,
     padding: 20,

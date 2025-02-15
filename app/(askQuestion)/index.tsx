@@ -9,8 +9,6 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { Link, router, useFocusEffect } from "expo-router";
-import NetInfo from "@react-native-community/netinfo";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useFetchUserQuestions } from "@/hooks/useFetchUserQuestions";
 import { useAuthStore } from "@/stores/authStore";
 import { formatDate } from "@/utils/formatDate";
@@ -21,9 +19,10 @@ import { coustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { userQuestionErrorLoadingQuestions } from "@/constants/messages";
-import NoInternet from "@/components/NoInternet";
+import { NoInternet } from "@/components/NoInternet";
 import { QuestionFromUser } from "@/utils/types";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 export default function QuestionsList() {
   // 1. Check auth state from the store
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
@@ -32,7 +31,7 @@ export default function QuestionsList() {
   const themeStyles = coustomTheme();
 
   // Track connection status
-  const [isConnected, setIsConnected] = useState<boolean | null>(true);
+  const hasInternet = useConnectionStatus();
 
   // 2. If not logged in, redirect to login
   useEffect(() => {
@@ -52,14 +51,6 @@ export default function QuestionsList() {
     handleRefresh,
   } = useFetchUserQuestions();
 
-  // 4. Subscribe to NetInfo once
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      setIsConnected(state.isConnected);
-    });
-    return () => unsubscribe();
-  }, []);
-
   /**
    * 5. Optionally refetch on screen focus
    *    This ensures we always have fresh data when user returns.
@@ -67,10 +58,10 @@ export default function QuestionsList() {
   useFocusEffect(
     useCallback(() => {
       // Only refetch if connected and we have a session
-      if (isConnected && session) {
+      if (hasInternet && session) {
         refetch();
       }
-    }, [isConnected, session])
+    }, [hasInternet, session])
   );
 
   // 6. Render item (memoized for performance)
@@ -149,7 +140,7 @@ export default function QuestionsList() {
   return (
     <ThemedView style={[styles.container, themeStyles.defaultBackgorundColor]}>
       {/* If offline, show your "No Internet" banner at top */}
-      {!isConnected && <NoInternet />}
+      {!hasInternet && <NoInternet showUI={true} showToast={false} />}
 
       {/* Show update available button
       {hasUpdate && (
@@ -172,7 +163,7 @@ export default function QuestionsList() {
             refreshing={isRefetching}
             onRefresh={() => {
               // If user is offline, skip or show a message
-              if (!isConnected) {
+              if (!hasInternet) {
                 // e.g. Alert.alert("Offline", "Kein Internet. Bitte später erneut versuchen.");
                 return;
               }
@@ -194,12 +185,12 @@ export default function QuestionsList() {
       <Pressable
         style={[
           styles.askQuestionButton,
-          !isConnected && {
+          !hasInternet && {
             backgroundColor: Colors.universal.fadeColor,
           },
         ]}
         onPress={() => router.push("/(askQuestion)/askQuestion")}
-        disabled={!isConnected}
+        disabled={!hasInternet}
       >
         <AntDesign name="plus" size={35} color="#fff" />
       </Pressable>

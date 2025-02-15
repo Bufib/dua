@@ -1,27 +1,39 @@
 import { StyleSheet } from "react-native";
-import React, { useState, useEffect } from "react";
-import { ThemedText } from "./ThemedText";
-import { ThemedView } from "./ThemedView";
+import React from "react";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 import { noInternetBody, noInternetHeader } from "@/constants/messages";
 import { Colors } from "@/constants/Colors";
-import NetInfo from "@react-native-community/netinfo";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
+import { useEffect } from "react";
+import Toast from "react-native-toast-message";
+import { useRef } from "react";
+interface NoInternetProps {
+  showUI?: boolean;
+  showToast?: boolean;
+}
 
-export default function NoInternet() {
-  const [isConnected, setIsConnected] = useState<boolean | null>(true);
+export const NoInternet = ({
+  showUI = false,
+  showToast = false,
+}: NoInternetProps) => {
+  const hasInternet = useConnectionStatus();
+  const prevConnected = useRef(true);
 
-  // Check internet connectivity
   useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      setIsConnected(state.isConnected);
-    });
+    if (showToast && prevConnected.current !== hasInternet) {
+      Toast.show({
+        type: hasInternet ? "success" : "error",
+        text1: hasInternet
+          ? "Verbindung wiederhergestellt"
+          : "Keine Internetverbindung!",
+        text2: hasInternet ? "" : "Du erhälst keine updates in dieser Zeit",
+      });
+      prevConnected.current = hasInternet;
+    }
+  }, [hasInternet, showToast]);
 
-    return () => unsubscribe();
-  }, []);
-
-  // Conditional rendering based on connectivity
-  if (isConnected) {
-    return null; // If connected, render nothing
-  }
+  if (!showUI || hasInternet) return null;
 
   return (
     <ThemedView style={styles.noInternet}>
@@ -32,7 +44,7 @@ export default function NoInternet() {
       </ThemedText>
     </ThemedView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   noInternet: {

@@ -4,18 +4,15 @@ import { Collapsible } from "@/components/Collapsible";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { coustomTheme } from "@/utils/coustomTheme";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "react-native";
 import { getQuestion } from "@/utils/initializeDatabase";
-import { useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
-import { Stack } from "expo-router";
 import { useFontSizeStore } from "@/stores/fontSizeStore";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import * as Clipboard from "expo-clipboard";
 import Feather from "@expo/vector-icons/Feather";
 import Markdown from "react-native-markdown-display";
-import NoInternet from "./NoInternet";
+import { NoInternet } from "./NoInternet";
 import { QuestionType } from "@/utils/types";
 type RenderQuestionProps = {
   category: string;
@@ -118,7 +115,7 @@ const RenderQuestion = ({
       contentContainerStyle={styles.scrollViewContent}
       showsVerticalScrollIndicator={false}
     >
-      <NoInternet />
+     <NoInternet showUI={true} showToast={false}/>
       <View
         style={[
           styles.questionContainer,

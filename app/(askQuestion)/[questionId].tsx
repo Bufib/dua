@@ -20,6 +20,8 @@ import { useFetchUserQuestions } from "@/hooks/useFetchUserQuestions";
 import { useState } from "react";
 import NetInfo from "@react-native-community/netinfo";
 import Toast from "react-native-toast-message";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
+import { NoInternet } from "@/components/NoInternet";
 export default function QuestionDetailScreen() {
   const { questionId } = useLocalSearchParams();
   const queryClient = useQueryClient();
@@ -27,22 +29,13 @@ export default function QuestionDetailScreen() {
   const session = useAuthStore.getState().session;
   const userId = session?.user?.id ?? null;
   const themeStyles = coustomTheme();
-  const [isConnected, setIsConnected] = useState<boolean | null>(true);
-
+  const hasInternet = useConnectionStatus();
   // 4. If user is not logged in, redirect to login
   useEffect(() => {
     if (!isLoggedIn) {
       router.push("/(auth)/login");
     }
   }, [isLoggedIn, session]);
-
-  // 4. Subscribe to NetInfo
-  useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener((state) => {
-      setIsConnected(state.isConnected);
-    });
-    return () => unsubscribe();
-  }, []);
 
   const cachedQuestions = queryClient.getQueryData<QuestionFromUser[]>([
     "questionsFromUser",
@@ -86,7 +79,7 @@ export default function QuestionDetailScreen() {
           refreshing={isRefetching}
           onRefresh={() => {
             // If user is offline show a message
-            if (!isConnected) {
+            if (!hasInternet) {
               Toast.show({
                 type: "error",
                 text1: "Es bestehte keine Internetverbindung!",
@@ -98,6 +91,7 @@ export default function QuestionDetailScreen() {
         />
       }
     >
+      <NoInternet showUI={true} showToast={false} />
       <ThemedView style={[styles.header, themeStyles.borderColor]}>
         <View
           style={[

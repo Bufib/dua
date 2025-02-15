@@ -1,5 +1,5 @@
-import React, { useLayoutEffect } from "react";
-import { View, Pressable, StyleSheet, Linking } from "react-native";
+import React, { useEffect } from "react";
+import { View, Pressable, StyleSheet, Linking, Alert } from "react-native";
 import Modal from "react-native-modal";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -8,6 +8,8 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import { useState } from "react";
 import { Storage } from "expo-sqlite/kv-store";
 import { useInitializeDatabase } from "@/hooks/useInitializeDatabase.ts";
+import handleOpenExternalUrl from "@/utils/handleOpenExternalUrl";
+import Toast from "react-native-toast-message";
 type DonationAlertProps = {
   isVisible: boolean;
   onClose: () => void;
@@ -18,25 +20,21 @@ const DonationAlert: React.FC<DonationAlertProps> = ({
   onClose,
 }) => {
   const colorScheme = useColorScheme();
+  const dbInitialized = useInitializeDatabase();
+  const [payPalLink, setPayPalLink] = useState<string | null>(null);
 
-  const openPayPal = async () => {
+  // paypal
+  useEffect(() => {
+    if (!dbInitialized) return;
+
+    // Get the paypalLink
     try {
-      const paypalLink = await Storage.getItem("paypal");
-      if (!paypalLink) {
-        console.error("PayPal link not found");
-        return;
-      }
-
-      const supported = await Linking.canOpenURL(paypalLink);
-      if (supported) {
-        await Linking.openURL(paypalLink);
-      } else {
-        console.error("Fehler beim Öffnen von PayPal.");
-      }
-    } catch (error) {
-      console.error("Error opening PayPal:", error);
+      const paypal = Storage.getItemSync("paypal");
+      setPayPalLink(paypal);
+    } catch (error: any) {
+      Alert.alert("Fehler", error.message);
     }
-  };
+  }, [dbInitialized]);
 
   return (
     <Modal
@@ -77,12 +75,16 @@ const DonationAlert: React.FC<DonationAlertProps> = ({
         </ThemedText>
 
         {/* PayPal Donate Button */}
-        <Pressable style={styles.donateButton} onPress={openPayPal}>
+        <Pressable
+          style={styles.donateButton}
+          onPress={() => payPalLink && handleOpenExternalUrl(payPalLink)}
+        >
           <ThemedText style={styles.donateButtonText}>
             Jetzt mit PayPal spenden
           </ThemedText>
         </Pressable>
       </ThemedView>
+      <Toast />
     </Modal>
   );
 };

@@ -19,6 +19,8 @@ import { useAuthStore } from "@/stores/authStore";
 import { Colors } from "@/constants/Colors";
 import { coustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
+import { NoInternet } from "./NoInternet";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 
 interface DeleteUserModalProps {
   isVisible: boolean;
@@ -48,6 +50,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
   const [showPasswordInput, setShowPasswordInput] = useState<boolean>(false);
   const [attemptCount, setAttemptCount] = useState<number>(0);
   const [lastAttemptTime, setLastAttemptTime] = useState<number>(0);
+  const hasInternet = useConnectionStatus();
 
   // Reset attempt count after timeout
   useEffect(() => {
@@ -185,6 +188,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
         <View style={[styles.modalContent, themeStyles.defaultBackgorundColor]}>
           {showConfirmation && (
             <>
+              <NoInternet showUI={true} showToast={false} />
               <ThemedText style={styles.title} type="title">
                 Account Löschen
               </ThemedText>
@@ -197,6 +201,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
               </ThemedText>
               <View style={styles.buttonRow}>
                 <Pressable
+                  disabled={loading || !hasInternet}
                   style={[styles.button, styles.deleteButton]}
                   onPress={handleProceedToPassword}
                 >

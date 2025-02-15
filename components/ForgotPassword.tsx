@@ -21,7 +21,8 @@ import { ThemedText } from "./ThemedText";
 import { ThemedView } from "./ThemedView";
 import { useAuthStore } from "@/stores/authStore";
 import { TouchableWithoutFeedback } from "react-native";
-import NoInternet from "./NoInternet";
+import { NoInternet } from "./NoInternet";
+import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 
 // Define validation schema with Zod
 const schema = z.object({
@@ -41,6 +42,7 @@ export function ForgotPassword() {
   const themeStyles = coustomTheme();
   const clearSession = useAuthStore.getState().clearSession;
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const hasInternet = useConnectionStatus();
 
   const {
     control,
@@ -90,7 +92,7 @@ export function ForgotPassword() {
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
         enabled
       >
-       <NoInternet />
+        <NoInternet showUI={true} showToast={false} />
         <Controller
           control={control}
           name="email"
@@ -117,7 +119,7 @@ export function ForgotPassword() {
             pressed && styles.buttonPressed,
           ]}
           onPress={handleSubmit(handleResetPassword)}
-          disabled={loading}
+          disabled={loading || !hasInternet}
         >
           <ThemedText style={styles.resetButtonText}>
             Reset-Code anfordern
