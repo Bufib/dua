@@ -226,18 +226,17 @@
 //   footerComponent: {},
 // });
 
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import {
   StyleSheet,
   ActivityIndicator,
   Pressable,
-  Text,
   useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { useFetchNews } from "@/hooks/useFetchNews";
 import { NewsItem } from "@/components/NewsItem";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -261,7 +260,7 @@ export default function NewsFeed() {
     isLoading,
   } = useFetchNews();
 
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const flatListRef = useRef<FlashList<NewsItemType>>(null);
   const colorScheme = useColorScheme();
 
@@ -312,7 +311,7 @@ export default function NewsFeed() {
       style={[styles.container, themeStyles.defaultBackgorundColor]}
       edges={["top"]}
     >
-      <NoInternet showUI={true} showToast={false}/>
+      <NoInternet showUI={true} showToast={false} />
       {hasNewNewsData && !isAdmin && (
         <ThemedView style={styles.updateContainer}>
           <Pressable
@@ -396,10 +395,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    margin: 15
+    margin: 15,
   },
-  headerText: {
-  },
+  headerText: {},
   addIcon: {
     marginRight: 15,
   },

@@ -10,23 +10,20 @@ import {
   View,
   Alert,
   Modal,
-  useColorScheme,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import NetInfo from "@react-native-community/netinfo";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { supabase } from "@/utils/supabase";
 import { useAuthStore } from "@/stores/authStore";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
 import { askQuestionQuestionSendSuccess } from "@/constants/messages";
-import { QuestionType, SearchResults } from "@/utils/types";
+import { SearchResults } from "@/utils/types";
 import { searchQuestions } from "@/utils/initializeDatabase";
-import Entypo from "@expo/vector-icons/Entypo";
 import { FlatList } from "react-native";
 import DonationAlert from "@/components/DonationAlert";
 import { NoInternet } from "@/components/NoInternet";
@@ -140,7 +137,6 @@ export default function AskQuestionScreen() {
   const [error, setError] = useState<string | null>(null);
   const session = useAuthStore.getState().session;
   const username = useAuthStore.getState().username;
-  const colorScheme = useColorScheme();
   const hasInternet = useConnectionStatus();
   const [isDonationVisible, setDonationVisible] = useState(false);
   // State for the modal that will show similar questions
@@ -151,7 +147,7 @@ export default function AskQuestionScreen() {
     useState<QuestionFormData | null>(null);
 
   // Theming
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
 
   const {
     control,
@@ -279,12 +275,12 @@ export default function AskQuestionScreen() {
   };
 
   return (
-   <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={[styles.container, themeStyles.defaultBackgorundColor]}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-        enabled
-      >
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={[styles.container, themeStyles.defaultBackgorundColor]}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      enabled
+    >
       <ScrollView
         style={styles.scrollViewStyle}
         contentContainerStyle={styles.scrollViewContent}
@@ -448,7 +444,9 @@ export default function AskQuestionScreen() {
         </View>
         {/* SUBMIT BUTTON */}
         <Pressable
-          style={[styles.submitButton, loading && styles.disabledButton,
+          style={[
+            styles.submitButton,
+            loading && styles.disabledButton,
             (loading || !hasInternet) && styles.disabledButton,
           ]}
           onPress={handleSubmit(handleAskQuestion)}

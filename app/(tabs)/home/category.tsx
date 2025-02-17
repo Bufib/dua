@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import React from "react";
 import { useLocalSearchParams } from "expo-router";
 import RenderCategoryItems from "@/components/RenderCategoryItems";
 import { Stack } from "expo-router";
 
-export default function categories() {
+export default function Categories() {
   const { category } = useLocalSearchParams<{ category: string }>();
   return (
     <View style={styles.container}>

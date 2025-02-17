@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,14 +8,14 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { Link, router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useFetchUserQuestions } from "@/hooks/useFetchUserQuestions";
 import { useAuthStore } from "@/stores/authStore";
 import { formatDate } from "@/utils/formatDate";
 import { Colors } from "@/constants/Colors";
 import getStatusColor from "@/utils/getStatusColor";
 import { useColorScheme } from "react-native";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { userQuestionErrorLoadingQuestions } from "@/constants/messages";
@@ -28,7 +28,7 @@ export default function QuestionsList() {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const session = useAuthStore.getState().session;
   const colorScheme = useColorScheme();
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
 
   // Track connection status
   const hasInternet = useConnectionStatus();
@@ -47,8 +47,6 @@ export default function QuestionsList() {
     isRefetching,
     refetch,
     isError,
-    hasUpdate,
-    handleRefresh,
   } = useFetchUserQuestions();
 
   /**

@@ -38,8 +38,7 @@ yarn-error.*
 app-example
 
 # **folder**
-/ios
-/**android**
+
 
 # expo
 expo-env.d.ts

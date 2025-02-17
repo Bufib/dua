@@ -9,19 +9,15 @@ import React, {
   useEffect,
   useCallback,
   useRef,
-  useLayoutEffect,
 } from "react";
 import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme, Pressable } from "react-native";
-import { coustomTheme } from "../utils/coustomTheme";
+import { CoustomTheme } from "../utils/coustomTheme";
 import Feather from "@expo/vector-icons/Feather";
 import { searchQuestions } from "../utils/initializeDatabase";
 import { router } from "expo-router";
-import { Keyboard } from "react-native";
-import { Link } from "expo-router";
-import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
+import { KeyboardAvoidingView, Platform } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { SearchResults } from "@/utils/types";
 
@@ -29,7 +25,7 @@ const DEBOUNCE_DELAY = 300; // milliseconds
 
 const RenderSearch = () => {
   const colorScheme = useColorScheme();
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResults[]>([]);
   const [loading, setLoading] = useState(false);

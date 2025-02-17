@@ -243,11 +243,9 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 import { useAuthStore } from "@/stores/authStore";
 import { supabase } from "@/utils/supabase";
-import { Link, useRouter } from "expo-router";
+import {  useRouter } from "expo-router";
 import useNotificationStore from "@/stores/notificationStore";
-import { Linking } from "react-native";
-import NetInfo from "@react-native-community/netinfo";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+
 
 const TOKEN_STORAGE_KEY = "pushTokenStored";
 export interface PushNotificationState {

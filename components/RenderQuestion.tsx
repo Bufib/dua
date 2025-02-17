@@ -1,9 +1,9 @@
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { StyleSheet, View, ScrollView } from "react-native";
 import React from "react";
 import { Collapsible } from "@/components/Collapsible";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { useColorScheme } from "react-native";
 import { getQuestion } from "@/utils/initializeDatabase";
 import { useState, useEffect } from "react";
@@ -25,7 +25,7 @@ const RenderQuestion = ({
   subcategory,
   questionId,
 }: RenderQuestionProps) => {
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [question, setQuestion] = useState<QuestionType | null>(null);
   const { fontSize, lineHeight } = useFontSizeStore();

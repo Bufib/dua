@@ -10,14 +10,12 @@ import {
   useColorScheme,
   TouchableWithoutFeedback,
   Keyboard,
-  KeyboardAvoidingView,
-  Platform,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { supabase } from "@/utils/supabase";
 import { useAuthStore } from "@/stores/authStore";
 import { Colors } from "@/constants/Colors";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
 import { NoInternet } from "./NoInternet";
 import { useConnectionStatus } from "@/hooks/useConnectionStatus";
@@ -40,7 +38,7 @@ const DeleteUserModal: React.FC<DeleteUserModalProps> = ({
   serverUrl,
 }) => {
   const colorScheme = useColorScheme();
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const user = useAuthStore((state) => state.session?.user);
   const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);

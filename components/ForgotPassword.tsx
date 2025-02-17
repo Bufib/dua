@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  View,
   TextInput,
   Alert,
   StyleSheet,
@@ -16,9 +15,8 @@ import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Colors } from "@/constants/Colors";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "./ThemedText";
-import { ThemedView } from "./ThemedView";
 import { useAuthStore } from "@/stores/authStore";
 import { TouchableWithoutFeedback } from "react-native";
 import { NoInternet } from "./NoInternet";
@@ -39,7 +37,7 @@ type ForgotPasswordFormValues = {
 
 export function ForgotPassword() {
   const [loading, setLoading] = useState(false);
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const clearSession = useAuthStore.getState().clearSession;
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const hasInternet = useConnectionStatus();

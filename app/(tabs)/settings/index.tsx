@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -11,14 +11,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "react-native";
-import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import Storage from "expo-sqlite/kv-store";
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
 import { Linking } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "@/stores/authStore";
 import handleLogout from "@/utils/handleLogout";
 import { getQuestionCount } from "@/utils/initializeDatabase";
@@ -33,7 +31,7 @@ import { NoInternet } from "@/components/NoInternet";
 const Settings = () => {
   const colorScheme = useColorScheme();
   const [isDarkMode, setIsDarkMode] = useState(colorScheme === "dark");
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const clearSession = useAuthStore.getState().clearSession;
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const isAdmin = useAuthStore((state) => state.isAdmin);
@@ -224,7 +222,7 @@ const Settings = () => {
         <View style={styles.footer}>
           <Pressable
             onPress={() =>
-              Linking.openURL(
+              handleOpenExternalUrl(
                 "https://bufib.github.io/Islam-Fragen-App-rechtliches/datenschutz"
               )
             }

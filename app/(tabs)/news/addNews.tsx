@@ -265,26 +265,21 @@ import {
   Image,
   Pressable,
   ScrollView,
-  useWindowDimensions,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Controller } from "react-hook-form";
 import { ThemedText } from "@/components/ThemedText";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { Colors } from "@/constants/Colors";
 import { TitleSearchInput } from "@/components/TitleSearch";
 import { useAddNews } from "@/hooks/useAddNews";
-import { TabView, SceneMap } from "react-native-tab-view";
-import addPushMessage from "./addPushMessage";
 import { ThemedView } from "@/components/ThemedView";
 import { NoInternet } from "@/components/NoInternet";
 import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 
-export default function addNews() {
+export default function AddNews() {
   const {
     control,
     handleSubmit,
-    errors,
     selectedImages,
     uploading,
     pickImages,
@@ -292,7 +287,7 @@ export default function addNews() {
     onSubmit,
   } = useAddNews();
 
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const hasInternet = useConnectionStatus();
 
   const renderForm = () => (

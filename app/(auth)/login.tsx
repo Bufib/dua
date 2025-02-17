@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -15,12 +15,11 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import NetInfo from "@react-native-community/netinfo";
 import Feather from "@expo/vector-icons/Feather";
 import { supabase } from "@/utils/supabase";
 import { useAuthStore } from "@/stores/authStore";
 import { ThemedText } from "@/components/ThemedText";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { router } from "expo-router";
 import Toast from "react-native-toast-message";
 import {
@@ -46,7 +45,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const colorScheme = useColorScheme();
 
   const {
@@ -121,7 +120,7 @@ export default function LoginScreen() {
         return;
       }
 
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });

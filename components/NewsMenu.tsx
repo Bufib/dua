@@ -8,8 +8,7 @@ import {
 } from "react-native-popup-menu";
 import Entypo from "@expo/vector-icons/Entypo";
 import { useColorScheme } from "react-native";
-import { Colors } from "@/constants/Colors";
-import { coustomTheme } from "../utils/coustomTheme";
+import { CoustomTheme } from "../utils/coustomTheme";
 import { deleteNewsItem } from "../utils/deleteNewsItem";
 import { toggleIsPinnedStatus } from "../utils/toggleIsPinnedStatus";
 import { newsDeletedSuccessToast } from "@/constants/messages";
@@ -22,7 +21,7 @@ export default function NewsMenu({
 }) {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
 
   return (
     <View style={styles.container}>

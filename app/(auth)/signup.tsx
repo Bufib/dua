@@ -18,13 +18,12 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import NetInfo from "@react-native-community/netinfo";
 import Feather from "@expo/vector-icons/Feather";
 import ConfirmHcaptcha from "@hcaptcha/react-native-hcaptcha";
 import { supabase } from "@/utils/supabase";
-import { router, useRootNavigationState } from "expo-router";
+import { router } from "expo-router";
 import { ThemedText } from "@/components/ThemedText";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { Colors } from "@/constants/Colors";
 import Toast from "react-native-toast-message";
 import {
@@ -36,7 +35,6 @@ import {
   signUpUserPasswordMin,
   noInternetHeader,
   noInternetBody,
-  signUpEmailNotEmpty,
   signUpPasswordNotEmpty,
   signUpUsernameNotEmpty,
   signUpUserPasswordConformation,
@@ -91,7 +89,7 @@ export default function SignUpScreen() {
   });
 
   // Theming
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const colorScheme = useColorScheme();
 
   // Loading state
@@ -219,7 +217,6 @@ export default function SignUpScreen() {
     setIsLoading(true);
     setCustomErrors({ username: "", email: "" }); // Reset form
     try {
-
       // 3.1 Check network
       if (!hasInternet) {
         Alert.alert(noInternetHeader, noInternetBody);
@@ -327,7 +324,7 @@ export default function SignUpScreen() {
       await Promise.race([
         timeoutPromise,
         (async () => {
-          const { data, error } = await supabase.auth.verifyOtp({
+          const { error } = await supabase.auth.verifyOtp({
             email: currentEmail,
             token: verificationCode,
             type: "signup",
@@ -419,11 +416,11 @@ export default function SignUpScreen() {
 
   return (
     <KeyboardAvoidingView
-         behavior={Platform.OS === "ios" ? "padding" : "height"}
-         style={[styles.container, themeStyles.defaultBackgorundColor]}
-         keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
-         enabled
-       >
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={[styles.container, themeStyles.defaultBackgorundColor]}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      enabled
+    >
       <ScrollView
         style={styles.scrollViewContainer}
         contentContainerStyle={styles.scrollViewContent}

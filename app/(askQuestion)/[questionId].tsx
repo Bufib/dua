@@ -11,14 +11,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { QuestionFromUser } from "@/utils/types";
 import { useAuthStore } from "@/stores/authStore";
 import getStatusColor from "@/utils/getStatusColor";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
 import RenderLinkNewsItem from "@/components/RenderLinkNewsItem";
 import { useFetchUserQuestions } from "@/hooks/useFetchUserQuestions";
-import { useState } from "react";
-import NetInfo from "@react-native-community/netinfo";
 import Toast from "react-native-toast-message";
 import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 import { NoInternet } from "@/components/NoInternet";
@@ -28,7 +26,7 @@ export default function QuestionDetailScreen() {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const session = useAuthStore.getState().session;
   const userId = session?.user?.id ?? null;
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const hasInternet = useConnectionStatus();
   // 4. If user is not logged in, redirect to login
   useEffect(() => {
@@ -44,12 +42,8 @@ export default function QuestionDetailScreen() {
 
   const {
     data: questions,
-    isLoading,
     isRefetching,
     refetch,
-    isError,
-    hasUpdate,
-    handleRefresh,
   } = useFetchUserQuestions();
 
   // 6. Find the specific question in the cached array

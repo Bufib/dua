@@ -1,6 +1,6 @@
 import { useState, useLayoutEffect } from "react";
 import { View, Pressable, StyleSheet, FlatList } from "react-native";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -20,7 +20,7 @@ function RenderFavoriteQuestions() {
   const [questions, setQuestions] = useState<QuestionType[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const themeStyle = coustomTheme();
+  const themeStyle = CoustomTheme();
   const colorScheme = useColorScheme();
   const { triggerRefreshFavorites } = useRefreshFavorites();
 

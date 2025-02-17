@@ -3,7 +3,7 @@ import { Modal, StyleSheet, Pressable } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "react-native";
-import { coustomTheme } from "../utils/coustomTheme";
+import { CoustomTheme } from "../utils/coustomTheme";
 import { useFontSizeStore } from "@/stores/fontSizeStore";
 
 interface FontSizePickerModalProps {
@@ -22,7 +22,7 @@ const FontSizePickerModal: React.FC<FontSizePickerModalProps> = ({
   onClose,
 }) => {
   const colorScheme = useColorScheme();
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
 
   const { fontSize, lineHeight, setFontSize, setLineHeight } =
     useFontSizeStore(); // Zustand store for font size

@@ -1,5 +1,5 @@
 import { Link, router } from "expo-router";
-import { StyleSheet, Text, View, Platform, ScrollView } from "react-native";
+import { StyleSheet, View, Platform, ScrollView } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { Image } from "expo-image";
 import { ThemedView } from "@/components/ThemedView";

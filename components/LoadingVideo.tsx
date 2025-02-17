@@ -1,7 +1,6 @@
 import { Colors } from "@/constants/Colors";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { StyleSheet, View } from "react-native";
-import Toast from "react-native-toast-message";
 export default function LoadingVideo() {
   const player = useVideoPlayer(
     require("@/assets/videos/loadingQuestions.mp4"),

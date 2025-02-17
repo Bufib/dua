@@ -4,8 +4,7 @@ import React from "react";
 import { StyleSheet } from "react-native";
 import Markdown from "react-native-markdown-display";
 import { Colors } from "@/constants/Colors";
-import { coustomTheme } from "@/utils/coustomTheme";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { CoustomTheme } from "@/utils/coustomTheme";
 
 export default function impressum() {
   const impressum = `
@@ -43,7 +42,7 @@ export default function impressum() {
   const quelle = `Quelle: `;
   const link = `[http://www.e-recht24.de](http://www.e-recht24.de)`;
 
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
 
   return (
     <ThemedView style={[styles.container, themeStyles.defaultBackgorundColor]}>

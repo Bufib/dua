@@ -172,7 +172,6 @@
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/utils/supabase";
-import { userQuestionsNewAnswerForQuestions } from "@/constants/messages";
 import { useSupabaseRealtime } from "@/components/SupabaseRealtimeProvider";
 
 export type AskQuestionFormData = {

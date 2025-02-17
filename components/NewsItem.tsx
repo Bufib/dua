@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { NewsItemType } from "@/hooks/useFetchNews";
 import { Colors } from "@/constants/Colors";
 import { formatDate } from "../utils/formatDate";
@@ -33,7 +33,7 @@ export const NewsItem = ({
   is_pinned,
 }: NewsItemType) => {
   const colorScheme = useColorScheme();
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const isAdmin = useAuthStore((state) => state.isAdmin);
   const [currentPage, setCurrentPage] = useState(0);
   const flatListRef = useRef<FlatList<string>>(null);

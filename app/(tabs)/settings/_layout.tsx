@@ -4,13 +4,9 @@ import {
   ThemeProvider,
 } from "@react-navigation/native";
 import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import Entypo from "@expo/vector-icons/Entypo";
-import { Colors } from "@/constants/Colors";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { router } from "expo-router";
+
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();

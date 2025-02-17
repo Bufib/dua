@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'Islam-Fragen'
+rootProject.name = 'islam-fragen'
 
 dependencyResolutionManagement {
   versionCatalogs {

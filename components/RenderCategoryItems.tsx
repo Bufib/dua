@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { View, Pressable, StyleSheet, FlatList } from "react-native";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -13,7 +13,7 @@ function RenderCategoryItems({ category }: { category: string }) {
   const [subcategories, setSubcategories] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const themeStyle = coustomTheme();
+  const themeStyle = CoustomTheme();
   const colorScheme = useColorScheme();
 
   useEffect(() => {
@@ -114,6 +114,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 15,
     marginBottom: 15,
+    borderWidth: 0.5,
   },
   tableText: {
     fontSize: 18,

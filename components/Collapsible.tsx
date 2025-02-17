@@ -1,12 +1,11 @@
 import { PropsWithChildren, useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { IconSymbol } from "@/components/ui/IconSymbol";
-import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Image } from "expo-image";
-import { coustomTheme } from "../utils/coustomTheme";
+import { CoustomTheme } from "../utils/coustomTheme";
 import { useFontSizeStore } from "@/stores/fontSizeStore";
 
 export function Collapsible({
@@ -15,8 +14,7 @@ export function Collapsible({
   marja,
 }: PropsWithChildren & { title: string; marja?: string }) {
   const [isOpen, setIsOpen] = useState(false);
-  const theme = useColorScheme() ?? "light";
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const { fontSize } = useFontSizeStore();
   const colorScheme = useColorScheme();
 

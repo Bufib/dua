@@ -400,13 +400,10 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Feather from "@expo/vector-icons/Feather";
-import NetInfo from "@react-native-community/netinfo";
 import { supabase } from "@/utils/supabase";
 import { useLocalSearchParams, router } from "expo-router";
 import { Colors } from "@/constants/Colors";
-import { ThemedView } from "./ThemedView";
-import { ThemedText } from "./ThemedText";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { TouchableWithoutFeedback } from "react-native";
 import { NoInternet } from "./NoInternet";
 import { useConnectionStatus } from "@/hooks/useConnectionStatus";
@@ -447,7 +444,7 @@ export function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [resendCount, setResendCount] = useState(0);
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const colorScheme = useColorScheme();
   const hasInternet = useConnectionStatus();
   const {

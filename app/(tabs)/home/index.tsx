@@ -36,17 +36,9 @@
 // });
 
 import * as React from "react";
-import { StyleSheet } from "react-native";
-import { ScrollView } from "react-native";
 import QuestionLinks from "@/components/QuestionLinks";
-import { coustomTheme } from "@/utils/coustomTheme";
 
 export default function index() {
-  const themeStyles = coustomTheme();
   return <QuestionLinks />;
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+

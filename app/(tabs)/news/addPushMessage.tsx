@@ -3,7 +3,6 @@ import {
   StyleSheet,
   TextInput,
   Pressable,
-  View,
   Alert,
   Text,
   TouchableWithoutFeedback,
@@ -12,7 +11,7 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
 import { ThemedView } from "@/components/ThemedView";
@@ -20,7 +19,7 @@ import { supabase } from "@/utils/supabase";
 import { useConnectionStatus } from "@/hooks/useConnectionStatus";
 
 const AddPushMessage: React.FC = () => {
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);

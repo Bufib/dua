@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { View, Pressable, StyleSheet, FlatList, Text } from "react-native";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { View, Pressable, StyleSheet, FlatList } from "react-native";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -18,7 +18,7 @@ function RenderSubcategoryItems() {
   const [questions, setQuestions] = useState<QuestionType[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const themeStyle = coustomTheme();
+  const themeStyle = CoustomTheme();
   const colorScheme = useColorScheme();
 
   useEffect(() => {
@@ -137,6 +137,7 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 15,
     borderRadius: 8,
+    borderWidth: 0.5,
 
   },
   questionContainer: {

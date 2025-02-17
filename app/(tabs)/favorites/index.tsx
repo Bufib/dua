@@ -1,15 +1,13 @@
 import { StyleSheet } from "react-native";
 import React from "react";
-import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useColorScheme } from "react-native";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 
 import RenderFavoriteQuestions from "@/components/RenderFavorites";
 
 const favorites = () => {
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
 
   return (
     <SafeAreaView

@@ -15,7 +15,7 @@ import { useRefreshFavorites } from "@/stores/refreshFavoriteStore";
 import FontSizePickerModal from "@/components/FontSizePickerModal";
 import { router } from "expo-router";
 
-export default function question() {
+export default function Question() {
   const { category, subcategory, questionId, questionTitle } =
     useLocalSearchParams<{
       category: string;

@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import { Pressable } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
-import { coustomTheme } from "../utils/coustomTheme";
+import { CoustomTheme } from "../utils/coustomTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LatestQuestions from "./LatestQuestions";
 import { TextInput } from "react-native";
@@ -13,10 +13,9 @@ import { ThemedText } from "./ThemedText";
 import { categories } from "@/utils/categories";
 import { Colors } from "@/constants/Colors";
 import { returnSize } from "@/utils/sizes";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function QuestionLinks() {
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const { width, height } = useWindowDimensions();
 
   // Dynamically calculate the size of each element based on screen width
@@ -43,7 +42,7 @@ export default function QuestionLinks() {
         style={[styles.headerContainer, { marginTop: height > 750 ? 10 : 0 }]}
       >
         <Image
-          source={require("@/assets/images/icon.png")}
+          source={require("@/assets/images/headerImage.png")}
           style={[styles.imageHeader, { width: imageSize }]}
           contentFit="contain"
         />

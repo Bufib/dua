@@ -5,12 +5,11 @@ import {
   Pressable,
   FlatList,
   ActivityIndicator,
-  Text,
 } from "react-native";
 import { router } from "expo-router";
 import { getLatestQuestions } from "@/utils/initializeDatabase";
 import { QuestionType } from "@/utils/types";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { ThemedText } from "./ThemedText";
 import { useColorScheme } from "react-native";
 import { ThemedView } from "./ThemedView";
@@ -20,7 +19,7 @@ const LatestQuestions: React.FC = () => {
   const [latestQuestions, setLatestQuestions] = useState<QuestionType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 const dbInitialized = useInitializeDatabase();
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   const colorScheme = useColorScheme();
 
   const QuestionItem = ({

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { View, Pressable, StyleSheet, Linking, Alert } from "react-native";
+import { Pressable, StyleSheet, Alert } from "react-native";
 import Modal from "react-native-modal";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";

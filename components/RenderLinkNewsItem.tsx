@@ -6,7 +6,6 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "react-native";
 import handleOpenExternalUrl from "../utils/handleOpenExternalUrl";
 import handleOpenInternallUrl from "../utils/handleOpenInternalUrl";
-import { Linking } from "react-native";
 
 type RenderLinkNewsItemProps = {
   url: string;

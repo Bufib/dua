@@ -71,7 +71,7 @@ export const darkTheme = {
   }
 };
 
-export const coustomTheme = () => {
+export const CoustomTheme = () => {
   const colorScheme = useColorScheme();
   return colorScheme === "light" ? lightTheme : darkTheme;
 };

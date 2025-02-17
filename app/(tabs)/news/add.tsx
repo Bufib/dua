@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import React from "react";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import addPushMessage from "./addPushMessage";
@@ -6,10 +6,10 @@ import addNews from "./addNews";
 import { useWindowDimensions } from "react-native";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { coustomTheme } from "@/utils/coustomTheme";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import { Colors } from "@/constants/Colors";
 
-const add = () => {
+const Add = () => {
   const renderScene = SceneMap({
     addNews: addNews,
     addPush: addPushMessage,
@@ -22,7 +22,7 @@ const add = () => {
 
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
-  const themeStyles = coustomTheme();
+  const themeStyles = CoustomTheme();
   return (
     <SafeAreaView
       style={[styles.container, themeStyles.defaultBackgorundColor]}
@@ -47,7 +47,7 @@ const add = () => {
   );
 };
 
-export default add;
+export default Add;
 
 const styles = StyleSheet.create({
   container: {

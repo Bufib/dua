@@ -248,6 +248,7 @@ const useNotificationStore = create<NotificationState>()(
               }
             }
           } catch (error) {
+            console.log(error)
             Alert.alert(
               "Keine Internetverbindung",
               "Die Änderungen konnte nicht vorgenommen werden, weil keine Internetverbindung besteht.",
