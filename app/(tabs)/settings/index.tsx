@@ -16,9 +16,8 @@ import { CoustomTheme } from "@/utils/coustomTheme";
 import Storage from "expo-sqlite/kv-store";
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
-import { Linking } from "react-native";
 import { useAuthStore } from "@/stores/authStore";
-import handleLogout from "@/utils/handleLogout";
+import { useLogout } from "@/utils/useLogout";
 import { getQuestionCount } from "@/utils/initializeDatabase";
 import handleOpenExternalUrl from "@/utils/handleOpenExternalUrl";
 import { Image } from "expo-image";
@@ -42,6 +41,7 @@ const Settings = () => {
   const { getNotifications, toggleGetNotifications } = useNotificationStore();
   const dbInitialized = useInitializeDatabase();
   const hasInternet = useConnectionStatus();
+  const logout = useLogout();
 
   const handleDeleteSuccess = () => {
     clearSession(); // SignOut and remove session
@@ -102,7 +102,7 @@ const Settings = () => {
 
         <Pressable
           onPress={
-            isLoggedIn ? handleLogout : () => router.push("/(auth)/login")
+            isLoggedIn ? logout : () => router.push("/(auth)/login")
           }
           style={({ pressed }) => [
             styles.buttonContainer,

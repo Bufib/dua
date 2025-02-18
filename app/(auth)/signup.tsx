@@ -428,8 +428,7 @@ export default function SignUpScreen() {
         <NoInternet showUI={true} showToast={false} />
         <View style={[styles.contentContainer, themeStyles.contrast]}>
           <ThemedText style={styles.title} type="subtitle">
-            Erstelle einen Account, um einen Gelehrten eine Frage stellen zu
-            könnnen.
+          Erstelle jetzt einen kostenlosen Account, um deine Fragen versenden zu können.
           </ThemedText>
 
           {/* Username Field */}

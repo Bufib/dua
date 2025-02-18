@@ -114,7 +114,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 15,
     marginBottom: 15,
-    borderWidth: 0.5,
+    borderTopWidth: 0.5,
+    borderBottomWidth: 0.5,
   },
   tableText: {
     fontSize: 18,

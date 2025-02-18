@@ -200,7 +200,7 @@ export const useFetchUserQuestions = () => {
         .eq("user_id", userId)
         .order("update_answered_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: true });
-        console.log("Supabase response:", { data, error });
+
       if (error) {
         throw new Error(error.message);
       }
