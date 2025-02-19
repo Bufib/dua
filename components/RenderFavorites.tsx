@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 15,
     borderRadius: 8,
+    marginHorizontal: 10
   },
   questionContainer: {
     flex: 1,

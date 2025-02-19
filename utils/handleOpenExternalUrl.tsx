@@ -7,7 +7,7 @@ const handleOpenExternalUrl = async (url: string) => {
   try {
     Toast.show({
       type: "info",
-      text1: "Öffne Link...",
+      text1: "Link wird geöffnet",
       position: "bottom",
       visibilityTime: 1000,
     });

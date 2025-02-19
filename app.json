@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "islam-fragen", // von klein zu groß
-    "slug": "islam-fragen", // von klein zu groß
-    "version": "1.0.0",
+    "name": "Islam-Fragen", // von klein zu groß
+    "slug": "islam-fragen",
+    "version": "8.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -10,7 +10,13 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hadi-ea.islamfragen"
+      "bundleIdentifier": "com.hadi-ea.islamfragen",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select images.",
+        "CFBundleAllowMixedLocalizations": true,
+        "CFBundleLocalizations": ["de"],
+        "CFBundleDevelopmentRegion": "de"
+      }
     },
     "android": {
       "adaptiveIcon": {
