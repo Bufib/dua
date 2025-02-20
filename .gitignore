@@ -45,3 +45,7 @@ google-services.json
 
 # expo
 expo-env.d.ts
+
+# key
+*.jks
+*.pem
