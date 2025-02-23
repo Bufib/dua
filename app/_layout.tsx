@@ -75,19 +75,19 @@ export default function RootLayout() {
     initSession();
   }, []);
 
-  //! Store push token
-  useEffect(() => {
-    if (expoPushToken?.data) {
-      console.log("Push Token:", expoPushToken.data);
-    }
-  }, [expoPushToken]);
+   //! Store push token
+  // useEffect(() => {
+  //   if (expoPushToken?.data) {
+  //     console.log("Push Token:", expoPushToken.data);
+  //   }
+  // }, [expoPushToken]);
 
-  //! Handle notifications
-  useEffect(() => {
-    if (notification) {
-      console.log("Received notification:", notification);
-    }
-  }, [notification]);
+   //! Handle notifications
+  // useEffect(() => {
+  //   if (notification) {
+  //     console.log("Received notification:", notification);
+  //   }
+  // }, [notification]);
 
   // Debounce showing the loading video by 2 seconds
   useEffect(() => {

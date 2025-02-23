@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.hadi-ea.islamfragen",
+      "bundleIdentifier": "com.bufib.islamFragen",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select images.",
         "CFBundleAllowMixedLocalizations": true,
@@ -24,9 +24,10 @@
         "backgroundColor": "#ffffff"
       },
 
-      "package": "com.hadi_ea.islamfragen",
+      "package": "com.bufib.islamFragen",
       "googleServicesFile": "./android/app/google-services.json",
-      "permissions": ["android.permission.RECORD_AUDIO"]
+      "permissions": ["android.permission.RECORD_AUDIO"],
+      "versionCode": 7
     },
     "web": {
       "bundler": "metro",
@@ -69,13 +70,7 @@
           }
         }
       ],
-      [
-        "expo-video",
-        {
-          "supportsBackgroundPlayback": true,
-          "supportsPictureInPicture": true
-        }
-      ],
+
       "expo-font",
       [
         "expo-notifications",
