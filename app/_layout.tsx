@@ -93,6 +93,7 @@ export default function RootLayout() {
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
+    // Test
     if (!dbInitialized && hasInternet) {
       timer = setTimeout(() => {
         setShowLoadingScreen(true);
