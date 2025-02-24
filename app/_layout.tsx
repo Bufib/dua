@@ -12,7 +12,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { useInitializeDatabase } from "@/hooks/useInitializeDatabase.ts";
 import { SQLiteProvider } from "expo-sqlite";
 import Toast from "react-native-toast-message";
-import { Appearance } from "react-native";
+import { ActivityIndicator, Appearance } from "react-native";
 import { Storage } from "expo-sqlite/kv-store";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/utils/queryClient";
@@ -23,9 +23,9 @@ import { SupabaseRealtimeProvider } from "@/components/SupabaseRealtimeProvider"
 import useNotificationStore from "@/stores/notificationStore";
 import { useFontSizeStore } from "@/stores/fontSizeStore";
 import ReMountManager from "@/components/ReMountManager";
-import LoadingVideo from "@/components/LoadingVideo";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { useConnectionStatus } from "@/hooks/useConnectionStatus";
+import { Colors } from "@/constants/Colors";
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -40,7 +40,7 @@ export default function RootLayout() {
   const hasInternet = useConnectionStatus();
   const { expoPushToken, notification } = usePushNotifications();
   const [storesHydrated, setStoresHydrated] = useState(false);
-  const [showVideo, setShowVideo] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(false);
 
   // Musst be before 'if (!dbInitialized)' or 'Rendered more hooks' appearce because if (!loaded || !dbInitialized) -> we return and the useEffect benath it doesn't get used
   useEffect(() => {
@@ -75,31 +75,31 @@ export default function RootLayout() {
     initSession();
   }, []);
 
-   //! Store push token
+  //! Store push token
   // useEffect(() => {
   //   if (expoPushToken?.data) {
   //     console.log("Push Token:", expoPushToken.data);
   //   }
   // }, [expoPushToken]);
 
-   //! Handle notifications
+  //! Handle notifications
   // useEffect(() => {
   //   if (notification) {
   //     console.log("Received notification:", notification);
   //   }
   // }, [notification]);
 
-  // Debounce showing the loading video by 2 seconds
+  // Debounce showing the loadingScreen by 2 seconds
   useEffect(() => {
     let timer: NodeJS.Timeout;
 
     if (!dbInitialized && hasInternet) {
       timer = setTimeout(() => {
-        setShowVideo(true);
+        setShowLoadingScreen(true);
       }, 2000);
     } else {
       // If DB becomes initialized or connectivity changes, reset the flag
-      setShowVideo(false);
+      setShowLoadingScreen(false);
     }
 
     return () => clearTimeout(timer); // Properly clear the timeout on cleanup
@@ -127,11 +127,36 @@ export default function RootLayout() {
   }, [dbInitialized, isSessionRestored, storesHydrated, hasInternet]);
 
   // Show loading video
-  if (!dbInitialized && showVideo) {
+  if (!dbInitialized && showLoadingScreen) {
     return (
       // Add this return
-      <View style={{ flex: 1 }}>
-        <LoadingVideo />
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: Colors.universal.third,
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 30,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 30,
+            color: Colors.universal.primary,
+            fontWeight: "700",
+          }}
+        >
+          Fragen werden geladen!
+        </Text>
+        <ActivityIndicator size={"large"} />
+        <Text
+          style={{
+            fontSize: 16,
+            textAlign: "center",
+          }}
+        >
+          Je nach Internetverbindung, kann das einen Augenblick dauern.
+        </Text>
         <Toast />
       </View>
     );
@@ -140,7 +165,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <ReMountManager>
-        <NoInternet showUI={false} showToast={true}/>
+        <NoInternet showUI={false} showToast={true} />
         <QueryClientProvider client={queryClient}>
           <SupabaseRealtimeProvider>
             <SQLiteProvider databaseName="islam-fragen.db">

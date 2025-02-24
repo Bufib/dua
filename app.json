@@ -2,7 +2,7 @@
   "expo": {
     "name": "Islam-Fragen", // von klein zu groß
     "slug": "islam-fragen",
-    "version": "8.0.0",
+    "version": "9.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -27,7 +27,7 @@
       "package": "com.bufib.islamFragen",
       "googleServicesFile": "./android/app/google-services.json",
       "permissions": ["android.permission.RECORD_AUDIO"],
-      "versionCode": 7
+      "versionCode": 8
     },
     "web": {
       "bundler": "metro",
