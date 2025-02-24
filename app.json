@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Islam-Fragen", // von klein zu groß
-    "slug": "islam-fragen",
-    "version": "9.0.0",
+    "name": "Dua", // von klein zu groß
+    "slug": "dua",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bufib.islamFragen",
+      "bundleIdentifier": "com.bufib.dua",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select images.",
         "CFBundleAllowMixedLocalizations": true,
@@ -24,8 +24,8 @@
         "backgroundColor": "#ffffff"
       },
 
-      "package": "com.bufib.islamFragen",
-      "googleServicesFile": "./android/app/google-services.json",
+      "package": "com.bufib.dua",
+      //"googleServicesFile": "./android/app/google-services.json",
       "permissions": ["android.permission.RECORD_AUDIO"],
       "versionCode": 8
     },

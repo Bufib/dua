@@ -1,294 +1,130 @@
-import React, { useState } from "react";
-import { View, StyleSheet, useWindowDimensions, FlatList } from "react-native";
+import React from "react";
+import {
+  View,
+  StyleSheet,
+  useWindowDimensions,
+  Pressable,
+  ColorSchemeName,
+} from "react-native";
 import { router } from "expo-router";
-import { Pressable } from "react-native";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import { CoustomTheme } from "../utils/coustomTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
-import LatestQuestions from "./LatestQuestions";
-import { TextInput } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "./ThemedText";
-import { categories } from "@/utils/categories";
-import { Colors } from "@/constants/Colors";
-import { returnSize } from "@/utils/sizes";
+import { ScrollView } from "react-native";
 
-export default function QuestionLinks() {
+export default function TextGrid() {
   const themeStyles = CoustomTheme();
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
+  const colorScheme: ColorSchemeName = useColorScheme() || "light";
 
-  // Dynamically calculate the size of each element based on screen width
-  const { elementSize, fontSize, iconSize, imageSize, gap } = returnSize(
-    width,
-    height
-  );
+  // Create data for 6 text squares
+  const textItems = [
+    { id: 1, title: "Dua", image: require("@/assets/images/dua.png") },
+    { id: 2, title: "Ziyarat", image: require("@/assets/images/ziyarat.png") },
+  ];
 
-  // For square to change color on pressed
-  const [pressedIndex, setPressedIndex] = useState<number | null>(null);
-  const colorScheme = useColorScheme();
-
+  // Calculate grid dimensions based on screen size
+  const padding = 16;
+  const gridGap = 12;
+  const availableWidth = width - padding * 2;
+  const columns = 2; // 2 columns for a grid of 6 items
+  const itemWidth = (availableWidth - gridGap * (columns - 1)) / columns;
 
   return (
     <SafeAreaView
       edges={["top"]}
-      style={[
-        styles.container,
-        themeStyles.defaultBackgorundColor,
-        { gap: gap },
-      ]}
+      style={[styles.container, themeStyles.defaultBackgorundColor]}
     >
-      <View
-        style={[styles.headerContainer, { marginTop: height > 750 ? 10 : 0 }]}
+      <ScrollView
+        style={styles.scrollStyle}
+        contentContainerStyle={styles.contentContainerStyle}
       >
-        <Image
-          source={require("@/assets/images/headerImage.png")}
-          style={[styles.imageHeader, { width: imageSize }]}
-          contentFit="contain"
-        />
-      </View>
-
-      <Pressable
-        style={[styles.searchContainer, themeStyles.contrast]}
-        onPress={() => router.push("/(search)")}
-        android_ripple={{ color: "rgba(0, 0, 0, 0.1)" }} // Add ripple effect for better feedback
-      >
-        <View style={styles.searchInputContainer}>
-          <TextInput
-            placeholder="Suche nach einer Frage"
-            editable={false}
-            style={styles.searchInput}
-            placeholderTextColor={themeStyles.placeholder.color}
-            pointerEvents="none" // This ensures the parent Pressable handles the touch
-          />
-          <Ionicons
-            name="search"
-            size={20}
-            color={themeStyles.placeholder.color}
-            style={{ marginLeft: 8 }}
-          />
-        </View>
-      </Pressable>
-
-      <View style={styles.bodyContainer}>
-        <View style={styles.categoryContainer}>
-          <ThemedText
-            style={[
-              styles.bodyContainerText,
-              {
-                fontSize: fontSize * 1.8,
-                fontWeight: "500",
-                lineHeight: 32,
-              },
-            ]}
-          >
-            Kategorien (6)
-          </ThemedText>
-          <Ionicons
-            name="chevron-forward"
-            size={25}
-            style={{ paddingRight: 15 }}
-            color={colorScheme === "dark" ? "#d0d0c0" : "#000"}
-          />
-        </View>
-
-        <FlatList
-          contentContainerStyle={styles.flatListContent}
-          style={styles.flatListStyles}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          data={categories}
-          keyExtractor={(_, index) => index.toString()}
-          decelerationRate="fast"
-          renderItem={({ item: category, index }) => (
+        <View style={styles.gridContainer}>
+          {textItems.map((item, index) => (
             <Pressable
+              key={item.id}
               onPress={() => {
                 router.push({
                   pathname: "/(tabs)/home/category",
-                  params: { category: category.name },
+                  params: { textId: item.id },
                 });
               }}
-              onPressIn={() => setPressedIndex(index)}
-              onPressOut={() => setPressedIndex(null)}
-              style={[
-                styles.element,
+              style={({ pressed }) => [
+                styles.gridItem,
                 {
-                  width: elementSize,
-                  height: elementSize,
+                  width: itemWidth,
+                  height: itemWidth,
+                  opacity: pressed ? 0.9 : 1,
+                  backgroundColor:
+                    colorScheme === "dark" ? "#2C2C2C" : "#FFFFFF",
                 },
-                themeStyles.contrast,
-                pressedIndex === index &&
-                  styles.categoryPressed && {
-                    backgroundColor:
-                      colorScheme === "dark" ? "#242c40" : "#E8E8E8",
-                  },
               ]}
             >
-              <View
-                style={[
-                  styles.categoryButtonContainer,
-                  { gap: iconSize / 10 - 1 },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.iconContainer,
-                    { width: iconSize, height: iconSize },
-                  ]}
-                >
-                  <Image
-                    style={[styles.elementIcon, { width: iconSize }]}
-                    source={category.image}
-                    contentFit="contain"
-                  />
-                </View>
-                <View style={styles.elementTextContainer}>
-                  <ThemedText
-                    style={[styles.elementText, { fontSize: fontSize }]}
-                  >
-                    {category.name}
-                  </ThemedText>
-                </View>
+              <View style={styles.itemContent}>
+                <Image
+                  source={item.image}
+                  style={styles.itemImage}
+                  contentFit="contain"
+                />
+                <ThemedText style={styles.itemTitle} type="subtitle">
+                  {item.title}
+                </ThemedText>
               </View>
             </Pressable>
-          )}
-        />
-      </View>
-
-      <View style={styles.footerContainer}>
-        <View style={styles.footerHeaderContainer}>
-          <ThemedText
-            style={[
-              styles.footerHeaderContainerText,
-              { fontSize: fontSize * 1.8, fontWeight: "500", lineHeight: 32 },
-            ]}
-          >
-            Neue Fragen (10)
-          </ThemedText>
-          <Ionicons
-            name="chevron-down"
-            size={25}
-            style={{ paddingRight: 15 }}
-            color={colorScheme === "dark" ? "#d0d0c0" : "#000"}
-          />
+          ))}
         </View>
-        <LatestQuestions />
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column",
+    justifyContent: "center",
   },
-  headerContainer: {
+  scrollStyle: {
+    marginHorizontal: 10,
+  },
+  contentContainerStyle: {
+    flexGrow: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 20,
+  },
+  gridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "center",
     alignItems: "center",
+    gap: 15,
   },
-  searchContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginHorizontal: 15,
-    borderRadius: 10,
-    height: 40,
-    paddingHorizontal: 10,
-    borderWidth: 0.2,
-  },
-  searchInputContainer: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    height: "100%",
-  },
-  bodyContainer: {
-    flexDirection: "column",
-  },
-  categoryContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  bodyContainerText: {
-    fontWeight: "500",
-    marginHorizontal: 15,
-    marginBottom: 10,
-  },
-
-  imageHeader: {
-    height: "auto",
-    aspectRatio: 2,
-  },
-  flatListContent: {
-    gap: 7,
-    paddingRight: 15,
-    paddingLeft: 15,
-    paddingVertical: 10,
-  },
-  flatListStyles: {},
-
-  element: {
-    flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 7,
-
+  gridItem: {
+    borderRadius: 8,
     // iOS Shadow
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-
-    // Android Shadow
-    elevation: 5,
-  },
-
-  categoryPressed: {
-    top: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 3, height: 5 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
-
     // Android Shadow
-    elevation: 5,
+    elevation: 2,
   },
-  categoryButtonContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  iconContainer: {
-    borderRadius: 90,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: Colors.universal.primary,
-  },
-  elementTextContainer: {},
-
-  elementIcon: {
-    height: "auto",
-    aspectRatio: 1.5,
-    alignSelf: "center",
-  },
-  elementText: {
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  footerContainer: {
+  itemContent: {
     flex: 1,
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  footerHeaderContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  itemImage: {
+    width: "80%",
+    height: "70%",
+    borderRadius: 6,
+    marginBottom: 10,
   },
-  footerHeaderContainerText: {
+  itemTitle: {
+    textAlign: "center",
     fontWeight: "500",
-    marginLeft: 15,
   },
 });

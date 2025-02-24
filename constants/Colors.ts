@@ -5,6 +5,7 @@ export const Colors = {
   light: {
     text: "#000000",
     background: "#fbf9f1",
+
     tint: tintColorLight,
     tabIconDefault: "#ccc",
     tabIconSelected: tintColorLight,
@@ -100,7 +101,7 @@ export const Colors = {
     modalQuestionBlurredBackground: "rgba(0, 0, 0, 0.5)",
     arrowUp: "#2980b9",
     borderBottomToggleSettings: "#ccc",
-    fadeColor: "#888",
+    greyedOut: "#888",
     pickImageButton: "#007bff",
     submitButton: "#28a745",
     chatBubbleQuestion: "#b7d6ef",
@@ -120,3 +121,5 @@ export const Colors = {
 // background: "#e8f5e9",
 // alternative beige: fbf9f1
 // alternative  background: "#F7FDF8",
+
+

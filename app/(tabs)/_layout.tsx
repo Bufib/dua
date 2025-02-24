@@ -41,52 +41,6 @@ export default function TabLayout() {
         />
 
         <Tabs.Screen
-          name="news"
-          options={{
-            title: "Neuigkeiten",
-            tabBarIcon: ({ color }) => (
-              <IconSymbol size={28} name="newspaper" color={color} />
-            ),
-          }}
-        />
-
-        {/** This is the middle “Add” button. */}
-        <Tabs.Screen
-          name="user"
-          options={{
-            title: "",
-            tabBarLabel: () => null,
-            tabBarIcon: () => null,
-            tabBarButton: (props) => {
-              return (
-                <Pressable
-                  {...props}
-                  onPress={() => {
-                    if (isLoggedIn) {
-                      router.push("/(askQuestion)");
-                    } else {
-                      console.log(isLoggedIn)
-                      router.push("/(auth)/login");
-                    }
-                  }}
-                  style={styles.floatingButtonContainer}
-                >
-                  {/* Add the icon or the symbol you want here */}
-                  <View style={styles.floatingButton}>
-                    <MaterialCommunityIcons
-                      name="account-question-outline"
-                      size={26}
-                      color="#fff"
-                      style={{ marginLeft: 5 }} // Align in middle
-                    />
-                  </View>
-                </Pressable>
-              );
-            },
-          }}
-        />
-
-        <Tabs.Screen
           name="favorites"
           options={{
             title: "Favoriten",

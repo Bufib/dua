@@ -1,510 +1,72 @@
-// import * as SQLite from "expo-sqlite";
-// import { supabase } from "@/utils/supabase";
-// import Storage from "expo-sqlite/kv-store";
-// import { router } from "expo-router";
-// import { questionsDatabaseUpate } from "@/constants/messages";
-// import { QuestionType, SearchResults } from "./types";
-// import {
-//   checkInternetConnection,
-//   setupConnectivityListener,
-// } from "./checkNetwork";
-// import debounce from "lodash/debounce";
-// import { Alert } from "react-native";
-
-// // Flag to ensure only one initialization runs at a time.
-// let isInitializing = false;
-
-// /**
-//  * Wraps initializeDatabase to avoid concurrent executions.
-//  */
-// export const safeInitializeDatabase = async () => {
-//   if (isInitializing) {
-//     console.log("Database initialization is already running. Skipping.");
-//     return;
-//   }
-//   // Now its true
-//   isInitializing = true;
-//   try {
-//     await initializeDatabase();
-//   } finally {
-//     isInitializing = false;
-//   }
-// };
-
-// // Create a debounced version of safeInitializeDatabase (3 seconds delay).
-// const debouncedSafeInitializeDatabase = debounce(() => {
-//   safeInitializeDatabase();
-// }, 3000);
-
-// /**
-//  * Main function to initialize the local database with remote data.
-//  */
-// export const initializeDatabase = async () => {
-//   // Check for an active internet connection.
-//   const isOnline = await checkInternetConnection();
-//   if (!isOnline) {
-//     console.warn("No internet connection. Running in offline mode.");
-
-//     // Set up a connectivity listener to re-initialize once online.
-//     setupConnectivityListener(() => {
-//       console.log("Internet connection restored. Re-initializing database...");
-//       debouncedSafeInitializeDatabase();
-//     });
-
-//     // Return early if offline.
-//     return;
-//   }
-
-//   // Check if version in Storage is up to date.
-//   const checkVersion = async () => {
-//     try {
-//       const versionFromStorage = await Storage.getItem("version");
-//       const versionFromSupabase = await fetchVersionFromSupabase();
-
-//       // If there's a version mismatch, sync questions and PayPal link.
-//       if (versionFromStorage !== versionFromSupabase) {
-//         await fetchQuestionsFromSupabase();
-//         await fetchPayPalLink();
-//         await Storage.setItemSync("version", versionFromSupabase);
-//       }
-//     } catch (error: any) {
-//       console.error(
-//         "Error during version check and data synchronization:",
-//         error
-//       );
-//       Alert.alert("Fehler", error?.message);
-//     }
-//   };
-
-//   await checkVersion();
-//   setupSubscriptions();
-// };
-
-// const fetchVersionFromSupabase = async () => {
-//   try {
-//     const { data, error } = await supabase
-//       .from("version")
-//       .select("version")
-//       .single();
-
-//     if (error) {
-//       console.error(error);
-//       return;
-//     }
-//     return data.version;
-//   } catch (error) {
-//     console.error(error);
-//   }
-// };
-
-// const fetchQuestionsFromSupabase = async () => {
-//   try {
-//     // Fetch questions from Supabase
-//     const { data: questions, error } = await supabase
-//       .from("question")
-//       .select("*");
-
-//     if (error) {
-//       console.error("Error fetching questions from Supabase:", error.message);
-//       return;
-//     }
-
-//     if (!questions || questions.length === 0) {
-//       console.log("No questions found in Supabase.");
-//       return;
-//     }
-
-//     // Open SQLite database
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-
-//     // Create the questions table if it doesn't exist
-//     await db.execAsync(`
-//       PRAGMA journal_mode = WAL;
-//       PRAGMA foreign_keys = ON;
-//       CREATE TABLE IF NOT EXISTS question (
-//         id INTEGER PRIMARY KEY AUTOINCREMENT,
-//         title TEXT NOT NULL,
-//         question TEXT UNIQUE NOT NULL,
-//         answer TEXT,
-//         answer_sistani TEXT,
-//         answer_khamenei TEXT,
-//         category_name TEXT REFERENCES category(category_name),
-//         subcategory_name TEXT REFERENCES subcategory(subcategory_name),
-//         created_at TEXT DEFAULT CURRENT_TIMESTAMP
-//       );
-//     `);
-
-//     // Create the favorites table
-//     await createFavoritesTable();
-
-//     // Use an exclusive transaction for batch insertion
-//     // !! Maybe change -> withTransactionAsync instead of withExclusiveTransactionAsync
-//     await db.withExclusiveTransactionAsync(async (txn) => {
-//       // Prepare the statement inside the transaction
-//       const statement = await txn.prepareAsync(`
-//         INSERT OR REPLACE INTO question
-//         (id, title, question, answer, answer_sistani, answer_khamenei, category_name, subcategory_name, created_at)
-//         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-//       `);
-
-//       try {
-//         // Execute the prepared statement for each question
-//         for (const question of questions) {
-//           await statement.executeAsync([
-//             question.id,
-//             question.title,
-//             question.question,
-//             question.answer || null,
-//             question.answer_sistani || null,
-//             question.answer_khamenei || null,
-//             question.category_name,
-//             question.subcategory_name,
-//             question.created_at,
-//           ]);
-//         }
-//       } finally {
-//         // Finalize the prepared statement
-//         await statement.finalizeAsync();
-//       }
-//     });
-
-//     console.log("Questions successfully synced to SQLite.");
-//   } catch (error) {
-//     console.error("Unexpected error in fetchQuestionsFromSupabase:", error);
-//   }
-// };
-// const fetchPayPalLink = async () => {
-//   try {
-//     // Fetch PayPal data from Supabase
-//     const { data, error } = await supabase
-//       .from("paypal")
-//       .select("link")
-//       .single();
-
-//     if (error) {
-//       console.error("Error fetching PayPal link from Supabase:", error.message);
-//       return;
-//     }
-//     if (data?.link) {
-//       Storage.setItemSync("paypal", data.link);
-//     } else {
-//       console.warn("No PayPal link found in Supabase.");
-//     }
-//   } catch (error) {
-//     console.error("Unexpected error fetching PayPal link:", error);
-//   }
-// };
-
-// const setupSubscriptions = () => {
-//   // Subscribe to changes in the `version` table
-//   supabase
-//     .channel("version")
-//     .on(
-//       "postgres_changes",
-//       { event: "*", schema: "public", table: "version" },
-//       async (payload) => {
-//         try {
-//           console.log("Change received!", payload);
-//           await initializeDatabase(); // Re-fetch data if version changes
-//           router.replace("/(tabs)/home/");
-//           questionsDatabaseUpate();
-//         } catch (error) {
-//           console.error("Error handling Supabase subscription change:", error);
-//         }
-//       }
-//     )
-//     .subscribe();
-
-//   supabase
-//     .channel("paypal")
-//     .on(
-//       "postgres_changes",
-//       { event: "*", schema: "public", table: "paypal" },
-//       async (payload) => {
-//         try {
-//           console.log("Change received!", payload);
-//           await fetchPayPalLink(); // Re-fetch data if version changes
-//           router.replace("/(tabs)/home/");
-//           questionsDatabaseUpate();
-//         } catch (error) {
-//           console.error("Error handling Supabase subscription change:", error);
-//         }
-//       }
-//     )
-//     .subscribe();
-// };
-
-// export const getQuestionCount = async (): Promise<number> => {
-//   try {
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-//     const result = await db.getFirstAsync<{ count: number }>(
-//       `SELECT COUNT(*) as count FROM question;`
-//     );
-//     return result?.count ?? 0;
-//   } catch (error) {
-//     console.error("Error getting question count:", error);
-//     return 0;
-//   }
-// };
-
-// const syncSingleQuestion = async (question: QuestionType) => {
-//   const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-//   await db.runAsync(
-//     `
-//     INSERT OR REPLACE INTO question
-//     (id, title, question, answer, answer_sistani, answer_khamenei, category_name, subcategory_name, created_at)
-//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-//     `,
-//     [
-//       question.id,
-//       question.title,
-//       question.question,
-//       question.answer,
-//       question.answer_sistani,
-//       question.answer_khamenei,
-//       question.category_name,
-//       question.subcategory_name,
-//       question.created_at,
-//     ]
-//   );
-//   console.log("Question synced:", question.id);
-// };
-
-// const createFavoritesTable = async () => {
-//   const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-//   await db.execAsync(`
-//     PRAGMA journal_mode = WAL;
-//     CREATE TABLE IF NOT EXISTS favorites (
-//       id INTEGER PRIMARY KEY AUTOINCREMENT,
-//       question_id INTEGER NOT NULL UNIQUE,
-//       added_at TEXT DEFAULT CURRENT_TIMESTAMP,
-//       FOREIGN KEY (question_id) REFERENCES question(id) ON DELETE CASCADE
-//     );
-//   `);
-// };
-
-// export const addQuestionToFavorite = async (
-//   questionId: number
-// ): Promise<void> => {
-//   try {
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-//     await db.runAsync(
-//       `
-//       INSERT OR IGNORE INTO favorites (question_id) VALUES (?);
-//       `,
-//       [questionId]
-//     );
-//     console.log(`Question ${questionId} added to favorites.`);
-//   } catch (error) {
-//     console.error("Error adding favorite:", error);
-//     throw error;
-//   }
-// };
-
-// export const removeQuestionFromFavorite = async (
-//   questionId: number
-// ): Promise<void> => {
-//   try {
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-//     await db.runAsync(
-//       `
-//       DELETE FROM favorites WHERE question_id = ?;
-//       `,
-//       [questionId]
-//     );
-//     console.log(`Question ${questionId} removed from favorites.`);
-//   } catch (error) {
-//     console.error("Error removing favorite:", error);
-//     throw error;
-//   }
-// };
-
-// export const isQuestionInFavorite = async (
-//   questionId: number
-// ): Promise<boolean> => {
-//   try {
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-//     const result = await db.getFirstAsync<{ count: number }>(
-//       `
-//       SELECT COUNT(*) as count FROM favorites WHERE question_id = ?;
-//       `,
-//       [questionId]
-//     );
-//     if (result && result.count !== undefined) {
-//       return result.count > 0;
-//     }
-//     return false;
-//   } catch (error) {
-//     console.error("Error checking favorite status:", error);
-//     throw error;
-//   }
-// };
-
-// export const getFavoriteQuestions = async (): Promise<QuestionType[]> => {
-//   try {
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-//     const rows = await db.getAllAsync<QuestionType>(
-//       `
-//       SELECT q.*
-//       FROM question q
-//       INNER JOIN favorites f ON q.id = f.question_id
-//       ORDER BY f.added_at DESC;
-//       `
-//     );
-//     return rows;
-//   } catch (error) {
-//     console.error("Error retrieving favorite questions:", error);
-//     throw error;
-//   }
-// };
-
-// const deleteQuestionFromSQLite = async (questionId: number) => {
-//   const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-//   await db.runAsync(`DELETE FROM question WHERE id = ?;`, [questionId]);
-//   console.log("Question deleted:", questionId);
-// };
-
-// // get the subcategories from the SQLite database
-// export const getSubcategoriesForCategory = async (
-//   categoryName: string
-// ): Promise<string[]> => {
-//   try {
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-//     const rows = await db.getAllAsync<{ subcategory_name: string }>(
-//       "SELECT DISTINCT subcategory_name FROM question WHERE category_name = ?;",
-//       [categoryName]
-//     );
-//     // Only unique subcategories are returned because of "DISTINCT"
-//     return rows.map((row) => row.subcategory_name);
-//   } catch (error) {
-//     console.error("Error fetching subcategories:", error);
-//     throw error;
-//   }
-// };
-
-// export const getQuestionsForSubcategory = async (
-//   categoryName: string,
-//   subcategoryName: string
-// ): Promise<QuestionType[]> => {
-//   try {
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-
-//     // Query to fetch questions for the given subcategory
-//     const rows = await db.getAllAsync<QuestionType>(
-//       "SELECT * FROM question WHERE category_name = ? AND subcategory_name = ?;",
-//       [categoryName, subcategoryName]
-//     );
-
-//     return rows; // Return the fetched rows
-//   } catch (error) {
-//     console.error("Error fetching questions for subcategory:", error);
-//     throw error;
-//   }
-// };
-
-// export const getQuestion = async (
-//   categoryName: string,
-//   subcategoryName: string,
-//   questionId: number
-// ): Promise<QuestionType> => {
-//   try {
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-
-//     // Query to fetch questions for the given subcategory
-//     const rows = await db.getAllAsync<QuestionType>(
-//       "SELECT * FROM question WHERE category_name = ? AND subcategory_name = ? AND id = ? LIMIT 1;",
-//       [categoryName, subcategoryName, questionId]
-//     );
-//     return rows[0];
-//   } catch (error) {
-//     console.error("Error fetching question:", error);
-//     throw error;
-//   }
-// };
-
-// export const getQuestionInternalURL = async (
-//   questionTitle: string
-// ): Promise<QuestionType> => {
-//   try {
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-
-//     // Query to fetch questions for the given subcategory
-//     const rows = await db.getAllAsync<QuestionType>(
-//       "SELECT * FROM question WHERE title = ?;",
-//       [questionTitle]
-//     );
-//     return rows[0];
-//   } catch (error) {
-//     console.error("Error fetching question:", error);
-//     throw error;
-//   }
-// };
-
-// export const searchQuestions = async (
-//   searchTerm: string
-// ): Promise<SearchResults[]> => {
-//   try {
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-
-//     // Perform a search query using the LIKE operator
-//     const rows = await db.getAllAsync<{
-//       id: number;
-//       category_name: string;
-//       subcategory_name: string;
-//       question: string;
-//       title: string;
-//     }>(
-//       `
-//       SELECT id, category_name, subcategory_name, question, title
-//       FROM question
-//       WHERE question LIKE ? OR title LIKE ?;
-//       `,
-//       [`%${searchTerm}%`, `%${searchTerm}%`]
-//     );
-
-//     return rows;
-//   } catch (error) {
-//     console.error("Error searching questions:", error);
-//     throw error;
-//   }
-// };
-
-// export const getLatestQuestions = async (
-//   limit: number = 10
-// ): Promise<QuestionType[]> => {
-//   try {
-//     const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-
-//     const rows = await db.getAllAsync<QuestionType>(
-//       `
-//       SELECT * FROM question
-//       ORDER BY datetime(created_at) ASC
-//       LIMIT ?;
-//       `,
-//       [limit]
-//     );
-
-//     return rows;
-//   } catch (error) {
-//     console.error("Error retrieving latest questions:", error);
-//     throw error;
-//   }
-// };
-
 import * as SQLite from "expo-sqlite";
 import { supabase } from "@/utils/supabase";
 import Storage from "expo-sqlite/kv-store";
 import { router } from "expo-router";
-import { questionsDatabaseUpate } from "@/constants/messages";
-import { QuestionType, SearchResults } from "./types";
+import { Alert } from "react-native";
+import debounce from "lodash/debounce";
 import {
   checkInternetConnection,
   setupConnectivityListener,
 } from "./checkNetwork";
-import debounce from "lodash/debounce";
-import { Alert } from "react-native";
 
-// Flag to ensure only one initialization runs at a time.
+// Type definitions based on your table structure
+export interface Category {
+  category_id: number;
+  name: string;
+  description: string | null;
+}
+
+export interface Language {
+  language_id: number;
+  language_code: string;
+  language_name: string;
+}
+
+export interface PayPal {
+  id: number;
+  created_at: string;
+  payPay_Link: string;
+}
+
+export interface Text {
+  text_id: number;
+  category_id: number;
+  created_at: string;
+  is_original: boolean;
+}
+
+export interface TextTranslation {
+  translation_id: number;
+  text_id: number;
+  language_id: number;
+  header: string;
+  body: string;
+  translated_at: string;
+}
+
+export interface Version {
+  id: number;
+  created_at: string;
+  version: string;
+}
+
+export interface TextWithTranslation extends Text {
+  header: string;
+  body: string;
+  language_name: string;
+  language_code: string;
+  category_name: string;
+}
+
+export interface SearchResult {
+  text_id: number;
+  category_id: number;
+  header: string;
+  language_id: number;
+  language_code: string;
+}
+
+// Flag to ensure only one initialization runs at a time
 let isInitializing = false;
 
 /**
@@ -515,7 +77,6 @@ export const safeInitializeDatabase = async () => {
     console.log("Database initialization is already running. Skipping.");
     return;
   }
-  // Now its true
   isInitializing = true;
   try {
     await initializeDatabase();
@@ -524,8 +85,8 @@ export const safeInitializeDatabase = async () => {
   }
 };
 
-// Create a debounced version of safeInitializeDatabase (3 seconds delay).
-const debouncedSafeInitializeDatabase = debounce(() => {
+// Create a debounced version of safeInitializeDatabase (3 seconds delay)
+export const debouncedSafeInitializeDatabase = debounce(() => {
   safeInitializeDatabase();
 }, 3000);
 
@@ -533,23 +94,33 @@ const debouncedSafeInitializeDatabase = debounce(() => {
  * Main function to initialize the local database with remote data.
  */
 export const initializeDatabase = async () => {
-  // Check for an active internet connection.
+  // Check for an active internet connection
   const isOnline = await checkInternetConnection();
 
   if (!isOnline) {
-    // When offline, check if local data already exists.
-    const questionCount = await getQuestionCount();
-    if (questionCount > 0) {
+    // When offline, check if local data already exists
+    const textCount = await getTextCount();
+    if (textCount > 0) {
       console.log(
         "Offline mode with existing data. Database considered initialized."
       );
-      return; // Data exists, so we consider the DB initialized.
+      Alert.alert(
+        'Offline-Modus',
+        'Sie sind derzeit offline. Die bestehenden Inhalte werden angezeigt.',
+        [{ text: 'OK' }]
+      );
+      return; // Data exists, so we consider the DB initialized
     }
 
     console.warn(
       "No internet connection and no local data available. Running in offline mode."
     );
-    // Set up a connectivity listener to re-initialize once online.
+    Alert.alert(
+      'Keine Verbindung',
+      'Sie sind offline und es sind keine Daten verfügbar. Bitte stellen Sie eine Internetverbindung her.',
+      [{ text: 'OK' }]
+    );
+    // Set up a connectivity listener to re-initialize once online
     setupConnectivityListener(() => {
       console.log("Internet connection restored. Re-initializing database...");
       debouncedSafeInitializeDatabase();
@@ -557,24 +128,33 @@ export const initializeDatabase = async () => {
     return;
   }
 
-  // Check if version in Storage is up to date.
+  // Check if version in Storage is up to date
   const checkVersion = async () => {
     try {
       const versionFromStorage = await Storage.getItem("version");
       const versionFromSupabase = await fetchVersionFromSupabase();
 
-      // If there's a version mismatch, sync questions and PayPal link.
+      // If there's a version mismatch, sync all data
       if (versionFromStorage !== versionFromSupabase) {
-        await fetchQuestionsFromSupabase();
-        await fetchPayPalLink();
+        await createTables();
+        await fetchAndSyncAllData();
         await Storage.setItemSync("version", versionFromSupabase);
+        Alert.alert(
+          'Daten geladen',
+          'Alle Inhalte wurden erfolgreich synchronisiert.',
+          [{ text: 'OK' }]
+        );
       }
     } catch (error: any) {
       console.error(
         "Error during version check and data synchronization:",
         error
       );
-      Alert.alert("Fehler", error?.message);
+      Alert.alert(
+        'Fehler',
+        error.message || 'Beim Aktualisieren der Inhalte ist ein Fehler aufgetreten.',
+        [{ text: 'OK' }]
+      );
     }
   };
 
@@ -582,7 +162,76 @@ export const initializeDatabase = async () => {
   setupSubscriptions();
 };
 
-const fetchVersionFromSupabase = async () => {
+/**
+ * Create all necessary tables in SQLite
+ */
+export const createTables = async () => {
+  try {
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+
+    await db.execAsync(`
+      PRAGMA journal_mode = WAL;
+      PRAGMA foreign_keys = ON;
+      
+      CREATE TABLE IF NOT EXISTS categories (
+        category_id INTEGER PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT
+      );
+      
+      CREATE TABLE IF NOT EXISTS languages (
+        language_id INTEGER PRIMARY KEY,
+        language_code TEXT NOT NULL,
+        language_name TEXT NOT NULL
+      );
+      
+      CREATE TABLE IF NOT EXISTS paypal (
+        id INTEGER PRIMARY KEY,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        payPay_Link TEXT NOT NULL
+      );
+      
+      CREATE TABLE IF NOT EXISTS texts (
+        text_id INTEGER PRIMARY KEY,
+        category_id INTEGER NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        is_original BOOLEAN DEFAULT FALSE,
+        FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE CASCADE
+      );
+      
+      CREATE TABLE IF NOT EXISTS texttranslations (
+        translation_id INTEGER PRIMARY KEY,
+        text_id INTEGER NOT NULL,
+        language_id INTEGER NOT NULL,
+        header TEXT NOT NULL,
+        body TEXT NOT NULL,
+        translated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (text_id) REFERENCES texts(text_id) ON DELETE CASCADE,
+        FOREIGN KEY (language_id) REFERENCES languages(language_id) ON DELETE CASCADE
+      );
+      
+      CREATE TABLE IF NOT EXISTS favorites (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        text_id INTEGER NOT NULL UNIQUE,
+        added_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (text_id) REFERENCES texts(text_id) ON DELETE CASCADE
+      );
+      
+      CREATE TABLE IF NOT EXISTS version (
+        id INTEGER PRIMARY KEY,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        version TEXT NOT NULL
+      );
+    `);
+
+    console.log("All tables created successfully");
+  } catch (error) {
+    console.error("Error creating tables:", error);
+    throw error;
+  }
+};
+
+const fetchVersionFromSupabase = async (): Promise<string> => {
   try {
     const { data, error } = await supabase
       .from("version")
@@ -590,110 +239,248 @@ const fetchVersionFromSupabase = async () => {
       .single();
 
     if (error) {
-      console.error(error);
-      return;
+      console.error("Error fetching version:", error);
+      throw new Error("Failed to fetch version");
     }
-    return data.version;
+
+    return data?.version || "";
   } catch (error) {
-    console.error(error);
+    console.error("Unexpected error in fetchVersionFromSupabase:", error);
+    throw error;
   }
 };
 
-const fetchQuestionsFromSupabase = async () => {
+/**
+ * Fetch and sync all data from Supabase to SQLite
+ */
+const fetchAndSyncAllData = async () => {
   try {
-    // Fetch questions from Supabase
-    const { data: questions, error } = await supabase
-      .from("question")
+    await fetchAndSyncCategories();
+    await fetchAndSyncLanguages();
+    await fetchAndSyncTexts();
+    await fetchAndSyncTextTranslations();
+    await fetchPayPalLink();
+    console.log("All data synced successfully");
+  } catch (error) {
+    console.error("Error syncing data:", error);
+    Alert.alert(
+      'Synchronisierungsfehler',
+      'Die Daten konnten nicht synchronisiert werden. Bitte versuchen Sie es später erneut.',
+      [{ text: 'OK' }]
+    );
+    throw error;
+  }
+};
+
+const fetchAndSyncCategories = async () => {
+  try {
+    const { data: categories, error } = await supabase
+      .from("categories")
       .select("*");
 
     if (error) {
-      console.error("Error fetching questions from Supabase:", error.message);
+      console.error("Error fetching categories:", error);
       return;
     }
 
-    if (!questions || questions.length === 0) {
-      console.log("No questions found in Supabase.");
+    if (!categories || categories.length === 0) {
+      console.log("No categories found in Supabase.");
       return;
     }
 
-    // Open SQLite database
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
+    const db = await SQLite.openDatabaseAsync("content-database.db");
 
-    // Create the questions table if it doesn't exist
-    await db.execAsync(`
-      PRAGMA journal_mode = WAL;
-      PRAGMA foreign_keys = ON;
-      CREATE TABLE IF NOT EXISTS question (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT NOT NULL,
-        question TEXT UNIQUE NOT NULL,
-        answer TEXT,
-        answer_sistani TEXT,
-        answer_khamenei TEXT,
-        category_name TEXT REFERENCES category(category_name),
-        subcategory_name TEXT REFERENCES subcategory(subcategory_name),
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // Create the favorites table
-    await createFavoritesTable();
-
-    // Use an exclusive transaction for batch insertion
-    // !! Maybe change -> withTransactionAsync instead of withExclusiveTransactionAsync
     await db.withExclusiveTransactionAsync(async (txn) => {
-      // Prepare the statement inside the transaction
       const statement = await txn.prepareAsync(`
-        INSERT OR REPLACE INTO question
-        (id, title, question, answer, answer_sistani, answer_khamenei, category_name, subcategory_name, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        INSERT OR REPLACE INTO categories
+        (category_id, name, description)
+        VALUES (?, ?, ?);
       `);
 
       try {
-        // Execute the prepared statement for each question
-        for (const question of questions) {
+        for (const category of categories) {
           await statement.executeAsync([
-            question.id,
-            question.title,
-            question.question,
-            question.answer || null,
-            question.answer_sistani || null,
-            question.answer_khamenei || null,
-            question.category_name,
-            question.subcategory_name,
-            question.created_at,
+            category.category_id,
+            category.name,
+            category.description || null,
           ]);
         }
       } finally {
-        // Finalize the prepared statement
         await statement.finalizeAsync();
       }
     });
 
-    console.log("Questions successfully synced to SQLite.");
+    console.log("Categories successfully synced to SQLite.");
   } catch (error) {
-    console.error("Unexpected error in fetchQuestionsFromSupabase:", error);
+    console.error("Error in fetchAndSyncCategories:", error);
+    throw error;
   }
 };
+
+const fetchAndSyncLanguages = async () => {
+  try {
+    const { data: languages, error } = await supabase
+      .from("languages")
+      .select("*");
+
+    if (error) {
+      console.error("Error fetching languages:", error);
+      return;
+    }
+
+    if (!languages || languages.length === 0) {
+      console.log("No languages found in Supabase.");
+      return;
+    }
+
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+
+    await db.withExclusiveTransactionAsync(async (txn) => {
+      const statement = await txn.prepareAsync(`
+        INSERT OR REPLACE INTO languages
+        (language_id, language_code, language_name)
+        VALUES (?, ?, ?);
+      `);
+
+      try {
+        for (const language of languages) {
+          await statement.executeAsync([
+            language.language_id,
+            language.language_code,
+            language.language_name,
+          ]);
+        }
+      } finally {
+        await statement.finalizeAsync();
+      }
+    });
+
+    console.log("Languages successfully synced to SQLite.");
+  } catch (error) {
+    console.error("Error in fetchAndSyncLanguages:", error);
+    throw error;
+  }
+};
+
+const fetchAndSyncTexts = async () => {
+  try {
+    const { data: texts, error } = await supabase.from("texts").select("*");
+
+    if (error) {
+      console.error("Error fetching texts:", error);
+      return;
+    }
+
+    if (!texts || texts.length === 0) {
+      console.log("No texts found in Supabase.");
+      return;
+    }
+
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+
+    await db.withExclusiveTransactionAsync(async (txn) => {
+      const statement = await txn.prepareAsync(`
+        INSERT OR REPLACE INTO texts
+        (text_id, category_id, created_at, is_original)
+        VALUES (?, ?, ?, ?);
+      `);
+
+      try {
+        for (const text of texts) {
+          await statement.executeAsync([
+            text.text_id,
+            text.category_id,
+            text.created_at,
+            text.is_original ? 1 : 0,
+          ]);
+        }
+      } finally {
+        await statement.finalizeAsync();
+      }
+    });
+
+    console.log("Texts successfully synced to SQLite.");
+  } catch (error) {
+    console.error("Error in fetchAndSyncTexts:", error);
+    throw error;
+  }
+};
+
+const fetchAndSyncTextTranslations = async () => {
+  try {
+    const { data: translations, error } = await supabase
+      .from("texttranslations")
+      .select("*");
+
+    if (error) {
+      console.error("Error fetching text translations:", error);
+      return;
+    }
+
+    if (!translations || translations.length === 0) {
+      console.log("No text translations found in Supabase.");
+      return;
+    }
+
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+
+    await db.withExclusiveTransactionAsync(async (txn) => {
+      const statement = await txn.prepareAsync(`
+        INSERT OR REPLACE INTO texttranslations
+        (translation_id, text_id, language_id, header, body, translated_at)
+        VALUES (?, ?, ?, ?, ?, ?);
+      `);
+
+      try {
+        for (const translation of translations) {
+          await statement.executeAsync([
+            translation.translation_id,
+            translation.text_id,
+            translation.language_id,
+            translation.header,
+            translation.body,
+            translation.translated_at,
+          ]);
+        }
+      } finally {
+        await statement.finalizeAsync();
+      }
+    });
+
+    console.log("Text translations successfully synced to SQLite.");
+  } catch (error) {
+    console.error("Error in fetchAndSyncTextTranslations:", error);
+    throw error;
+  }
+};
+
 const fetchPayPalLink = async () => {
   try {
-    // Fetch PayPal data from Supabase
     const { data, error } = await supabase
-      .from("paypal")
-      .select("link")
+      .from("payPal")
+      .select("payPay_Link")
       .single();
 
     if (error) {
-      console.error("Error fetching PayPal link from Supabase:", error.message);
+      console.error("Error fetching PayPal link:", error);
       return;
     }
-    if (data?.link) {
-      Storage.setItemSync("paypal", data.link);
+
+    if (data?.payPay_Link) {
+      Storage.setItemSync("paypal", data.payPay_Link);
+
+      // Also store in SQLite
+      const db = await SQLite.openDatabaseAsync("content-database.db");
+      await db.runAsync(
+        "INSERT OR REPLACE INTO paypal (id, payPay_Link) VALUES (1, ?);",
+        [data.payPay_Link]
+      );
     } else {
       console.warn("No PayPal link found in Supabase.");
     }
   } catch (error) {
-    console.error("Unexpected error fetching PayPal link:", error);
+    console.error("Error in fetchPayPalLink:", error);
+    throw error;
   }
 };
 
@@ -706,289 +493,353 @@ const setupSubscriptions = () => {
       { event: "*", schema: "public", table: "version" },
       async (payload) => {
         try {
-          console.log("Change received!", payload);
+          console.log("Version change received!", payload);
           await initializeDatabase(); // Re-fetch data if version changes
           router.replace("/(tabs)/home/");
-          questionsDatabaseUpate();
+          Alert.alert(
+            "Inhalte aktualisiert",
+            "Neue Inhalte sind jetzt verfügbar.",
+            [{ text: "OK" }]
+          );
         } catch (error) {
-          console.error("Error handling Supabase subscription change:", error);
+          console.error("Error handling version change:", error);
+          Alert.alert(
+            "Fehler bei der Aktualisierung",
+            "Die neuen Inhalte konnten nicht geladen werden.",
+            [{ text: "OK" }]
+          );
         }
       }
     )
     .subscribe();
 
+  // Subscribe to PayPal table changes
   supabase
-    .channel("paypal")
+    .channel("payPal")
     .on(
       "postgres_changes",
-      { event: "*", schema: "public", table: "paypal" },
+      { event: "*", schema: "public", table: "payPal" },
       async (payload) => {
         try {
-          console.log("Change received!", payload);
-          await fetchPayPalLink(); // Re-fetch data if version changes
+          console.log("PayPal change received!", payload);
+          await fetchPayPalLink();
           router.replace("/(tabs)/home/");
-          questionsDatabaseUpate();
+          Alert.alert(
+            'Inhalte aktualisiert',
+            'Neue Inhalte sind jetzt verfügbar.',
+            [{ text: 'OK' }]
+          );
         } catch (error) {
-          console.error("Error handling Supabase subscription change:", error);
+          console.error("Error handling PayPal change:", error);
+          Alert.alert(
+            "Fehler bei der Aktualisierung",
+            "Die PayPal-Daten konnten nicht aktualisiert werden.",
+            [{ text: "OK" }]
+          );
         }
       }
     )
     .subscribe();
 };
 
-export const getQuestionCount = async (): Promise<number> => {
+/**
+ * Get the number of texts in the local database
+ */
+export const getTextCount = async (): Promise<number> => {
   try {
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
+    const db = await SQLite.openDatabaseAsync("content-database.db");
     const result = await db.getFirstAsync<{ count: number }>(
-      `SELECT COUNT(*) as count FROM question;`
+      "SELECT COUNT(*) as count FROM texts;"
     );
     return result?.count ?? 0;
   } catch (error) {
-    console.error("Error getting question count:", error);
+    console.error("Error getting text count:", error);
     return 0;
   }
 };
 
-const syncSingleQuestion = async (question: QuestionType) => {
-  const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-  await db.runAsync(
-    `
-    INSERT OR REPLACE INTO question
-    (id, title, question, answer, answer_sistani, answer_khamenei, category_name, subcategory_name, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-    `,
-    [
-      question.id,
-      question.title,
-      question.question,
-      question.answer,
-      question.answer_sistani,
-      question.answer_khamenei,
-      question.category_name,
-      question.subcategory_name,
-      question.created_at,
-    ]
-  );
-  console.log("Question synced:", question.id);
-};
-
-const createFavoritesTable = async () => {
-  const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-  await db.execAsync(`
-    PRAGMA journal_mode = WAL;
-    CREATE TABLE IF NOT EXISTS favorites (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      question_id INTEGER NOT NULL UNIQUE,
-      added_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (question_id) REFERENCES question(id) ON DELETE CASCADE
-    );
-  `);
-};
-
-export const addQuestionToFavorite = async (
-  questionId: number
-): Promise<void> => {
+/**
+ * Favorites management functions
+ */
+export const addTextToFavorites = async (textId: number): Promise<void> => {
   try {
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-    await db.runAsync(
-      `
-      INSERT OR IGNORE INTO favorites (question_id) VALUES (?);
-      `,
-      [questionId]
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+    await db.runAsync("INSERT OR IGNORE INTO favorites (text_id) VALUES (?);", [
+      textId,
+    ]);
+    console.log(`Text ${textId} added to favorites.`);
+    Alert.alert(
+      "Favoriten",
+      "Text zu Favoriten hinzugefügt.",
+      [{ text: "OK" }]
     );
-    console.log(`Question ${questionId} added to favorites.`);
   } catch (error) {
-    console.error("Error adding favorite:", error);
+    console.error("Error adding to favorites:", error);
+    Alert.alert(
+      "Fehler",
+      "Text konnte nicht zu Favoriten hinzugefügt werden.",
+      [{ text: "OK" }]
+    );
     throw error;
   }
 };
 
-export const removeQuestionFromFavorite = async (
-  questionId: number
+export const removeTextFromFavorites = async (
+  textId: number
 ): Promise<void> => {
   try {
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-    await db.runAsync(
-      `
-      DELETE FROM favorites WHERE question_id = ?;
-      `,
-      [questionId]
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+    await db.runAsync("DELETE FROM favorites WHERE text_id = ?;", [textId]);
+    console.log(`Text ${textId} removed from favorites.`);
+    Alert.alert(
+      "Favoriten",
+      "Text aus Favoriten entfernt.",
+      [{ text: "OK" }]
     );
-    console.log(`Question ${questionId} removed from favorites.`);
   } catch (error) {
-    console.error("Error removing favorite:", error);
+    console.error("Error removing from favorites:", error);
+    Alert.alert(
+      "Fehler",
+      "Text konnte nicht aus Favoriten entfernt werden.",
+      [{ text: "OK" }]
+    );
     throw error;
   }
 };
 
-export const isQuestionInFavorite = async (
-  questionId: number
-): Promise<boolean> => {
+export const isTextInFavorites = async (textId: number): Promise<boolean> => {
   try {
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
+    const db = await SQLite.openDatabaseAsync("content-database.db");
     const result = await db.getFirstAsync<{ count: number }>(
-      `
-      SELECT COUNT(*) as count FROM favorites WHERE question_id = ?;
-      `,
-      [questionId]
+      "SELECT COUNT(*) as count FROM favorites WHERE text_id = ?;",
+      [textId]
     );
-    if (result && result.count !== undefined) {
-      return result.count > 0;
-    }
-    return false;
+    return (result?.count ?? 0) > 0;
   } catch (error) {
     console.error("Error checking favorite status:", error);
     throw error;
   }
 };
 
-export const getFavoriteQuestions = async (): Promise<QuestionType[]> => {
+export const getFavoriteTexts = async (
+  languageId: number
+): Promise<TextWithTranslation[]> => {
   try {
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-    const rows = await db.getAllAsync<QuestionType>(
-      `
-      SELECT q.*
-      FROM question q
-      INNER JOIN favorites f ON q.id = f.question_id
-      ORDER BY f.added_at DESC;
-      `
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+    const rows = await db.getAllAsync<TextWithTranslation>(
+      `SELECT 
+        t.text_id, t.category_id, t.created_at, t.is_original,
+        tt.header, tt.body, tt.translated_at,
+        l.language_name, l.language_code,
+        c.name as category_name
+      FROM texts t
+      INNER JOIN favorites f ON t.text_id = f.text_id
+      INNER JOIN texttranslations tt ON t.text_id = tt.text_id
+      INNER JOIN languages l ON tt.language_id = l.language_id
+      INNER JOIN categories c ON t.category_id = c.category_id
+      WHERE tt.language_id = ?
+      ORDER BY f.added_at DESC;`,
+      [languageId]
     );
     return rows;
   } catch (error) {
-    console.error("Error retrieving favorite questions:", error);
+    console.error("Error retrieving favorite texts:", error);
+    Alert.alert(
+      "Fehler",
+      "Favoriten konnten nicht geladen werden.",
+      [{ text: "OK" }]
+    );
     throw error;
   }
 };
 
-const deleteQuestionFromSQLite = async (questionId: number) => {
-  const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-  await db.runAsync(`DELETE FROM question WHERE id = ?;`, [questionId]);
-  console.log("Question deleted:", questionId);
-};
-
-// get the subcategories from the SQLite database
-export const getSubcategoriesForCategory = async (
-  categoryName: string
-): Promise<string[]> => {
+/**
+ * Content retrieval functions
+ */
+export const getCategories = async (): Promise<Category[]> => {
   try {
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-    const rows = await db.getAllAsync<{ subcategory_name: string }>(
-      "SELECT DISTINCT subcategory_name FROM question WHERE category_name = ?;",
-      [categoryName]
-    );
-    // Only unique subcategories are returned because of "DISTINCT"
-    return rows.map((row) => row.subcategory_name);
-  } catch (error) {
-    console.error("Error fetching subcategories:", error);
-    throw error;
-  }
-};
-
-export const getQuestionsForSubcategory = async (
-  categoryName: string,
-  subcategoryName: string
-): Promise<QuestionType[]> => {
-  try {
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-
-    // Query to fetch questions for the given subcategory
-    const rows = await db.getAllAsync<QuestionType>(
-      "SELECT * FROM question WHERE category_name = ? AND subcategory_name = ?;",
-      [categoryName, subcategoryName]
-    );
-
-    return rows; // Return the fetched rows
-  } catch (error) {
-    console.error("Error fetching questions for subcategory:", error);
-    throw error;
-  }
-};
-
-export const getQuestion = async (
-  categoryName: string,
-  subcategoryName: string,
-  questionId: number
-): Promise<QuestionType> => {
-  try {
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-
-    // Query to fetch questions for the given subcategory
-    const rows = await db.getAllAsync<QuestionType>(
-      "SELECT * FROM question WHERE category_name = ? AND subcategory_name = ? AND id = ? LIMIT 1;",
-      [categoryName, subcategoryName, questionId]
-    );
-    return rows[0];
-  } catch (error) {
-    console.error("Error fetching question:", error);
-    throw error;
-  }
-};
-
-export const getQuestionInternalURL = async (
-  questionTitle: string
-): Promise<QuestionType> => {
-  try {
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-
-    // Query to fetch questions for the given subcategory
-    const rows = await db.getAllAsync<QuestionType>(
-      "SELECT * FROM question WHERE title = ?;",
-      [questionTitle]
-    );
-    return rows[0];
-  } catch (error) {
-    console.error("Error fetching question:", error);
-    throw error;
-  }
-};
-
-export const searchQuestions = async (
-  searchTerm: string
-): Promise<SearchResults[]> => {
-  try {
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-
-    // Perform a search query using the LIKE operator
-    const rows = await db.getAllAsync<{
-      id: number;
-      category_name: string;
-      subcategory_name: string;
-      question: string;
-      title: string;
-    }>(
-      `
-      SELECT id, category_name, subcategory_name, question, title
-      FROM question
-      WHERE question LIKE ? OR title LIKE ?;
-      `,
-      [`%${searchTerm}%`, `%${searchTerm}%`]
-    );
-
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+    const rows = await db.getAllAsync<Category>("SELECT * FROM categories;");
     return rows;
   } catch (error) {
-    console.error("Error searching questions:", error);
+    console.error("Error fetching categories:", error);
+    Alert.alert(
+      "Fehler",
+      "Kategorien konnten nicht geladen werden.",
+      [{ text: "OK" }]
+    );
     throw error;
   }
 };
 
-export const getLatestQuestions = async (
-  limit: number = 10
-): Promise<QuestionType[]> => {
+export const getLanguages = async (): Promise<Language[]> => {
   try {
-    const db = await SQLite.openDatabaseAsync("islam-fragen.db");
-
-    const rows = await db.getAllAsync<QuestionType>(
-      `
-      SELECT * FROM question
-      ORDER BY datetime(created_at) ASC
-      LIMIT ?;
-      `,
-      [limit]
-    );
-
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+    const rows = await db.getAllAsync<Language>("SELECT * FROM languages;");
     return rows;
   } catch (error) {
-    console.error("Error retrieving latest questions:", error);
+    console.error("Error fetching languages:", error);
+    Alert.alert(
+      "Fehler",
+      "Sprachen konnten nicht geladen werden.",
+      [{ text: "OK" }]
+    );
     throw error;
+  }
+};
+
+export const getTextsForCategory = async (
+  categoryId: number,
+  languageId: number
+): Promise<TextWithTranslation[]> => {
+  try {
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+    const rows = await db.getAllAsync<TextWithTranslation>(
+      `SELECT 
+        t.text_id, t.category_id, t.created_at, t.is_original,
+        tt.header, tt.body, tt.translated_at,
+        l.language_name, l.language_code,
+        c.name as category_name
+      FROM texts t
+      INNER JOIN texttranslations tt ON t.text_id = tt.text_id
+      INNER JOIN languages l ON tt.language_id = l.language_id
+      INNER JOIN categories c ON t.category_id = c.category_id
+      WHERE t.category_id = ? AND tt.language_id = ?;`,
+      [categoryId, languageId]
+    );
+    return rows;
+  } catch (error) {
+    console.error("Error fetching texts for category:", error);
+    Alert.alert(
+      "Fehler",
+      "Texte für diese Kategorie konnten nicht geladen werden.",
+      [{ text: "OK" }]
+    );
+    throw error;
+  }
+};
+
+export const getText = async (
+  textId: number,
+  languageId: number
+): Promise<TextWithTranslation | null> => {
+  try {
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+    const row = await db.getFirstAsync<TextWithTranslation>(
+      `SELECT 
+        t.text_id, t.category_id, t.created_at, t.is_original,
+        tt.header, tt.body, tt.translated_at,
+        l.language_name, l.language_code,
+        c.name as category_name
+      FROM texts t
+      INNER JOIN texttranslations tt ON t.text_id = tt.text_id
+      INNER JOIN languages l ON tt.language_id = l.language_id
+      INNER JOIN categories c ON t.category_id = c.category_id
+      WHERE t.text_id = ? AND tt.language_id = ?;`,
+      [textId, languageId]
+    );
+    return row;
+  } catch (error) {
+    console.error("Error fetching text:", error);
+    Alert.alert(
+      "Fehler",
+      "Text konnte nicht geladen werden.",
+      [{ text: "OK" }]
+    );
+    throw error;
+  }
+};
+
+export const searchTexts = async (
+  searchTerm: string,
+  languageId: number
+): Promise<SearchResult[]> => {
+  try {
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+    const rows = await db.getAllAsync<SearchResult>(
+      `SELECT 
+        t.text_id, t.category_id,
+        tt.header,
+        l.language_id, l.language_code
+      FROM texts t
+      INNER JOIN texttranslations tt ON t.text_id = tt.text_id
+      INNER JOIN languages l ON tt.language_id = l.language_id
+      WHERE tt.language_id = ? AND (tt.header LIKE ? OR tt.body LIKE ?);`,
+      [languageId, `%${searchTerm}%`, `%${searchTerm}%`]
+    );
+    
+    if (rows.length === 0) {
+      Alert.alert(
+        "Suche",
+        "Keine Ergebnisse gefunden.",
+        [{ text: "OK" }]
+      );
+    }
+    
+    return rows;
+  } catch (error) {
+    console.error("Error searching texts:", error);
+    Alert.alert(
+      "Fehler",
+      "Suche konnte nicht durchgeführt werden.",
+      [{ text: "OK" }]
+    );
+    throw error;
+  }
+};
+
+export const getLatestTexts = async (
+  limit: number = 10,
+  languageId: number
+): Promise<TextWithTranslation[]> => {
+  try {
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+    const rows = await db.getAllAsync<TextWithTranslation>(
+      `SELECT 
+        t.text_id, t.category_id, t.created_at, t.is_original,
+        tt.header, tt.body, tt.translated_at,
+        l.language_name, l.language_code,
+        c.name as category_name
+      FROM texts t
+      INNER JOIN texttranslations tt ON t.text_id = tt.text_id
+      INNER JOIN languages l ON tt.language_id = l.language_id
+      INNER JOIN categories c ON t.category_id = c.category_id
+      WHERE tt.language_id = ?
+      ORDER BY datetime(t.created_at) DESC
+      LIMIT ?;`,
+      [languageId, limit]
+    );
+    return rows;
+  } catch (error) {
+    console.error("Error retrieving latest texts:", error);
+    Alert.alert(
+      "Fehler",
+      "Aktuelle Texte konnten nicht geladen werden.",
+      [{ text: "OK" }]
+    );
+    throw error;
+  }
+};
+
+export const getPayPalLink = async (): Promise<string> => {
+  try {
+    // First try to get from Storage for performance
+    const storedLink = await Storage.getItem("paypal");
+    if (storedLink) return storedLink;
+
+    // If not in Storage, try SQLite
+    const db = await SQLite.openDatabaseAsync("content-database.db");
+    const result = await db.getFirstAsync<{ payPay_Link: string }>(
+      "SELECT payPay_Link FROM paypal LIMIT 1;"
+    );
+    return result?.payPay_Link || "";
+  } catch (error) {
+    console.error("Error getting PayPal link:", error);
+    Alert.alert(
+      "Fehler",
+      "PayPal-Link konnte nicht geladen werden.",
+      [{ text: "OK" }]
+    );
+    return "";
   }
 };
