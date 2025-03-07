@@ -5,7 +5,7 @@ export const Colors = {
   light: {
     text: "#000000",
     background: "#fbf9f1",
-
+    border: "#000000",
     tint: tintColorLight,
     tabIconDefault: "#ccc",
     tabIconSelected: tintColorLight,
@@ -49,6 +49,7 @@ export const Colors = {
   dark: {
     text: "#d0d0c0",
     background: "#242c40",
+    border: "#ffffff",
     contrast: "#34495e",
     tint: tintColorDark,
     tabIconDefault: "#ccc",
@@ -112,7 +113,6 @@ export const Colors = {
     indexItemBackgroundColor: "#4fa1b8",
     error: "#dc3545",
     QuestionLinksIconContainer: "#057958",
-
   },
 };
 
@@ -121,5 +121,3 @@ export const Colors = {
 // background: "#e8f5e9",
 // alternative beige: fbf9f1
 // alternative  background: "#F7FDF8",
-
-

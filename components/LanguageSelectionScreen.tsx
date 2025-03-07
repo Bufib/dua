@@ -7,11 +7,10 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Image,
-  StatusBar,
-  ImageSourcePropType,
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "../context/LanguageContext";
+import { ThemedText } from "./ThemedText";
 
 const LanguageSelectionScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -22,14 +21,16 @@ const LanguageSelectionScreen: React.FC = () => {
     await completeFirstLaunch();
   };
 
-  // Type assertion for the image source
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>{t("welcome")}</Text>
-          <Text style={styles.subtitle}>{t("selectLanguage")}</Text>
+          <ThemedText type="subtitle">
+            {t("selectLanguage", { lng: "de" })}
+          </ThemedText>
+          <ThemedText type="subtitle">
+            {t("selectLanguage", { lng: "ar" })}
+          </ThemedText>
         </View>
 
         <View style={styles.languageOptions}>
@@ -67,26 +68,11 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
     justifyContent: "center",
+    gap: 10,
   },
   header: {
     alignItems: "center",
-    marginBottom: 60,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 12,
-    textAlign: "center",
-  },
-  subtitle: {
-    fontSize: 18,
-    color: "#666",
-    textAlign: "center",
+    gap: 20,
   },
   languageOptions: {
     marginTop: 30,

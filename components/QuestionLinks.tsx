@@ -13,6 +13,7 @@ import { CoustomTheme } from "../utils/coustomTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "./ThemedText";
 import { ScrollView } from "react-native";
+import { Colors } from "@/constants/Colors";
 
 export default function TextGrid() {
   const themeStyles = CoustomTheme();
@@ -21,8 +22,11 @@ export default function TextGrid() {
 
   // Create data for 6 text squares
   const textItems = [
-    { id: 1, title: "Dua", image: require("@/assets/images/dua.png") },
-    { id: 2, title: "Ziyarat", image: require("@/assets/images/ziyarat.png") },
+    { id: 0, title: "Dua", image: require("@/assets/images/dua.png") },
+    { id: 1, title: "Ziyarat", image: require("@/assets/images/ziyarat.png") },
+    { id: 2, title: "Salat", image: require("@/assets/images/ziyarat.png") },
+    { id: 3, title: "Munajat", image: require("@/assets/images/ziyarat.png") },
+    { id: 4, title: "Tasibeh", image: require("@/assets/images/ziyarat.png") },
   ];
 
   // Calculate grid dimensions based on screen size
@@ -31,12 +35,12 @@ export default function TextGrid() {
   const availableWidth = width - padding * 2;
   const columns = 2; // 2 columns for a grid of 6 items
   const itemWidth = (availableWidth - gridGap * (columns - 1)) / columns;
-
   return (
     <SafeAreaView
       edges={["top"]}
       style={[styles.container, themeStyles.defaultBackgorundColor]}
     >
+   
       <ScrollView
         style={styles.scrollStyle}
         contentContainerStyle={styles.contentContainerStyle}
@@ -47,7 +51,7 @@ export default function TextGrid() {
               key={item.id}
               onPress={() => {
                 router.push({
-                  pathname: "/(tabs)/home/category",
+                  pathname: "/test",
                   params: { textId: item.id },
                 });
               }}
@@ -57,9 +61,10 @@ export default function TextGrid() {
                   width: itemWidth,
                   height: itemWidth,
                   opacity: pressed ? 0.9 : 1,
-                  backgroundColor:
-                    colorScheme === "dark" ? "#2C2C2C" : "#FFFFFF",
                 },
+                item.id === 4 && { width: itemWidth * 2.07 },
+
+                themeStyles.contrast,
               ]}
             >
               <View style={styles.itemContent}>
@@ -83,22 +88,22 @@ export default function TextGrid() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
   },
   scrollStyle: {
     marginHorizontal: 10,
   },
+  
   contentContainerStyle: {
     flexGrow: 1,
-    alignItems: "center",
-    justifyContent: "center",
     paddingVertical: 20,
+    justifyContent: "center",
   },
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
     alignItems: "center",
+    alignSelf: "center",
     gap: 15,
   },
   gridItem: {

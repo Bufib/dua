@@ -171,43 +171,51 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <I18nextProvider i18n={i18n}>
         <LanguageProvider>
-        <LanguageGate>
-          <ReMountManager>
-            <NoInternet showUI={false} showToast={true} />
-            <QueryClientProvider client={queryClient}>
-              <SupabaseRealtimeProvider>
-                <SQLiteProvider databaseName="islam-fragen.db">
-                  <Stack
-                    screenOptions={{
-                      headerTintColor:
-                        colorScheme === "dark" ? "#d0d0c0" : "#000",
-                    }}
-                  >
-                    <Stack.Screen
-                      name="index"
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="(tabs)"
-                      options={{ headerShown: false }}
-                    />
-                    <Stack.Screen
-                      name="(search)"
-                      options={{
-                        headerShown: true,
-                        headerBackTitle: "Zurück",
-                        headerTitle: "Suche",
+          <LanguageGate>
+            <ReMountManager>
+              <NoInternet showUI={false} showToast={true} />
+              <QueryClientProvider client={queryClient}>
+                <SupabaseRealtimeProvider>
+                  <SQLiteProvider databaseName="islam-fragen.db">
+                    <Stack
+                      screenOptions={{
+                        headerTintColor:
+                          colorScheme === "dark" ? "#d0d0c0" : "#000",
                       }}
-                    />
+                    >
+                      <Stack.Screen
+                        name="index"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="(tabs)"
+                        options={{ headerShown: false }}
+                      />
+                      <Stack.Screen
+                        name="(search)"
+                        options={{
+                          headerShown: true,
+                          headerBackTitle: "Zurück",
+                          headerTitle: "Suche",
+                        }}
+                      />
+                      <Stack.Screen
+                        name="[id]"
+                        options={{
+                          headerShown: true,
+                          headerBackTitle: "Zurück",
+                          headerTitle: "Suche",
+                        }}
+                      />
 
-                    <Stack.Screen name="+not-found" />
-                  </Stack>
-                  <StatusBar style="auto" />
-                </SQLiteProvider>
-              </SupabaseRealtimeProvider>
-            </QueryClientProvider>
-            <Toast />
-          </ReMountManager>
+                      <Stack.Screen name="+not-found" />
+                    </Stack>
+                    <StatusBar style="auto" />
+                  </SQLiteProvider>
+                </SupabaseRealtimeProvider>
+              </QueryClientProvider>
+              <Toast />
+            </ReMountManager>
           </LanguageGate>
         </LanguageProvider>
       </I18nextProvider>

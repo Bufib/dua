@@ -9,17 +9,34 @@ import {
   setupConnectivityListener,
 } from "./checkNetwork";
 
-// Type definitions based on your table structure
+/**
+ * New TypeScript interfaces reflecting the updated schema.
+ */
+
 export interface Category {
-  category_id: number;
-  name: string;
-  description: string | null;
+  id: number;
+  title: string;
+  image: string | null;
+  parent_id?: number | null;
 }
 
-export interface Language {
-  language_id: number;
-  language_code: string;
-  language_name: string;
+export interface Prayer {
+  id: number;
+  category_id: number;
+  arabic: string;
+  german: string;
+  english: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * For convenience we combine prayer data with its category and the prayer text
+ * for the current UI language.
+ */
+export interface PrayerWithCategory extends Prayer {
+  category_title: string;
+  prayer_text: string;
 }
 
 export interface PayPal {
@@ -28,42 +45,10 @@ export interface PayPal {
   payPay_Link: string;
 }
 
-export interface Text {
-  text_id: number;
-  category_id: number;
-  created_at: string;
-  is_original: boolean;
-}
-
-export interface TextTranslation {
-  translation_id: number;
-  text_id: number;
-  language_id: number;
-  header: string;
-  body: string;
-  translated_at: string;
-}
-
 export interface Version {
   id: number;
   created_at: string;
   version: string;
-}
-
-export interface TextWithTranslation extends Text {
-  header: string;
-  body: string;
-  language_name: string;
-  language_code: string;
-  category_name: string;
-}
-
-export interface SearchResult {
-  text_id: number;
-  category_id: number;
-  header: string;
-  language_id: number;
-  language_code: string;
 }
 
 // Flag to ensure only one initialization runs at a time
@@ -99,15 +84,15 @@ export const initializeDatabase = async () => {
 
   if (!isOnline) {
     // When offline, check if local data already exists
-    const textCount = await getTextCount();
-    if (textCount > 0) {
+    const prayerCount = await getPrayerCount();
+    if (prayerCount > 0) {
       console.log(
         "Offline mode with existing data. Database considered initialized."
       );
       Alert.alert(
-        'Offline-Modus',
-        'Sie sind derzeit offline. Die bestehenden Inhalte werden angezeigt.',
-        [{ text: 'OK' }]
+        "Offline-Modus",
+        "Sie sind derzeit offline. Die bestehenden Inhalte werden angezeigt.",
+        [{ text: "OK" }]
       );
       return; // Data exists, so we consider the DB initialized
     }
@@ -116,9 +101,9 @@ export const initializeDatabase = async () => {
       "No internet connection and no local data available. Running in offline mode."
     );
     Alert.alert(
-      'Keine Verbindung',
-      'Sie sind offline und es sind keine Daten verfügbar. Bitte stellen Sie eine Internetverbindung her.',
-      [{ text: 'OK' }]
+      "Keine Verbindung",
+      "Sie sind offline und es sind keine Daten verfügbar. Bitte stellen Sie eine Internetverbindung her.",
+      [{ text: "OK" }]
     );
     // Set up a connectivity listener to re-initialize once online
     setupConnectivityListener(() => {
@@ -140,9 +125,9 @@ export const initializeDatabase = async () => {
         await fetchAndSyncAllData();
         await Storage.setItemSync("version", versionFromSupabase);
         Alert.alert(
-          'Daten geladen',
-          'Alle Inhalte wurden erfolgreich synchronisiert.',
-          [{ text: 'OK' }]
+          "Daten geladen",
+          "Alle Inhalte wurden erfolgreich synchronisiert.",
+          [{ text: "OK" }]
         );
       }
     } catch (error: any) {
@@ -151,9 +136,10 @@ export const initializeDatabase = async () => {
         error
       );
       Alert.alert(
-        'Fehler',
-        error.message || 'Beim Aktualisieren der Inhalte ist ein Fehler aufgetreten.',
-        [{ text: 'OK' }]
+        "Fehler",
+        error.message ||
+          "Beim Aktualisieren der Inhalte ist ein Fehler aufgetreten.",
+        [{ text: "OK" }]
       );
     }
   };
@@ -163,7 +149,13 @@ export const initializeDatabase = async () => {
 };
 
 /**
- * Create all necessary tables in SQLite
+ * Create all necessary tables in SQLite.
+ * 
+ * Changes:
+ * - The categories table now has: id, title, image, and parent_id for subcategories.
+ * - The prayers table stores the prayer text in Arabic, German, and English.
+ * - The favorites table now references a prayer (prayer_id).
+ * - Version and PayPal tables remain unchanged.
  */
 export const createTables = async () => {
   try {
@@ -174,53 +166,41 @@ export const createTables = async () => {
       PRAGMA foreign_keys = ON;
       
       CREATE TABLE IF NOT EXISTS categories (
-        category_id INTEGER PRIMARY KEY,
-        name TEXT NOT NULL,
-        description TEXT
-      );
-      
-      CREATE TABLE IF NOT EXISTS languages (
-        language_id INTEGER PRIMARY KEY,
-        language_code TEXT NOT NULL,
-        language_name TEXT NOT NULL
-      );
-      
-      CREATE TABLE IF NOT EXISTS paypal (
         id INTEGER PRIMARY KEY,
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        payPay_Link TEXT NOT NULL
+        title TEXT NOT NULL,
+        image TEXT,
+        parent_id INTEGER,
+        FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE
       );
       
-      CREATE TABLE IF NOT EXISTS texts (
-        text_id INTEGER PRIMARY KEY,
+      CREATE TABLE IF NOT EXISTS prayers (
+        id INTEGER PRIMARY KEY,
         category_id INTEGER NOT NULL,
+        arabic TEXT NOT NULL,
+        german TEXT NOT NULL,
+        english TEXT NOT NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        is_original BOOLEAN DEFAULT FALSE,
-        FOREIGN KEY (category_id) REFERENCES categories(category_id) ON DELETE CASCADE
-      );
-      
-      CREATE TABLE IF NOT EXISTS texttranslations (
-        translation_id INTEGER PRIMARY KEY,
-        text_id INTEGER NOT NULL,
-        language_id INTEGER NOT NULL,
-        header TEXT NOT NULL,
-        body TEXT NOT NULL,
-        translated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (text_id) REFERENCES texts(text_id) ON DELETE CASCADE,
-        FOREIGN KEY (language_id) REFERENCES languages(language_id) ON DELETE CASCADE
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
       );
       
       CREATE TABLE IF NOT EXISTS favorites (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        text_id INTEGER NOT NULL UNIQUE,
+        prayer_id INTEGER NOT NULL UNIQUE,
         added_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (text_id) REFERENCES texts(text_id) ON DELETE CASCADE
+        FOREIGN KEY (prayer_id) REFERENCES prayers(id) ON DELETE CASCADE
       );
       
       CREATE TABLE IF NOT EXISTS version (
         id INTEGER PRIMARY KEY,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         version TEXT NOT NULL
+      );
+      
+      CREATE TABLE IF NOT EXISTS paypal (
+        id INTEGER PRIMARY KEY,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        payPay_Link TEXT NOT NULL
       );
     `);
 
@@ -251,22 +231,21 @@ const fetchVersionFromSupabase = async (): Promise<string> => {
 };
 
 /**
- * Fetch and sync all data from Supabase to SQLite
+ * Fetch and sync all data from Supabase to SQLite.
+ * This now includes categories and prayers.
  */
 const fetchAndSyncAllData = async () => {
   try {
     await fetchAndSyncCategories();
-    await fetchAndSyncLanguages();
-    await fetchAndSyncTexts();
-    await fetchAndSyncTextTranslations();
+    await fetchAndSyncPrayers();
     await fetchPayPalLink();
     console.log("All data synced successfully");
   } catch (error) {
     console.error("Error syncing data:", error);
     Alert.alert(
-      'Synchronisierungsfehler',
-      'Die Daten konnten nicht synchronisiert werden. Bitte versuchen Sie es später erneut.',
-      [{ text: 'OK' }]
+      "Synchronisierungsfehler",
+      "Die Daten konnten nicht synchronisiert werden. Bitte versuchen Sie es später erneut.",
+      [{ text: "OK" }]
     );
     throw error;
   }
@@ -293,16 +272,17 @@ const fetchAndSyncCategories = async () => {
     await db.withExclusiveTransactionAsync(async (txn) => {
       const statement = await txn.prepareAsync(`
         INSERT OR REPLACE INTO categories
-        (category_id, name, description)
-        VALUES (?, ?, ?);
+        (id, title, image, parent_id)
+        VALUES (?, ?, ?, ?);
       `);
 
       try {
         for (const category of categories) {
           await statement.executeAsync([
-            category.category_id,
-            category.name,
-            category.description || null,
+            category.id,
+            category.title,
+            category.image || null,
+            category.parent_id || null,
           ]);
         }
       } finally {
@@ -317,62 +297,19 @@ const fetchAndSyncCategories = async () => {
   }
 };
 
-const fetchAndSyncLanguages = async () => {
+const fetchAndSyncPrayers = async () => {
   try {
-    const { data: languages, error } = await supabase
-      .from("languages")
+    const { data: prayers, error } = await supabase
+      .from("prayers")
       .select("*");
 
     if (error) {
-      console.error("Error fetching languages:", error);
+      console.error("Error fetching prayers:", error);
       return;
     }
 
-    if (!languages || languages.length === 0) {
-      console.log("No languages found in Supabase.");
-      return;
-    }
-
-    const db = await SQLite.openDatabaseAsync("content-database.db");
-
-    await db.withExclusiveTransactionAsync(async (txn) => {
-      const statement = await txn.prepareAsync(`
-        INSERT OR REPLACE INTO languages
-        (language_id, language_code, language_name)
-        VALUES (?, ?, ?);
-      `);
-
-      try {
-        for (const language of languages) {
-          await statement.executeAsync([
-            language.language_id,
-            language.language_code,
-            language.language_name,
-          ]);
-        }
-      } finally {
-        await statement.finalizeAsync();
-      }
-    });
-
-    console.log("Languages successfully synced to SQLite.");
-  } catch (error) {
-    console.error("Error in fetchAndSyncLanguages:", error);
-    throw error;
-  }
-};
-
-const fetchAndSyncTexts = async () => {
-  try {
-    const { data: texts, error } = await supabase.from("texts").select("*");
-
-    if (error) {
-      console.error("Error fetching texts:", error);
-      return;
-    }
-
-    if (!texts || texts.length === 0) {
-      console.log("No texts found in Supabase.");
+    if (!prayers || prayers.length === 0) {
+      console.log("No prayers found in Supabase.");
       return;
     }
 
@@ -380,18 +317,21 @@ const fetchAndSyncTexts = async () => {
 
     await db.withExclusiveTransactionAsync(async (txn) => {
       const statement = await txn.prepareAsync(`
-        INSERT OR REPLACE INTO texts
-        (text_id, category_id, created_at, is_original)
-        VALUES (?, ?, ?, ?);
+        INSERT OR REPLACE INTO prayers
+        (id, category_id, arabic, german, english, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?);
       `);
 
       try {
-        for (const text of texts) {
+        for (const prayer of prayers) {
           await statement.executeAsync([
-            text.text_id,
-            text.category_id,
-            text.created_at,
-            text.is_original ? 1 : 0,
+            prayer.id,
+            prayer.category_id,
+            prayer.arabic,
+            prayer.german,
+            prayer.english,
+            prayer.created_at,
+            prayer.updated_at,
           ]);
         }
       } finally {
@@ -399,57 +339,9 @@ const fetchAndSyncTexts = async () => {
       }
     });
 
-    console.log("Texts successfully synced to SQLite.");
+    console.log("Prayers successfully synced to SQLite.");
   } catch (error) {
-    console.error("Error in fetchAndSyncTexts:", error);
-    throw error;
-  }
-};
-
-const fetchAndSyncTextTranslations = async () => {
-  try {
-    const { data: translations, error } = await supabase
-      .from("texttranslations")
-      .select("*");
-
-    if (error) {
-      console.error("Error fetching text translations:", error);
-      return;
-    }
-
-    if (!translations || translations.length === 0) {
-      console.log("No text translations found in Supabase.");
-      return;
-    }
-
-    const db = await SQLite.openDatabaseAsync("content-database.db");
-
-    await db.withExclusiveTransactionAsync(async (txn) => {
-      const statement = await txn.prepareAsync(`
-        INSERT OR REPLACE INTO texttranslations
-        (translation_id, text_id, language_id, header, body, translated_at)
-        VALUES (?, ?, ?, ?, ?, ?);
-      `);
-
-      try {
-        for (const translation of translations) {
-          await statement.executeAsync([
-            translation.translation_id,
-            translation.text_id,
-            translation.language_id,
-            translation.header,
-            translation.body,
-            translation.translated_at,
-          ]);
-        }
-      } finally {
-        await statement.finalizeAsync();
-      }
-    });
-
-    console.log("Text translations successfully synced to SQLite.");
-  } catch (error) {
-    console.error("Error in fetchAndSyncTextTranslations:", error);
+    console.error("Error in fetchAndSyncPrayers:", error);
     throw error;
   }
 };
@@ -457,7 +349,7 @@ const fetchAndSyncTextTranslations = async () => {
 const fetchPayPalLink = async () => {
   try {
     const { data, error } = await supabase
-      .from("payPal")
+      .from("paypal")
       .select("payPay_Link")
       .single();
 
@@ -495,7 +387,7 @@ const setupSubscriptions = () => {
         try {
           console.log("Version change received!", payload);
           await initializeDatabase(); // Re-fetch data if version changes
-          router.replace("/(tabs)/home/");
+          router.replace("/(tabs)/home");
           Alert.alert(
             "Inhalte aktualisiert",
             "Neue Inhalte sind jetzt verfügbar.",
@@ -515,19 +407,19 @@ const setupSubscriptions = () => {
 
   // Subscribe to PayPal table changes
   supabase
-    .channel("payPal")
+    .channel("paypal")
     .on(
       "postgres_changes",
-      { event: "*", schema: "public", table: "payPal" },
+      { event: "*", schema: "public", table: "paypal" },
       async (payload) => {
         try {
           console.log("PayPal change received!", payload);
           await fetchPayPalLink();
-          router.replace("/(tabs)/home/");
+          router.replace("/(tabs)/home");
           Alert.alert(
-            'Inhalte aktualisiert',
-            'Neue Inhalte sind jetzt verfügbar.',
-            [{ text: 'OK' }]
+            "Inhalte aktualisiert",
+            "Neue Inhalte sind jetzt verfügbar.",
+            [{ text: "OK" }]
           );
         } catch (error) {
           console.error("Error handling PayPal change:", error);
@@ -543,76 +435,71 @@ const setupSubscriptions = () => {
 };
 
 /**
- * Get the number of texts in the local database
+ * Get the number of prayers in the local database.
  */
-export const getTextCount = async (): Promise<number> => {
+export const getPrayerCount = async (): Promise<number> => {
   try {
     const db = await SQLite.openDatabaseAsync("content-database.db");
     const result = await db.getFirstAsync<{ count: number }>(
-      "SELECT COUNT(*) as count FROM texts;"
+      "SELECT COUNT(*) as count FROM prayers;"
     );
     return result?.count ?? 0;
   } catch (error) {
-    console.error("Error getting text count:", error);
+    console.error("Error getting prayer count:", error);
     return 0;
   }
 };
 
 /**
- * Favorites management functions
+ * Favorites management functions for prayers.
  */
-export const addTextToFavorites = async (textId: number): Promise<void> => {
+export const addPrayerToFavorites = async (prayerId: number): Promise<void> => {
   try {
     const db = await SQLite.openDatabaseAsync("content-database.db");
-    await db.runAsync("INSERT OR IGNORE INTO favorites (text_id) VALUES (?);", [
-      textId,
-    ]);
-    console.log(`Text ${textId} added to favorites.`);
-    Alert.alert(
-      "Favoriten",
-      "Text zu Favoriten hinzugefügt.",
-      [{ text: "OK" }]
+    await db.runAsync(
+      "INSERT OR IGNORE INTO favorites (prayer_id) VALUES (?);",
+      [prayerId]
     );
+    console.log(`Prayer ${prayerId} added to favorites.`);
+    Alert.alert("Favoriten", "Gebet zu Favoriten hinzugefügt.", [
+      { text: "OK" },
+    ]);
   } catch (error) {
     console.error("Error adding to favorites:", error);
-    Alert.alert(
-      "Fehler",
-      "Text konnte nicht zu Favoriten hinzugefügt werden.",
-      [{ text: "OK" }]
-    );
+    Alert.alert("Fehler", "Gebet konnte nicht zu Favoriten hinzugefügt werden.", [
+      { text: "OK" },
+    ]);
     throw error;
   }
 };
 
-export const removeTextFromFavorites = async (
-  textId: number
+export const removePrayerFromFavorites = async (
+  prayerId: number
 ): Promise<void> => {
   try {
     const db = await SQLite.openDatabaseAsync("content-database.db");
-    await db.runAsync("DELETE FROM favorites WHERE text_id = ?;", [textId]);
-    console.log(`Text ${textId} removed from favorites.`);
-    Alert.alert(
-      "Favoriten",
-      "Text aus Favoriten entfernt.",
-      [{ text: "OK" }]
-    );
+    await db.runAsync("DELETE FROM favorites WHERE prayer_id = ?;", [prayerId]);
+    console.log(`Prayer ${prayerId} removed from favorites.`);
+    Alert.alert("Favoriten", "Gebet aus Favoriten entfernt.", [
+      { text: "OK" },
+    ]);
   } catch (error) {
     console.error("Error removing from favorites:", error);
-    Alert.alert(
-      "Fehler",
-      "Text konnte nicht aus Favoriten entfernt werden.",
-      [{ text: "OK" }]
-    );
+    Alert.alert("Fehler", "Gebet konnte nicht aus Favoriten entfernt werden.", [
+      { text: "OK" },
+    ]);
     throw error;
   }
 };
 
-export const isTextInFavorites = async (textId: number): Promise<boolean> => {
+export const isPrayerInFavorites = async (
+  prayerId: number
+): Promise<boolean> => {
   try {
     const db = await SQLite.openDatabaseAsync("content-database.db");
     const result = await db.getFirstAsync<{ count: number }>(
-      "SELECT COUNT(*) as count FROM favorites WHERE text_id = ?;",
-      [textId]
+      "SELECT COUNT(*) as count FROM favorites WHERE prayer_id = ?;",
+      [prayerId]
     );
     return (result?.count ?? 0) > 0;
   } catch (error) {
@@ -621,29 +508,34 @@ export const isTextInFavorites = async (textId: number): Promise<boolean> => {
   }
 };
 
-export const getFavoriteTexts = async (
-  languageId: number
-): Promise<TextWithTranslation[]> => {
+export const getFavoritePrayers = async (
+  language: "arabic" | "german" | "transliteration"
+): Promise<PrayerWithCategory[]> => {
   try {
     const db = await SQLite.openDatabaseAsync("content-database.db");
-    const rows = await db.getAllAsync<TextWithTranslation>(
-      `SELECT 
-        t.text_id, t.category_id, t.created_at, t.is_original,
-        tt.header, tt.body, tt.translated_at,
-        l.language_name, l.language_code,
-        c.name as category_name
-      FROM texts t
-      INNER JOIN favorites f ON t.text_id = f.text_id
-      INNER JOIN texttranslations tt ON t.text_id = tt.text_id
-      INNER JOIN languages l ON tt.language_id = l.language_id
-      INNER JOIN categories c ON t.category_id = c.category_id
-      WHERE tt.language_id = ?
-      ORDER BY f.added_at DESC;`,
-      [languageId]
-    );
+    const rows = await db.getAllAsync<PrayerWithCategory>(`
+      SELECT 
+        p.id,
+        p.category_id,
+        p.arabic,
+        p.german,
+        p.transliteration,
+        p.created_at,
+        p.updated_at,
+        c.title as category_title,
+        CASE ? 
+          WHEN 'arabic' THEN p.arabic 
+          WHEN 'german' THEN p.german 
+          WHEN 'transliteration' THEN p.transliteration 
+        END as prayer_text
+      FROM prayers p
+      INNER JOIN favorites f ON p.id = f.prayer_id
+      INNER JOIN categories c ON p.category_id = c.id
+      ORDER BY f.added_at DESC;
+    `, [language]);
     return rows;
   } catch (error) {
-    console.error("Error retrieving favorite texts:", error);
+    console.error("Error retrieving favorite prayers:", error);
     Alert.alert(
       "Fehler",
       "Favoriten konnten nicht geladen werden.",
@@ -654,7 +546,8 @@ export const getFavoriteTexts = async (
 };
 
 /**
- * Content retrieval functions
+ * Content retrieval functions for prayers.
+ * The queries use a CASE expression to return the appropriate prayer text based on the selected language.
  */
 export const getCategories = async (): Promise<Category[]> => {
   try {
@@ -672,113 +565,130 @@ export const getCategories = async (): Promise<Category[]> => {
   }
 };
 
-export const getLanguages = async (): Promise<Language[]> => {
-  try {
-    const db = await SQLite.openDatabaseAsync("content-database.db");
-    const rows = await db.getAllAsync<Language>("SELECT * FROM languages;");
-    return rows;
-  } catch (error) {
-    console.error("Error fetching languages:", error);
-    Alert.alert(
-      "Fehler",
-      "Sprachen konnten nicht geladen werden.",
-      [{ text: "OK" }]
-    );
-    throw error;
-  }
-};
-
-export const getTextsForCategory = async (
+export const getPrayersForCategory = async (
   categoryId: number,
-  languageId: number
-): Promise<TextWithTranslation[]> => {
+  language: "arabic" | "german" | "transliteration"
+): Promise<PrayerWithCategory[]> => {
   try {
     const db = await SQLite.openDatabaseAsync("content-database.db");
-    const rows = await db.getAllAsync<TextWithTranslation>(
-      `SELECT 
-        t.text_id, t.category_id, t.created_at, t.is_original,
-        tt.header, tt.body, tt.translated_at,
-        l.language_name, l.language_code,
-        c.name as category_name
-      FROM texts t
-      INNER JOIN texttranslations tt ON t.text_id = tt.text_id
-      INNER JOIN languages l ON tt.language_id = l.language_id
-      INNER JOIN categories c ON t.category_id = c.category_id
-      WHERE t.category_id = ? AND tt.language_id = ?;`,
-      [categoryId, languageId]
-    );
+    const query = `
+      SELECT 
+        p.id,
+        p.category_id,
+        p.arabic,
+        p.german,
+        p.transliteration,
+        p.created_at,
+        p.updated_at,
+        c.title as category_title,
+        CASE ? 
+          WHEN 'arabic' THEN p.arabic 
+          WHEN 'german' THEN p.german 
+          WHEN 'english' THEN p.english 
+        END as prayer_text
+      FROM prayers p
+      INNER JOIN categories c ON p.category_id = c.id
+      WHERE p.category_id = ?;
+    `;
+    const rows = await db.getAllAsync<PrayerWithCategory>(query, [
+      language,
+      categoryId,
+    ]);
     return rows;
   } catch (error) {
-    console.error("Error fetching texts for category:", error);
+    console.error("Error fetching prayers for category:", error);
     Alert.alert(
       "Fehler",
-      "Texte für diese Kategorie konnten nicht geladen werden.",
+      "Gebete für diese Kategorie konnten nicht geladen werden.",
       [{ text: "OK" }]
     );
     throw error;
   }
 };
 
-export const getText = async (
-  textId: number,
-  languageId: number
-): Promise<TextWithTranslation | null> => {
+export const getPrayer = async (
+  prayerId: number,
+  language: "arabic" | "german" | "english"
+): Promise<PrayerWithCategory | null> => {
   try {
     const db = await SQLite.openDatabaseAsync("content-database.db");
-    const row = await db.getFirstAsync<TextWithTranslation>(
-      `SELECT 
-        t.text_id, t.category_id, t.created_at, t.is_original,
-        tt.header, tt.body, tt.translated_at,
-        l.language_name, l.language_code,
-        c.name as category_name
-      FROM texts t
-      INNER JOIN texttranslations tt ON t.text_id = tt.text_id
-      INNER JOIN languages l ON tt.language_id = l.language_id
-      INNER JOIN categories c ON t.category_id = c.category_id
-      WHERE t.text_id = ? AND tt.language_id = ?;`,
-      [textId, languageId]
-    );
+    const query = `
+      SELECT 
+        p.id,
+        p.category_id,
+        p.arabic,
+        p.german,
+        p.english,
+        p.created_at,
+        p.updated_at,
+        c.title as category_title,
+        CASE ? 
+          WHEN 'arabic' THEN p.arabic 
+          WHEN 'german' THEN p.german 
+          WHEN 'english' THEN p.english 
+        END as prayer_text
+      FROM prayers p
+      INNER JOIN categories c ON p.category_id = c.id
+      WHERE p.id = ?;
+    `;
+    const row = await db.getFirstAsync<PrayerWithCategory>(query, [
+      language,
+      prayerId,
+    ]);
     return row;
   } catch (error) {
-    console.error("Error fetching text:", error);
+    console.error("Error fetching prayer:", error);
     Alert.alert(
       "Fehler",
-      "Text konnte nicht geladen werden.",
+      "Gebet konnte nicht geladen werden.",
       [{ text: "OK" }]
     );
     throw error;
   }
 };
 
-export const searchTexts = async (
+export const searchPrayers = async (
   searchTerm: string,
-  languageId: number
-): Promise<SearchResult[]> => {
+  language: "arabic" | "german" | "english"
+): Promise<PrayerWithCategory[]> => {
   try {
     const db = await SQLite.openDatabaseAsync("content-database.db");
-    const rows = await db.getAllAsync<SearchResult>(
-      `SELECT 
-        t.text_id, t.category_id,
-        tt.header,
-        l.language_id, l.language_code
-      FROM texts t
-      INNER JOIN texttranslations tt ON t.text_id = tt.text_id
-      INNER JOIN languages l ON tt.language_id = l.language_id
-      WHERE tt.language_id = ? AND (tt.header LIKE ? OR tt.body LIKE ?);`,
-      [languageId, `%${searchTerm}%`, `%${searchTerm}%`]
-    );
+    const query = `
+      SELECT 
+        p.id,
+        p.category_id,
+        p.arabic,
+        p.german,
+        p.english,
+        p.created_at,
+        p.updated_at,
+        c.title as category_title,
+        CASE ? 
+          WHEN 'arabic' THEN p.arabic 
+          WHEN 'german' THEN p.german 
+          WHEN 'english' THEN p.english 
+        END as prayer_text
+      FROM prayers p
+      INNER JOIN categories c ON p.category_id = c.id
+      WHERE (CASE ? 
+               WHEN 'arabic' THEN p.arabic 
+               WHEN 'german' THEN p.german 
+               WHEN 'english' THEN p.english 
+             END) LIKE ?;
+    `;
+    const rows = await db.getAllAsync<PrayerWithCategory>(query, [
+      language,
+      language,
+      `%${searchTerm}%`,
+    ]);
     
     if (rows.length === 0) {
-      Alert.alert(
-        "Suche",
-        "Keine Ergebnisse gefunden.",
-        [{ text: "OK" }]
-      );
+      Alert.alert("Suche", "Keine Ergebnisse gefunden.", [{ text: "OK" }]);
     }
     
     return rows;
   } catch (error) {
-    console.error("Error searching texts:", error);
+    console.error("Error searching prayers:", error);
     Alert.alert(
       "Fehler",
       "Suche konnte nicht durchgeführt werden.",
@@ -788,33 +698,42 @@ export const searchTexts = async (
   }
 };
 
-export const getLatestTexts = async (
+export const getLatestPrayers = async (
   limit: number = 10,
-  languageId: number
-): Promise<TextWithTranslation[]> => {
+  language: "arabic" | "german" | "english"
+): Promise<PrayerWithCategory[]> => {
   try {
     const db = await SQLite.openDatabaseAsync("content-database.db");
-    const rows = await db.getAllAsync<TextWithTranslation>(
-      `SELECT 
-        t.text_id, t.category_id, t.created_at, t.is_original,
-        tt.header, tt.body, tt.translated_at,
-        l.language_name, l.language_code,
-        c.name as category_name
-      FROM texts t
-      INNER JOIN texttranslations tt ON t.text_id = tt.text_id
-      INNER JOIN languages l ON tt.language_id = l.language_id
-      INNER JOIN categories c ON t.category_id = c.category_id
-      WHERE tt.language_id = ?
-      ORDER BY datetime(t.created_at) DESC
-      LIMIT ?;`,
-      [languageId, limit]
-    );
+    const query = `
+      SELECT 
+        p.id,
+        p.category_id,
+        p.arabic,
+        p.german,
+        p.english,
+        p.created_at,
+        p.updated_at,
+        c.title as category_title,
+        CASE ? 
+          WHEN 'arabic' THEN p.arabic 
+          WHEN 'german' THEN p.german 
+          WHEN 'english' THEN p.english 
+        END as prayer_text
+      FROM prayers p
+      INNER JOIN categories c ON p.category_id = c.id
+      ORDER BY datetime(p.created_at) DESC
+      LIMIT ?;
+    `;
+    const rows = await db.getAllAsync<PrayerWithCategory>(query, [
+      language,
+      limit,
+    ]);
     return rows;
   } catch (error) {
-    console.error("Error retrieving latest texts:", error);
+    console.error("Error retrieving latest prayers:", error);
     Alert.alert(
       "Fehler",
-      "Aktuelle Texte konnten nicht geladen werden.",
+      "Aktuelle Gebete konnten nicht geladen werden.",
       [{ text: "OK" }]
     );
     throw error;
