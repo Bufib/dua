@@ -72,3 +72,17 @@ export type Sizes = {
   imageSize: number;
   gap: number;
 }
+
+export type PrayerTranslation = {
+  id: number;
+  prayer_id: number;
+  language_code: string; // "arabic", "german", "english", or "transliteration"
+  title: string;
+  arabic_title: string;
+  introduction?: string;
+  main_body: string;
+  notes?: string;
+  source?: string;
+  created_at: string;
+  updated_at: string;
+}
