@@ -19,71 +19,104 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "./ThemedText";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from 'expo-haptics';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useTranslation } from 'react-i18next';
-import { useLanguage } from '@/context/LanguageContext';
+import * as Haptics from "expo-haptics";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/context/LanguageContext";
 
 // Storage key for weekly calendar todos
-const WEEKLY_TODOS_STORAGE_KEY = 'prayer_app_weekly_todos';
+const WEEKLY_TODOS_STORAGE_KEY = "prayer_app_weekly_todos";
 
-export default function HomeScreen() {
+// TypeScript interfaces
+interface TodoItem {
+  id: number;
+  text: string;
+  completed: boolean;
+}
+
+interface WeeklyTodos {
+  [key: string]: TodoItem[];
+}
+
+interface TodoToDelete {
+  dayIndex: number | null;
+  todoId: number | null;
+}
+
+interface CategoryItem {
+  id: number;
+  title: string;
+  image: any;
+}
+
+interface PrayerData {
+  title: string;
+  text: string;
+  category: string;
+}
+
+interface PrayersByLanguage {
+  [key: string]: PrayerData;
+}
+
+const HomeScreen: React.FC = () => {
   const themeStyles = CoustomTheme();
   const { width } = useWindowDimensions();
   const colorScheme: ColorSchemeName = useColorScheme() || "light";
-  const [weeklyTodos, setWeeklyTodos] = useState({});
-  const [selectedDay, setSelectedDay] = useState(null);
-  const [newTodo, setNewTodo] = useState("");
-  const [addModalVisible, setAddModalVisible] = useState(false);
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
-  const [todoToDelete, setTodoToDelete] = useState({ dayIndex: null, todoId: null });
+  const [weeklyTodos, setWeeklyTodos] = useState<WeeklyTodos>({});
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [newTodo, setNewTodo] = useState<string>("");
+  const [addModalVisible, setAddModalVisible] = useState<boolean>(false);
+  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
+  const [todoToDelete, setTodoToDelete] = useState<TodoToDelete>({
+    dayIndex: null,
+    todoId: null,
+  });
   const { t } = useTranslation();
   const { language } = useLanguage();
-  
+
   // Prayer categories using translations
-  const categories = [
+  const categories: CategoryItem[] = [
     { id: 0, title: t("dua"), image: require("@/assets/images/dua.png") },
-    { id: 1, title: t("ziyarat"), image: require("@/assets/images/ziyarat.png") },
+    {
+      id: 1,
+      title: t("ziyarat"),
+      image: require("@/assets/images/ziyarat.png"),
+    },
     { id: 2, title: t("salat"), image: require("@/assets/images/ziyarat.png") },
-    { id: 3, title: t("munajat"), image: require("@/assets/images/ziyarat.png") },
-    { id: 4, title: t("tasibeh"), image: require("@/assets/images/ziyarat.png") },
+    {
+      id: 3,
+      title: t("munajat"),
+      image: require("@/assets/images/ziyarat.png"),
+    },
+    {
+      id: 4,
+      title: t("tasibeh"),
+      image: require("@/assets/images/ziyarat.png"),
+    },
   ];
 
   // Multilingual today's prayer data
-  const todaysPrayers = {
+  const todaysPrayers: PrayersByLanguage = {
     de: {
       title: "Das Morgengebet",
       text: "O Allah, ich bitte Dich um einen gesegneten Tag, nützliches Wissen und gute Taten. Führe mich auf dem rechten Weg und vergib mir meine Sünden.",
-      category: "Dua"
+      category: "Dua",
     },
     ar: {
       title: "صلاة الصباح",
       text: "اللهم إني أسألك يومًا مباركًا، وعلمًا نافعًا، وعملًا صالحًا. اهدني إلى الصراط المستقيم واغفر لي ذنوبي.",
-      category: "دعاء"
+      category: "دعاء",
     },
     en: {
       title: "Morning Prayer",
       text: "O Allah, I ask You for a blessed day, beneficial knowledge, and good deeds. Guide me to the straight path and forgive my sins.",
-      category: "Dua"
-    }
-  };
-
-  // Days of the week in different languages (short forms for day selector)
-  const weekDays = {
-    de: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
-    ar: ['إث', 'ثل', 'أر', 'خم', 'جم', 'سب', 'أح'],
-    en: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  };
-
-  // Full day names for display in headings and modals
-  const fullDayNames = {
-    de: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'],
-    ar: ['الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد'],
-    en: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+      category: "Dua",
+    },
   };
 
   // Default prayers for each day in multiple languages
-  const defaultWeeklyTodos = {
+  const defaultWeeklyTodos: { [key: string]: WeeklyTodos } = {
     de: {
       0: [{ id: 1, text: "Morgengebet", completed: false }],
       1: [{ id: 2, text: "Mittagsgebet", completed: false }],
@@ -91,7 +124,7 @@ export default function HomeScreen() {
       3: [{ id: 4, text: "Dankbarkeit üben", completed: false }],
       4: [{ id: 5, text: "Freitagsgebet", completed: false }],
       5: [{ id: 6, text: "Quran lesen", completed: false }],
-      6: [{ id: 7, text: "Zeit mit Familie verbringen", completed: false }]
+      6: [{ id: 7, text: "Zeit mit Familie verbringen", completed: false }],
     },
     ar: {
       0: [{ id: 1, text: "صلاة الصبح", completed: false }],
@@ -100,7 +133,7 @@ export default function HomeScreen() {
       3: [{ id: 4, text: "ممارسة الامتنان", completed: false }],
       4: [{ id: 5, text: "صلاة الجمعة", completed: false }],
       5: [{ id: 6, text: "قراءة القرآن", completed: false }],
-      6: [{ id: 7, text: "قضاء وقت مع العائلة", completed: false }]
+      6: [{ id: 7, text: "قضاء وقت مع العائلة", completed: false }],
     },
     en: {
       0: [{ id: 1, text: "Morning prayer", completed: false }],
@@ -109,38 +142,44 @@ export default function HomeScreen() {
       3: [{ id: 4, text: "Practice gratitude", completed: false }],
       4: [{ id: 5, text: "Friday prayer", completed: false }],
       5: [{ id: 6, text: "Read Quran", completed: false }],
-      6: [{ id: 7, text: "Spend time with family", completed: false }]
-    }
+      6: [{ id: 7, text: "Spend time with family", completed: false }],
+    },
   };
 
   // Get current day of week (0-6, Monday-Sunday)
-  const getCurrentDayIndex = () => {
+  const getCurrentDayIndex = (): number => {
     const day = new Date().getDay();
     // Convert from Sunday-Saturday (0-6) to Monday-Sunday (0-6)
     return day === 0 ? 6 : day - 1;
   };
 
   // Get today's prayer based on language
-  const getTodaysPrayer = () => {
+  const getTodaysPrayer = (): PrayerData => {
     return todaysPrayers[language] || todaysPrayers.en;
   };
 
   // Load todos from storage
   useEffect(() => {
-    const loadTodos = async () => {
+    const loadTodos = async (): Promise<void> => {
       try {
-        const storedTodos = await AsyncStorage.getItem(WEEKLY_TODOS_STORAGE_KEY);
+        const storedTodos = await AsyncStorage.getItem(
+          WEEKLY_TODOS_STORAGE_KEY
+        );
         if (storedTodos !== null) {
           setWeeklyTodos(JSON.parse(storedTodos));
         } else {
           // Set default todos based on language if no saved todos
-          const defaultTodos = defaultWeeklyTodos[language] || defaultWeeklyTodos.en;
+          const defaultTodos =
+            defaultWeeklyTodos[language] || defaultWeeklyTodos.en;
           setWeeklyTodos(defaultTodos);
           // Save default todos to storage
-          await AsyncStorage.setItem(WEEKLY_TODOS_STORAGE_KEY, JSON.stringify(defaultTodos));
+          await AsyncStorage.setItem(
+            WEEKLY_TODOS_STORAGE_KEY,
+            JSON.stringify(defaultTodos)
+          );
         }
       } catch (error) {
-        console.error('Error loading todos:', error);
+        console.error("Error loading todos:", error);
         setWeeklyTodos(defaultWeeklyTodos[language] || defaultWeeklyTodos.en);
       }
     };
@@ -152,11 +191,14 @@ export default function HomeScreen() {
 
   // Save todos to storage when they change
   useEffect(() => {
-    const saveTodos = async () => {
+    const saveTodos = async (): Promise<void> => {
       try {
-        await AsyncStorage.setItem(WEEKLY_TODOS_STORAGE_KEY, JSON.stringify(weeklyTodos));
+        await AsyncStorage.setItem(
+          WEEKLY_TODOS_STORAGE_KEY,
+          JSON.stringify(weeklyTodos)
+        );
       } catch (error) {
-        console.error('Error saving todos:', error);
+        console.error("Error saving todos:", error);
       }
     };
 
@@ -166,76 +208,79 @@ export default function HomeScreen() {
   }, [weeklyTodos]);
 
   // Toggle todo completion status
-  const toggleTodo = (dayIndex, todoId) => {
+  const toggleTodo = (dayIndex: number, todoId: number): void => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    
-    setWeeklyTodos(prevTodos => {
+
+    setWeeklyTodos((prevTodos) => {
       const dayTodos = [...(prevTodos[dayIndex] || [])];
-      const updatedDayTodos = dayTodos.map(todo => 
+      const updatedDayTodos = dayTodos.map((todo) =>
         todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
       );
-      
+
       return {
         ...prevTodos,
-        [dayIndex]: updatedDayTodos
+        [dayIndex]: updatedDayTodos,
       };
     });
   };
 
   // Add new todo to selected day
-  const addTodo = () => {
+  const addTodo = (): void => {
     if (newTodo.trim() && selectedDay !== null) {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      
-      setWeeklyTodos(prevTodos => {
+
+      setWeeklyTodos((prevTodos) => {
         const dayTodos = [...(prevTodos[selectedDay] || [])];
-        const updatedDayTodos = [...dayTodos, { 
-          id: Date.now(), 
-          text: newTodo.trim(), 
-          completed: false 
-        }];
-        
+        const updatedDayTodos = [
+          ...dayTodos,
+          {
+            id: Date.now(),
+            text: newTodo.trim(),
+            completed: false,
+          },
+        ];
+
         return {
           ...prevTodos,
-          [selectedDay]: updatedDayTodos
+          [selectedDay]: updatedDayTodos,
         };
       });
-      
+
       setNewTodo("");
       setAddModalVisible(false);
     }
   };
 
   // Show delete confirmation
-  const showDeleteConfirmation = (dayIndex, todoId) => {
+  const showDeleteConfirmation = (dayIndex: number, todoId: number): void => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setTodoToDelete({ dayIndex, todoId });
     setDeleteModalVisible(true);
   };
 
   // Confirm and delete todo
-  const confirmDelete = () => {
+  const confirmDelete = (): void => {
     const { dayIndex, todoId } = todoToDelete;
-    
+
     if (dayIndex !== null && todoId !== null) {
-      setWeeklyTodos(prevTodos => {
+      setWeeklyTodos((prevTodos) => {
         const dayTodos = [...(prevTodos[dayIndex] || [])];
-        const updatedDayTodos = dayTodos.filter(todo => todo.id !== todoId);
-        
+        const updatedDayTodos = dayTodos.filter((todo) => todo.id !== todoId);
+
         return {
           ...prevTodos,
-          [dayIndex]: updatedDayTodos
+          [dayIndex]: updatedDayTodos,
         };
       });
     }
-    
+
     setDeleteModalVisible(false);
     setTodoToDelete({ dayIndex: null, todoId: null });
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
 
   // Cancel delete
-  const cancelDelete = () => {
+  const cancelDelete = (): void => {
     setDeleteModalVisible(false);
     setTodoToDelete({ dayIndex: null, todoId: null });
   };
@@ -243,90 +288,39 @@ export default function HomeScreen() {
   // Get current prayer data
   const todaysPrayer = getTodaysPrayer();
 
-  // Get day names based on current language
-  const getDayNames = () => {
-    return weekDays[language] || weekDays.en;
+  // Get short day names (for day selector buttons)
+  const getDayNames = (): string[] => {
+    return (
+      t("days.short", { returnObjects: true }) || [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun",
+      ]
+    );
   };
 
   // Get full day name for selected day
-  const getFullDayName = (dayIndex) => {
-    const names = fullDayNames[language] || fullDayNames.en;
+  const getFullDayName = (dayIndex: number): string => {
+    const names: string[] = t("days.full", { returnObjects: true }) || [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
     return names[dayIndex];
   };
 
-  // Placeholder translations for UI elements not in the provided i18n
-  const uiTranslations = {
-    todaysPrayer: {
-      de: "Heutiges Gebet",
-      ar: "صلاة اليوم",
-      en: "Today's Prayer"
-    },
-    readMore: {
-      de: "Vollständig lesen",
-      ar: "قراءة المزيد",
-      en: "Read more"
-    },
-    categories: {
-      de: "Kategorien",
-      ar: "الفئات",
-      en: "Categories"
-    },
-    weeklyPrayers: {
-      de: "Gebetsplan für die Woche",
-      ar: "جدول الصلاة الأسبوعي",
-      en: "Weekly Prayer Schedule"
-    },
-    addPrayer: {
-      de: "Gebet hinzufügen",
-      ar: "إضافة صلاة",
-      en: "Add Prayer"
-    },
-    addForDay: {
-      de: "Gebet hinzufügen für",
-      ar: "إضافة صلاة ليوم",
-      en: "Add prayer for"
-    },
-    enterPrayer: {
-      de: "Geben Sie das Gebet ein...",
-      ar: "أدخل الصلاة...",
-      en: "Enter prayer..."
-    },
-    add: {
-      de: "Hinzufügen",
-      ar: "إضافة",
-      en: "Add"
-    },
-    cancel: {
-      de: "Abbrechen",
-      ar: "إلغاء",
-      en: "Cancel"
-    },
-    confirmDelete: {
-      de: "Löschen bestätigen",
-      ar: "تأكيد الحذف",
-      en: "Confirm Deletion"
-    },
-    deleteQuestion: {
-      de: "Möchten Sie dieses Gebet wirklich löschen?",
-      ar: "هل أنت متأكد أنك تريد حذف هذه الصلاة؟",
-      en: "Are you sure you want to delete this prayer?"
-    },
-    delete: {
-      de: "Löschen",
-      ar: "حذف",
-      en: "Delete"
-    }
-  };
-
-  // Get text based on current language
-  const getText = (textObj) => {
-    return textObj[language] || textObj.en;
-  };
-
   // Right-to-left text direction for Arabic
-  const isRTL = language === 'ar';
-  const textAlign = isRTL ? { textAlign: 'right' } : {};
-  const flexDirection = isRTL ? { flexDirection: 'row-reverse' } : {};
+  const isRTL = language === "ar";
+  const textAlign = isRTL ? { textAlign: "right" as const } : {};
+  const flexDirection = isRTL ? { flexDirection: "row-reverse" as const } : {};
 
   return (
     <SafeAreaView
@@ -340,32 +334,44 @@ export default function HomeScreen() {
         {/* Today's Prayer Section */}
         <View style={[styles.todaysPrayerCard, themeStyles.contrast]}>
           <View style={[styles.prayerHeader, flexDirection]}>
-            <ThemedText style={styles.todayTitle}>{getText(uiTranslations.todaysPrayer)}</ThemedText>
+            <ThemedText style={styles.todayTitle}>
+              {t("todaysPrayer")}
+            </ThemedText>
             <View style={styles.prayerCategory}>
-              <ThemedText style={styles.categoryText}>{todaysPrayer.category}</ThemedText>
+              <ThemedText style={styles.categoryText}>
+                {todaysPrayer.category}
+              </ThemedText>
             </View>
           </View>
-          <ThemedText style={[styles.prayerTitle, textAlign]}>{todaysPrayer.title}</ThemedText>
-          <ThemedText style={[styles.prayerText, textAlign]}>{todaysPrayer.text}</ThemedText>
-          <TouchableOpacity 
+          <ThemedText style={[styles.prayerTitle, textAlign]}>
+            {todaysPrayer.title}
+          </ThemedText>
+          <ThemedText style={[styles.prayerText, textAlign]}>
+            {todaysPrayer.text}
+          </ThemedText>
+          <TouchableOpacity
             style={[
-              styles.readMoreButton, 
-              { backgroundColor: colorScheme === 'dark' ? '#333' : '#f0f0f0' },
-              isRTL ? { alignSelf: 'flex-end' } : { alignSelf: 'flex-start' }
+              styles.readMoreButton,
+              { backgroundColor: colorScheme === "dark" ? "#333" : "#f0f0f0" },
+              isRTL ? { alignSelf: "flex-end" } : { alignSelf: "flex-start" },
             ]}
-            onPress={() => router.push({
-              pathname: "/(tabs)/home/(prayer)/[prayer]",
-              params: { prayerId: 1, prayerTitle: todaysPrayer.title },
-            })}
+            onPress={() =>
+              router.push({
+                pathname: "/(tabs)/home/(prayer)/[prayer]",
+                params: { prayerId: 1, prayerTitle: todaysPrayer.title },
+              })
+            }
           >
-            <ThemedText style={styles.readMoreText}>{getText(uiTranslations.readMore)}</ThemedText>
+            <ThemedText style={styles.readMoreText}>{t("readMore")}</ThemedText>
           </TouchableOpacity>
         </View>
 
         {/* Categories Row */}
-        <ThemedText style={[styles.sectionTitle, textAlign]}>{getText(uiTranslations.categories)}</ThemedText>
-        <ScrollView 
-          horizontal 
+        <ThemedText style={[styles.sectionTitle, textAlign]}>
+          {t("categories")}
+        </ThemedText>
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesContainer}
           // RTL scroll for Arabic
@@ -394,7 +400,9 @@ export default function HomeScreen() {
                 style={styles.categoryImage}
                 contentFit="contain"
               />
-              <ThemedText style={styles.categoryTitle}>{category.title}</ThemedText>
+              <ThemedText style={styles.categoryTitle}>
+                {category.title}
+              </ThemedText>
             </Pressable>
           ))}
         </ScrollView>
@@ -402,21 +410,27 @@ export default function HomeScreen() {
         {/* Weekly Calendar */}
         <View style={styles.calendarSection}>
           <View style={[styles.calendarHeader, flexDirection]}>
-            <ThemedText style={[styles.sectionTitle, textAlign]}>{getText(uiTranslations.weeklyPrayers)}</ThemedText>
-            <TouchableOpacity 
+            <ThemedText style={[styles.sectionTitle, textAlign]}>
+              {t("weeklyPrayers")}
+            </ThemedText>
+            <TouchableOpacity
               style={[
                 styles.addButton,
-                { backgroundColor: colorScheme === 'dark' ? '#333' : '#f0f0f0' }
+                {
+                  backgroundColor: colorScheme === "dark" ? "#333" : "#f0f0f0",
+                },
               ]}
               onPress={() => setAddModalVisible(true)}
             >
-              <ThemedText style={styles.addButtonText}>{getText(uiTranslations.addPrayer)}</ThemedText>
+              <ThemedText style={styles.addButtonText}>
+                {t("addPrayer")}
+              </ThemedText>
             </TouchableOpacity>
           </View>
-          
+
           {/* Days of Week Selector */}
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.daysContainer}
             dir={isRTL ? "rtl" : "ltr"}
@@ -427,21 +441,25 @@ export default function HomeScreen() {
                 style={[
                   styles.dayButton,
                   selectedDay === index && styles.selectedDayButton,
-                  { backgroundColor: colorScheme === 'dark' ? '#333' : '#f0f0f0' },
-                  selectedDay === index && { 
-                    backgroundColor: colorScheme === 'dark' ? '#555' : '#e0e0e0' 
-                  }
+                  {
+                    backgroundColor:
+                      colorScheme === "dark" ? "#333" : "#f0f0f0",
+                  },
+                  selectedDay === index && {
+                    backgroundColor:
+                      colorScheme === "dark" ? "#555" : "#e0e0e0",
+                  },
                 ]}
                 onPress={() => {
                   setSelectedDay(index);
                   Haptics.selectionAsync();
                 }}
               >
-                <ThemedText 
+                <ThemedText
                   style={[
                     styles.dayButtonText,
                     selectedDay === index && styles.selectedDayText,
-                    getCurrentDayIndex() === index && styles.currentDayText
+                    getCurrentDayIndex() === index && styles.currentDayText,
                   ]}
                 >
                   {day}
@@ -449,90 +467,106 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ))}
           </ScrollView>
-          
+
           {/* Selected Day Heading */}
           {selectedDay !== null && (
             <ThemedText style={[styles.selectedDayTitle, textAlign]}>
               {getFullDayName(selectedDay)}
             </ThemedText>
           )}
-          
+
           {/* Todos for Selected Day */}
           <View style={styles.todosForDay}>
-            {selectedDay !== null && weeklyTodos[selectedDay] && weeklyTodos[selectedDay].map((todo) => (
-              <View key={todo.id} style={[styles.todoItem, themeStyles.contrast, flexDirection]}>
-                <TouchableOpacity
-                  style={[styles.checkboxContainer, isRTL ? { marginLeft: 12 } : { marginRight: 12 }]}
-                  onPress={() => toggleTodo(selectedDay, todo.id)}
+            {selectedDay !== null &&
+              weeklyTodos[selectedDay] &&
+              weeklyTodos[selectedDay].map((todo) => (
+                <View
+                  key={todo.id}
+                  style={[styles.todoItem, themeStyles.contrast, flexDirection]}
                 >
-                  <View style={[
-                    styles.checkbox,
-                    todo.completed && styles.checkboxCompleted,
-                    { borderColor: colorScheme === 'dark' ? '#666' : '#999' },
-                    todo.completed && { 
-                      backgroundColor: colorScheme === 'dark' ? '#666' : '#999',
-                      borderColor: colorScheme === 'dark' ? '#666' : '#999' 
-                    }
-                  ]}>
-                    {todo.completed && (
-                      <Ionicons name="checkmark" size={16} color="#fff" />
-                    )}
-                  </View>
-                </TouchableOpacity>
-                
-                <ThemedText 
-                  style={[
-                    styles.todoText, 
-                    todo.completed && styles.todoTextCompleted,
-                    textAlign
-                  ]}
-                >
-                  {todo.text}
-                </ThemedText>
-                
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => showDeleteConfirmation(selectedDay, todo.id)}
-                >
-                  <Ionicons 
-                    name="close-circle-outline" 
-                    size={22} 
-                    color={colorScheme === 'dark' ? '#999' : '#777'} 
-                  />
-                </TouchableOpacity>
-              </View>
-            ))}
-            
-            {selectedDay !== null && (!weeklyTodos[selectedDay] || weeklyTodos[selectedDay].length === 0) && (
-              <View style={styles.emptyDayContainer}>
-                <Ionicons 
-                  name="calendar-outline" 
-                  size={40} 
-                  color={colorScheme === 'dark' ? '#666' : '#999'} 
-                  style={styles.emptyDayIcon}
-                />
-                <ThemedText style={styles.emptyDayText}>
-                  {language === 'de' ? 'Keine Gebete für diesen Tag' : 
-                   language === 'ar' ? 'لا توجد صلوات لهذا اليوم' : 
-                   'No prayers for this day'}
-                </ThemedText>
-                <TouchableOpacity 
-                  style={[
-                    styles.emptyDayAddButton,
-                    { backgroundColor: colorScheme === 'dark' ? '#333' : '#f0f0f0' }
-                  ]}
-                  onPress={() => setAddModalVisible(true)}
-                >
-                  <ThemedText style={styles.emptyDayAddText}>
-                    {getText(uiTranslations.addPrayer)}
+                  <TouchableOpacity
+                    style={[
+                      styles.checkboxContainer,
+                      isRTL ? { marginLeft: 12 } : { marginRight: 12 },
+                    ]}
+                    onPress={() => toggleTodo(selectedDay, todo.id)}
+                  >
+                    <View
+                      style={[
+                        styles.checkbox,
+                        todo.completed && styles.checkboxCompleted,
+                        {
+                          borderColor: colorScheme === "dark" ? "#666" : "#999",
+                        },
+                        todo.completed && {
+                          backgroundColor:
+                            colorScheme === "dark" ? "#666" : "#999",
+                          borderColor: colorScheme === "dark" ? "#666" : "#999",
+                        },
+                      ]}
+                    >
+                      {todo.completed && (
+                        <Ionicons name="checkmark" size={16} color="#fff" />
+                      )}
+                    </View>
+                  </TouchableOpacity>
+
+                  <ThemedText
+                    style={[
+                      styles.todoText,
+                      todo.completed && styles.todoTextCompleted,
+                      textAlign,
+                    ]}
+                  >
+                    {todo.text}
                   </ThemedText>
-                </TouchableOpacity>
-              </View>
-            )}
+
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => showDeleteConfirmation(selectedDay, todo.id)}
+                  >
+                    <Ionicons
+                      name="close-circle-outline"
+                      size={22}
+                      color={colorScheme === "dark" ? "#999" : "#777"}
+                    />
+                  </TouchableOpacity>
+                </View>
+              ))}
+
+            {selectedDay !== null &&
+              (!weeklyTodos[selectedDay] ||
+                weeklyTodos[selectedDay].length === 0) && (
+                <View style={styles.emptyDayContainer}>
+                  <Ionicons
+                    name="calendar-outline"
+                    size={40}
+                    color={colorScheme === "dark" ? "#666" : "#999"}
+                    style={styles.emptyDayIcon}
+                  />
+                  <ThemedText style={styles.emptyDayText}>
+                    {t("noPrayersForDay")}
+                  </ThemedText>
+                  <TouchableOpacity
+                    style={[
+                      styles.emptyDayAddButton,
+                      {
+                        backgroundColor:
+                          colorScheme === "dark" ? "#333" : "#f0f0f0",
+                      },
+                    ]}
+                    onPress={() => setAddModalVisible(true)}
+                  >
+                    <ThemedText style={styles.emptyDayAddText}>
+                      {t("addPrayer")}
+                    </ThemedText>
+                  </TouchableOpacity>
+                </View>
+              )}
           </View>
         </View>
       </ScrollView>
-      
+
       {/* Add Prayer Modal */}
       <Modal
         visible={addModalVisible}
@@ -541,68 +575,72 @@ export default function HomeScreen() {
         onRequestClose={() => setAddModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View 
+          <View
             style={[
               styles.modalContent,
-              { backgroundColor: colorScheme === 'dark' ? '#222' : '#fff' }
+              { backgroundColor: colorScheme === "dark" ? "#222" : "#fff" },
             ]}
           >
             <View style={styles.modalHeader}>
               <ThemedText style={styles.modalTitle}>
-                {getText(uiTranslations.addForDay)} {selectedDay !== null ? getFullDayName(selectedDay) : ''}
+                {t("addForDay")}{" "}
+                {selectedDay !== null ? getFullDayName(selectedDay) : ""}
               </ThemedText>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setAddModalVisible(false)}
               >
-                <Ionicons 
-                  name="close" 
-                  size={24} 
-                  color={colorScheme === 'dark' ? '#fff' : '#000'} 
+                <Ionicons
+                  name="close"
+                  size={24}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
                 />
               </TouchableOpacity>
             </View>
-            
+
             <TextInput
               style={[
                 styles.modalInput,
-                { 
-                  color: colorScheme === 'dark' ? '#fff' : '#000',
-                  backgroundColor: colorScheme === 'dark' ? '#333' : '#f5f5f5',
-                  textAlign: isRTL ? 'right' : 'left'
-                }
+                {
+                  color: colorScheme === "dark" ? "#fff" : "#000",
+                  backgroundColor: colorScheme === "dark" ? "#333" : "#f5f5f5",
+                  textAlign: isRTL ? "right" : "left",
+                },
               ]}
               value={newTodo}
               onChangeText={setNewTodo}
-              placeholder={getText(uiTranslations.enterPrayer)}
-              placeholderTextColor={colorScheme === 'dark' ? '#999' : '#999'}
+              placeholder={t("enterPrayer")}
+              placeholderTextColor={colorScheme === "dark" ? "#999" : "#999"}
               multiline={true}
             />
-            
+
             <View style={[styles.modalButtonsContainer, flexDirection]}>
               <TouchableOpacity
                 style={[
                   styles.modalButton,
                   styles.cancelButton,
-                  { backgroundColor: colorScheme === 'dark' ? '#333' : '#f0f0f0' }
+                  {
+                    backgroundColor:
+                      colorScheme === "dark" ? "#333" : "#f0f0f0",
+                  },
                 ]}
                 onPress={() => setAddModalVisible(false)}
               >
                 <ThemedText style={styles.modalButtonText}>
-                  {getText(uiTranslations.cancel)}
+                  {t("cancel")}
                 </ThemedText>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={[
                   styles.modalButton,
                   styles.addModalButton,
-                  { backgroundColor: '#4CAF50' }
+                  { backgroundColor: "#4CAF50" },
                 ]}
                 onPress={addTodo}
               >
-                <ThemedText style={[styles.modalButtonText, { color: '#fff' }]}>
-                  {getText(uiTranslations.add)}
+                <ThemedText style={[styles.modalButtonText, { color: "#fff" }]}>
+                  {t("add")}
                 </ThemedText>
               </TouchableOpacity>
             </View>
@@ -617,55 +655,60 @@ export default function HomeScreen() {
         animationType="fade"
         onRequestClose={cancelDelete}
       >
-        <View style={styles.modalOverlay}>
-          <View 
+        <View style={[styles.modalOverlay, styles.deletModal]}>
+          <View
             style={[
               styles.confirmModalContent,
-              { backgroundColor: colorScheme === 'dark' ? '#222' : '#fff' }
+              { backgroundColor: colorScheme === "dark" ? "#222" : "#fff" },
             ]}
           >
             <View style={styles.confirmIconContainer}>
               <View style={styles.confirmIconBg}>
-                <Ionicons 
-                  name="trash-outline" 
-                  size={28} 
-                  color={colorScheme === 'dark' ? '#fff' : '#fff'} 
+                <Ionicons
+                  name="trash-outline"
+                  size={28}
+                  color={colorScheme === "dark" ? "#fff" : "#fff"}
                 />
               </View>
             </View>
-            
+
             <ThemedText style={styles.confirmTitle}>
-              {getText(uiTranslations.confirmDelete)}
+              {t("confirmDelete")}
             </ThemedText>
-            
+
             <ThemedText style={[styles.confirmText, textAlign]}>
-              {getText(uiTranslations.deleteQuestion)}
+              {t("deleteQuestion")}
             </ThemedText>
-            
+
             <View style={[styles.confirmButtonsContainer, flexDirection]}>
               <TouchableOpacity
                 style={[
                   styles.confirmButton,
                   styles.cancelButton,
-                  { backgroundColor: colorScheme === 'dark' ? '#333' : '#f0f0f0' }
+                  {
+                    backgroundColor:
+                      colorScheme === "dark" ? "#333" : "#f0f0f0",
+                  },
                 ]}
                 onPress={cancelDelete}
               >
                 <ThemedText style={styles.confirmButtonText}>
-                  {getText(uiTranslations.cancel)}
+                  {t("cancel")}
                 </ThemedText>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 style={[
                   styles.confirmButton,
                   styles.deleteModalButton,
-                  { backgroundColor: '#FF5252' }
+                  { backgroundColor: "#FF5252" },
                 ]}
                 onPress={confirmDelete}
               >
-                <ThemedText style={[styles.confirmButtonText, { color: '#fff' }]}>
-                  {getText(uiTranslations.delete)}
+                <ThemedText
+                  style={[styles.confirmButtonText, { color: "#fff" }]}
+                >
+                  {t("delete")}
                 </ThemedText>
               </TouchableOpacity>
             </View>
@@ -674,7 +717,7 @@ export default function HomeScreen() {
       </Modal>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -696,29 +739,29 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   prayerHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   todayTitle: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     opacity: 0.8,
   },
   prayerCategory: {
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
-    backgroundColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: "rgba(0,0,0,0.05)",
   },
   categoryText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   prayerTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 8,
   },
   prayerText: {
@@ -733,12 +776,12 @@ const styles = StyleSheet.create({
   },
   readMoreText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   // Section Titles
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 16,
     marginTop: 8,
   },
@@ -752,8 +795,8 @@ const styles = StyleSheet.create({
     padding: 12,
     width: 100,
     height: 100,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -768,17 +811,17 @@ const styles = StyleSheet.create({
   },
   categoryTitle: {
     fontSize: 13,
-    fontWeight: '500',
-    textAlign: 'center',
+    fontWeight: "500",
+    textAlign: "center",
   },
   // Calendar Section
   calendarSection: {
     marginTop: 16,
   },
   calendarHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   addButton: {
@@ -788,10 +831,10 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   daysContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingBottom: 10,
     gap: 10,
   },
@@ -800,25 +843,25 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
     minWidth: 60,
-    alignItems: 'center',
+    alignItems: "center",
   },
   selectedDayButton: {
     borderWidth: 2,
-    borderColor: '#4CAF50',
+    borderColor: "#4CAF50",
   },
   dayButtonText: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   selectedDayText: {
-    fontWeight: '700',
+    fontWeight: "700",
   },
   currentDayText: {
-    color: '#4CAF50',
+    color: "#4CAF50",
   },
   selectedDayTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginTop: 16,
     marginBottom: 12,
   },
@@ -827,8 +870,8 @@ const styles = StyleSheet.create({
     minHeight: 200,
   },
   todoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: 14,
     borderRadius: 12,
     shadowColor: "#000",
@@ -845,18 +888,18 @@ const styles = StyleSheet.create({
     height: 20,
     borderRadius: 4,
     borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   checkboxCompleted: {
-    borderColor: '#4CAF50',
+    borderColor: "#4CAF50",
   },
   todoText: {
     flex: 1,
     fontSize: 15,
   },
   todoTextCompleted: {
-    textDecorationLine: 'line-through',
+    textDecorationLine: "line-through",
     opacity: 0.6,
   },
   deleteButton: {
@@ -864,8 +907,8 @@ const styles = StyleSheet.create({
   },
   // Empty day state
   emptyDayContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 30,
   },
   emptyDayIcon: {
@@ -875,7 +918,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     opacity: 0.7,
     marginBottom: 16,
-    textAlign: 'center',
+    textAlign: "center",
   },
   emptyDayAddButton: {
     paddingHorizontal: 16,
@@ -884,13 +927,16 @@ const styles = StyleSheet.create({
   },
   emptyDayAddText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   // Modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
+  },
+  deletModal: {
+    justifyContent: "center", // overwrite default flex-end
   },
   modalContent: {
     borderTopLeftRadius: 20,
@@ -903,14 +949,14 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   closeButton: {
     padding: 4,
@@ -924,33 +970,32 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     gap: 10,
   },
   modalButton: {
     flex: 1,
     borderRadius: 10,
     paddingVertical: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   cancelButton: {
     opacity: 0.8,
   },
-  addModalButton: {
-  },
+  addModalButton: {},
   modalButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   // Confirmation Modal Styles
   confirmModalContent: {
     borderRadius: 16,
     padding: 20,
-    width: '85%',
+    width: "85%",
     maxWidth: 340,
-    alignSelf: 'center',
+    alignSelf: "center",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.15,
@@ -958,45 +1003,46 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   confirmIconContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 20,
   },
   confirmIconBg: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#FF5252',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#FF5252",
+    alignItems: "center",
+    justifyContent: "center",
   },
   confirmTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    textAlign: 'center',
+    fontWeight: "700",
+    textAlign: "center",
     marginBottom: 16,
   },
   confirmText: {
     fontSize: 16,
     opacity: 0.8,
     marginBottom: 24,
-    textAlign: 'center',
+    textAlign: "center",
   },
   confirmButtonsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     gap: 10,
   },
   confirmButton: {
     flex: 1,
     borderRadius: 10,
     paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
-  deleteModalButton: {
-  },
+  deleteModalButton: {},
   confirmButtonText: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
+
+export default HomeScreen;
