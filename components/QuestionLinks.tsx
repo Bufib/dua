@@ -374,8 +374,6 @@ const HomeScreen: React.FC = () => {
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesContainer}
-          // RTL scroll for Arabic
-          dir={isRTL ? "rtl" : "ltr"}
         >
           {categories.map((category) => (
             <Pressable
@@ -433,7 +431,6 @@ const HomeScreen: React.FC = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.daysContainer}
-            dir={isRTL ? "rtl" : "ltr"}
           >
             {getDayNames().map((day, index) => (
               <TouchableOpacity
