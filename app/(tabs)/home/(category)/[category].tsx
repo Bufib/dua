@@ -143,7 +143,7 @@ export default function CategoryScreen() {
   const handlePrayerPress = (prayer: PrayerWithCategory) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push({
-      pathname: "/(tabs)/home/(prayer)/[prayer]",
+      pathname: "/[prayer]",
       params: { prayerId: prayer.id, prayerTitle: prayer.name },
     });
   };

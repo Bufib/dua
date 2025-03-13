@@ -30,7 +30,7 @@ interface TranslationType {
   ziyarat: string;
   salat: string;
   munajat: string;
-  tasibeh: string;
+  tasbih: string;
   
   // Home screen - Today's prayer
   todaysPrayer: string;
@@ -79,7 +79,7 @@ const resources: Resource = {
       ziyarat: "Ziyarat",
       salat: "Salat",
       munajat: "Munajat",
-      tasibeh: "Tasibeh",
+      tasbih: "tasbih",
       
       // Home screen - Today's prayer
       todaysPrayer: "Heutiges Gebet",
@@ -129,7 +129,7 @@ const resources: Resource = {
       ziyarat: "زيارة",
       salat: "صلاة",
       munajat: "مناجاة",
-      tasibeh: "تسبيح",
+      tasbih: "تسبيح",
       
       // Home screen - Today's prayer
       todaysPrayer: "صلاة اليوم",
@@ -179,7 +179,7 @@ const resources: Resource = {
       ziyarat: "Ziyarat",
       salat: "Salat",
       munajat: "Munajat",
-      tasibeh: "Tasibeh",
+      tasbih: "tasbih",
       
       // Home screen - Today's prayer
       todaysPrayer: "Today's Prayer",

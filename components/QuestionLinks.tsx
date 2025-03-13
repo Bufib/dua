@@ -23,6 +23,7 @@ import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/context/LanguageContext";
+import { defaultTo } from "lodash";
 
 // Storage key for weekly calendar todos
 const WEEKLY_TODOS_STORAGE_KEY = "prayer_app_weekly_todos";
@@ -78,21 +79,22 @@ const HomeScreen: React.FC = () => {
   // Prayer categories using translations
   const categories: CategoryItem[] = [
     { id: 0, title: t("dua"), image: require("@/assets/images/dua.png") },
+    { id: 1, title: t("salat"), image: require("@/assets/images/salat.png") },
+
     {
-      id: 1,
+      id: 2,
       title: t("ziyarat"),
       image: require("@/assets/images/ziyarat.png"),
     },
-    { id: 2, title: t("salat"), image: require("@/assets/images/ziyarat.png") },
     {
       id: 3,
       title: t("munajat"),
-      image: require("@/assets/images/ziyarat.png"),
+      image: require("@/assets/images/munajat.png"),
     },
     {
       id: 4,
-      title: t("tasibeh"),
-      image: require("@/assets/images/ziyarat.png"),
+      title: t("tasbih"),
+      image: require("@/assets/images/tasbih.png"),
     },
   ];
 
