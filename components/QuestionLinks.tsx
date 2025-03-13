@@ -40,7 +40,6 @@ export default function TextGrid() {
       edges={["top"]}
       style={[styles.container, themeStyles.defaultBackgorundColor]}
     >
-   
       <ScrollView
         style={styles.scrollStyle}
         contentContainerStyle={styles.contentContainerStyle}
@@ -51,8 +50,8 @@ export default function TextGrid() {
               key={item.id}
               onPress={() => {
                 router.push({
-                  pathname: "/test",
-                  params: { textId: item.id },
+                  pathname: "/(tabs)/home/(category)/[category]",
+                  params: { categoryName: item.title }, // Pass the category name instead of ID
                 });
               }}
               style={({ pressed }) => [
@@ -63,7 +62,6 @@ export default function TextGrid() {
                   opacity: pressed ? 0.9 : 1,
                 },
                 item.id === 4 && { width: itemWidth * 2.07 },
-
                 themeStyles.contrast,
               ]}
             >
@@ -92,7 +90,7 @@ const styles = StyleSheet.create({
   scrollStyle: {
     marginHorizontal: 10,
   },
-  
+
   contentContainerStyle: {
     flexGrow: 1,
     paddingVertical: 20,

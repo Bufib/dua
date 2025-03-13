@@ -10,7 +10,7 @@ export default function RootLayout() {
     <Stack screenOptions={{headerTintColor: colorScheme === "dark" ? "#d0d0c0" : "#000"}}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen
-        name="category"
+        name="(category)"
         options={{
 
           headerLeft: () => {

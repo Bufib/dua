@@ -12,10 +12,7 @@ const Test = () => {
 
   return (
     <View style={styles.container}>
-      <RenderPrayer 
-       
-        
-      />
+      <RenderPrayer />
     </View>
   );
 };

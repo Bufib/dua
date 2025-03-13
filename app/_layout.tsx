@@ -200,7 +200,7 @@ export default function RootLayout() {
                         }}
                       />
                       <Stack.Screen
-                        name="[id]"
+                        name="[prayer]"
                         options={{
                           headerShown: true,
                           headerBackTitle: "Zurück",

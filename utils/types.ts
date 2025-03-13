@@ -12,8 +12,16 @@ export type QuestionType = {
   created_at: string;
 };
 
-export type Paypal = {
-  link: string;
+export type PayPalType = {
+  id: number;
+  created_at: string;
+  paypay_Link: string;
+};
+
+export type VersionType = {
+  id: number;
+  created_at: string;
+  version: string;
 };
 
 export type SignUpFormValues = {
@@ -62,7 +70,7 @@ export type QuestionFromUser = {
   internal_url: string[];
   external_url: string[];
   created_at: string;
-  approval_status: string
+  approval_status: string;
 };
 
 export type Sizes = {
@@ -71,18 +79,49 @@ export type Sizes = {
   iconSize: number;
   imageSize: number;
   gap: number;
-}
+};
 
-export type PrayerTranslation = {
+export type CategoryType = {
   id: number;
-  prayer_id: number;
-  language_code: string; // "arabic", "german", "english", or "transliteration"
   title: string;
-  arabic_title: string;
-  introduction?: string;
-  main_body: string;
-  notes?: string;
-  source?: string;
+  image?: string | null;
+  parent_id?: number | null;
+};
+
+export type PrayerType = {
+  id: number;
+  name?: string;
+  arabic_title?: string;
+  category_id: number;
   created_at: string;
   updated_at: string;
-}
+  languages_available: string[]; // Array of language codes
+};
+
+export type PrayerTranslationType = {
+  id: number;
+  prayer_id: number;
+  language_code: string; // e.g., "arabic", "german", etc.
+  introduction?: string | null;
+  main_body?: string | null;
+  notes?: string | null;
+  source?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PrayerWithCategory = {
+  id: number;
+  category_id: number;
+  category_name: string;
+  name?: string;
+  arabic_title?: string;
+  created_at: string;
+  updated_at: string;
+  languages_available: string[]; // Now defined as an array
+  category_title: string;
+  introduction?: string;
+  prayer_text?: string;
+  notes?: string;
+  source?: string;
+};

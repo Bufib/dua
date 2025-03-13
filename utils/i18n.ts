@@ -19,6 +19,11 @@ const resources: Resource = {
       home: 'Start',
       prayers: 'Gebete',
       homeSubtitle: 'Finden Sie Frieden und Verbindung durch Gebet',
+      dua: "Dua",
+      ziyarat: "Ziyarat",
+      salat: "Salat",
+      munajat: "Munajat",
+      tasibeh: "Tasibeh",
       // Add more translations here
     }
   },
@@ -53,6 +58,11 @@ const resources: Resource = {
       home: 'Home',
       prayers: 'Prayers',
       homeSubtitle: 'Find peace and connection through prayer',
+      dua: "Dua",
+      ziyarat: "Ziyarat",
+      salat: "Salat",
+      munajat: "Munajat",
+      tasibeh: "Tasibeh",
       // Add more translations here
     }
   }
