@@ -1,5 +1,18 @@
-import { useState, useLayoutEffect } from "react";
-import { View, Pressable, StyleSheet, FlatList, useColorScheme } from "react-native";
+// Function to get database instance
+const getDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
+  return await SQLite.openDatabaseAsync("content-database.db");
+};import { useState, useLayoutEffect } from "react";
+import { 
+  View, 
+  Pressable, 
+  StyleSheet, 
+  FlatList, 
+  useColorScheme,
+  Image,
+  Animated,
+  Dimensions,
+  ActivityIndicator
+} from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,17 +33,19 @@ interface FavoritePrayer {
   prayer_text?: string;
 }
 
-// Function to get database instance
-const getDatabase = async (): Promise<SQLite.SQLiteDatabase> => {
-  return await SQLite.openDatabaseAsync("content-database.db");
-};
+// Get the window width for responsive sizing
+const { width } = Dimensions.get('window');
 
-// Function to fetch all favorite prayers - should be moved to initializeDatabase.ts
-const getFavoritePrayers = async (language: string = "de"): Promise<FavoritePrayer[]> => {
+// Function to fetch specific favorite prayers with given IDs
+const getFavoritePrayersWithIds = async (prayerIds: number[], language: string = "en"): Promise<FavoritePrayer[]> => {
+  if (!prayerIds || prayerIds.length === 0) return [];
+  
   try {
     const db = await getDatabase();
     
-    // Query to fetch favorite prayers with their details
+    // Create placeholders for the SQL IN clause
+    const placeholders = prayerIds.map(() => '?').join(',');
+    
     const query = `
       SELECT 
         p.id,
@@ -38,17 +53,92 @@ const getFavoritePrayers = async (language: string = "de"): Promise<FavoritePray
         p.arabic_title,
         c.title as category_title,
         pt.introduction,
-        pt.main_body as prayer_text
-      FROM favorites f
-      INNER JOIN prayers p ON f.prayer_id = p.id
+        SUBSTR(COALESCE(pt.main_body, ''), 1, 150) as prayer_text,
+        pt.language_code
+      FROM prayers p
       INNER JOIN categories c ON p.category_id = c.id
       LEFT JOIN prayer_translations pt ON p.id = pt.prayer_id AND pt.language_code = ?
-      ORDER BY f.added_at DESC;
+      WHERE p.id IN (${placeholders})
+      ORDER BY p.id;
     `;
     
+    // Prepare parameters with language first, then prayer IDs
+    const params = [language, ...prayerIds];
+    
     // Execute the query
-    const rows = await db.getAllAsync<FavoritePrayer>(query, [language]);
+    const rows = await db.getAllAsync<FavoritePrayer>(query, params);
     return rows;
+  } catch (error) {
+    console.error("Error fetching specific favorite prayers:", error);
+    return [];
+  }
+};
+
+// Function to fetch all favorite prayers
+// Function to fetch all favorite prayers with improved translation handling
+const getFavoritePrayers = async (language: string = "de"): Promise<FavoritePrayer[]> => {
+  try {
+    const db = await getDatabase();
+    
+    // Get all favorite prayer IDs first
+    const favoriteIds = await db.getAllAsync<{prayer_id: number, added_at: string}>(
+      "SELECT prayer_id, added_at FROM favorites ORDER BY added_at DESC;"
+    );
+    
+    if (!favoriteIds || favoriteIds.length === 0) {
+      return [];
+    }
+    
+    const fallbackLanguage = language === "en" ? "de" : "en";
+    
+    // For each prayer, get its details
+    const result = [];
+    
+    for (const favorite of favoriteIds) {
+      // Get basic prayer info
+      const prayerQuery = `
+        SELECT 
+          p.id,
+          p.name,
+          p.arabic_title,
+          c.title as category_title
+        FROM prayers p
+        JOIN categories c ON p.category_id = c.id
+        WHERE p.id = ?;
+      `;
+      
+      const prayer = await db.getFirstAsync(prayerQuery, [favorite.prayer_id]);
+      
+      if (!prayer) continue;
+      
+      // Try to get translation in preferred language
+      const translationQuery = `
+        SELECT 
+          introduction,
+          SUBSTR(main_body, 1, 150) as prayer_text
+        FROM prayer_translations
+        WHERE prayer_id = ? AND language_code = ?;
+      `;
+      
+      let translation = await db.getFirstAsync(translationQuery, [favorite.prayer_id, language]);
+      
+      // If no translation in preferred language or fields are null/empty, try fallback
+      if (!translation || 
+          (!translation.introduction && (!translation.prayer_text || translation.prayer_text.trim() === ''))) {
+        translation = await db.getFirstAsync(translationQuery, [favorite.prayer_id, fallbackLanguage]);
+      }
+      
+      // Add the prayer with its translation to result
+      result.push({
+        ...prayer,
+        introduction: translation?.introduction || null,
+        prayer_text: translation?.prayer_text || null,
+        // Include the original added_at time for consistent ordering
+        added_at: favorite.added_at
+      });
+    }
+    
+    return result;
   } catch (error) {
     console.error("Error fetching favorite prayers:", error);
     throw error;
@@ -63,19 +153,62 @@ function RenderFavoritePrayers() {
   const colorScheme = useColorScheme() || "light";
   const { t } = useTranslation();
   
-  // Access refresh trigger from store if available
+  // Use the Zustand store for refreshing favorites
   const { refreshTriggerFavorites } = useRefreshFavorites();
+  
+  // Animation value for fade-in effect
+  const fadeAnim = useState(new Animated.Value(0))[0];
 
   useLayoutEffect(() => {
     const loadFavoritePrayers = async () => {
       try {
         setIsLoading(true);
-        const language = await AsyncStorage.getItem('@prayer_app_language') || "de";
-        const favoritePrayers = await getFavoritePrayers(language);
+        // Get fallback language if needed
+        const defaultLanguage = await AsyncStorage.getItem('@prayer_app_language') || "de";
+        let fallbackLanguage = "en";  // Default fallback
+        if (defaultLanguage === "en") fallbackLanguage = "de";
+        
+        // First try with user's language
+        let favoritePrayers = await getFavoritePrayers(defaultLanguage);
+        
+        // For prayers without translations in the preferred language, try fallback
+        if (favoritePrayers.length > 0) {
+          // Get IDs of prayers without proper translations
+          const incompleteIds = favoritePrayers
+            .filter(p => !p.introduction && (!p.prayer_text || p.prayer_text.trim() === ''))
+            .map(p => p.id);
+            
+          if (incompleteIds.length > 0) {
+            // Get fallback translations
+            const fallbackPrayers = await getFavoritePrayersWithIds(incompleteIds, fallbackLanguage);
+            
+            // Replace incomplete prayers with fallback translations
+            favoritePrayers = favoritePrayers.map(prayer => {
+              if (incompleteIds.includes(prayer.id)) {
+                const fallback = fallbackPrayers.find(fb => fb.id === prayer.id);
+                if (fallback) {
+                  return {
+                    ...prayer,
+                    introduction: prayer.introduction || fallback.introduction,
+                    prayer_text: prayer.prayer_text || fallback.prayer_text
+                  };
+                }
+              }
+              return prayer;
+            });
+          }
+        }
 
         if (favoritePrayers) {
           setPrayers(favoritePrayers);
           setError(null);
+          
+          // Start fade-in animation
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 500,
+            useNativeDriver: true,
+          }).start();
         } else {
           console.log("Can't load favorite prayers");
           setPrayers([]);
@@ -91,13 +224,19 @@ function RenderFavoritePrayers() {
     };
 
     loadFavoritePrayers();
-  }, [refreshTriggerFavorites, t]);
+  }, [refreshTriggerFavorites, t, fadeAnim]);
 
   // Show error state
   if (error && !isLoading && prayers.length === 0) {
     return (
       <View style={styles.centeredContainer}>
-        <ThemedText>{error}</ThemedText>
+        <Ionicons 
+          name="alert-circle-outline" 
+          size={64} 
+          color={Colors[colorScheme].error} 
+          style={styles.errorIcon}
+        />
+        <ThemedText style={styles.errorText}>{error}</ThemedText>
       </View>
     );
   }
@@ -106,7 +245,8 @@ function RenderFavoritePrayers() {
   if (isLoading) {
     return (
       <View style={styles.centeredContainer}>
-        <ThemedText>{t("loadingFavorites")}</ThemedText>
+      <ActivityIndicator />
+        <ThemedText style={styles.loadingText}>{t("loadingFavorites")}</ThemedText>
       </View>
     );
   }
@@ -114,70 +254,113 @@ function RenderFavoritePrayers() {
   // Show empty state
   if ((prayers.length === 0 || !prayers) && !isLoading && !error) {
     return (
-      <View style={styles.centeredContainer}>
-        <ThemedText style={styles.emptyText}>
-          {t("noFavoritesYet")}
-          {"\n"}
-          {t("addFavoritesHint")}
-        </ThemedText>
+      <View style={[styles.centeredContainer, { backgroundColor: Colors[colorScheme].background }]}>
+        <Ionicons 
+          name="heart" 
+          size={80} 
+          color={Colors[colorScheme].prayerHeaderBackground} 
+          style={styles.emptyIcon}
+        />
+        <ThemedText style={styles.emptyTitle}>{t("noFavoritesYet")}</ThemedText>
+        <ThemedText style={styles.emptyText}>{t("addFavoritesHint")}</ThemedText>
       </View>
     );
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
+    <Animated.View 
+      style={[
+        styles.container, 
+        { backgroundColor: Colors[colorScheme].background },
+        { opacity: fadeAnim }
+      ]}
+    >
       <FlatList
         data={prayers}
         extraData={refreshTriggerFavorites}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
-        style={{ backgroundColor: Colors[colorScheme].background }}
         contentContainerStyle={styles.flatListStyle}
-        renderItem={({ item }) => (
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: "/(prayers)/prayer",
-                params: {
-                  prayerId: item.id.toString(),
-                  prayerTitle: item.name,
-                },
-              })
-            }
+        renderItem={({ item, index }) => (
+          <Animated.View 
+            style={{ 
+              transform: [{ 
+                translateY: fadeAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [50, 0]
+                })
+              }],
+              opacity: fadeAnim
+            }}
           >
-            <ThemedView style={[styles.item, { backgroundColor: Colors[colorScheme].prayerIntroductionBackground }]}>
-              <View style={styles.prayerContainer}>
-                <ThemedText style={styles.titleText}>{item.name}</ThemedText>
-                <ThemedText style={styles.arabicTitleText} numberOfLines={1}>
-                  {item.arabic_title}
-                </ThemedText>
-                <View style={styles.categoryContainer}>
-                  <Ionicons 
-                    name="folder-outline" 
-                    size={14} 
-                    color={Colors[colorScheme].prayerSourceText} 
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: "/(prayers)/prayer",
+                  params: {
+                    prayerId: item.id.toString(),
+                    prayerTitle: item.name,
+                  },
+                })
+              }
+              style={({ pressed }) => [
+                { transform: [{ scale: pressed ? 0.98 : 1 }] }
+              ]}
+            >
+              <ThemedView 
+                style={[
+                  styles.card, 
+                  { backgroundColor: Colors[colorScheme].prayerIntroductionBackground }
+                ]}
+              >
+                <View style={styles.cardHeader}>
+                  <View style={styles.categoryTag}>
+                    <Ionicons 
+                      name="folder-outline" 
+                      size={14} 
+                      color={Colors[colorScheme].prayerHeaderBackground} 
+                    />
+                    <ThemedText style={styles.categoryText}>{item.category_title}</ThemedText>
+                  </View>
+                  <Ionicons
+                    name="heart"
+                    size={20}
+                    color={Colors.universal.favoriteIcon}
                   />
-                  <ThemedText style={styles.categoryText}>{item.category_title}</ThemedText>
                 </View>
-              </View>
-              <View style={styles.iconContainer}>
-                <Ionicons
-                  name="heart"
-                  size={20}
-                  color={Colors.universal.favoriteIcon}
-                  style={styles.favoriteIcon}
-                />
-                <Ionicons
-                  name="chevron-forward"
-                  size={24}
-                  color={Colors[colorScheme].text}
-                />
-              </View>
-            </ThemedView>
-          </Pressable>
+                
+                <View style={styles.cardContent}>
+                  <ThemedText style={styles.arabicTitle}>{item.arabic_title}</ThemedText>
+                  <ThemedText style={styles.prayerTitle}>{item.name}</ThemedText>
+                  
+                  {/* Show introduction text with better fallback handling */}
+                  <ThemedText 
+                    style={styles.introText} 
+                    numberOfLines={1}
+                  >
+                    {item.introduction || 
+                     (item.prayer_text && 
+                      typeof item.prayer_text === 'string' && 
+                      item.prayer_text.trim() !== '' ? 
+                        item.prayer_text.substring(0, 100) : 
+                       "")}
+                  </ThemedText>
+                </View>
+                
+                <View style={styles.cardFooter}>
+                  <ThemedText style={styles.readMoreText}>{t("readMore")}</ThemedText>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={16}
+                    color={Colors[colorScheme].prayerHeaderBackground}
+                  />
+                </View>
+              </ThemedView>
+            </Pressable>
+          </Animated.View>
         )}
       />
-    </View>
+    </Animated.View>
   );
 }
 
@@ -189,63 +372,118 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: 32,
   },
   flatListStyle: {
-    paddingTop: 20,
-    paddingBottom: 20,
-    gap: 16,
+    padding: 16,
+    paddingBottom: 32,
   },
-  item: {
+  card: {
+    borderRadius: 16,
+    marginBottom: 16,
+    padding: 0,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    overflow: 'hidden'
+  },
+  cardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 16,
-    borderRadius: 12,
-    marginHorizontal: 16,
-    elevation: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
   },
-  prayerContainer: {
-    flex: 1,
-    marginRight: 10,
-  },
-  titleText: {
-    fontSize: 18,
-    textAlign: "left",
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  arabicTitleText: {
-    fontSize: 16,
-    textAlign: "left",
-    marginBottom: 6,
-    writingDirection: "rtl",
-  },
-  categoryContainer: {
+  categoryTag: {
     flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    backgroundColor: 'rgba(5, 121, 88, 0.1)',
   },
   categoryText: {
-    fontSize: 13,
+    fontSize: 12,
     marginLeft: 4,
-    opacity: 0.7,
+    color: 'rgba(5, 121, 88, 1)',
+    fontWeight: '500',
   },
-  iconContainer: {
+  cardContent: {
+    padding: 16,
+    paddingTop: 0,
+  },
+  arabicTitle: {
+    fontSize: 22,
+    textAlign: "right",
+    marginBottom: 8,
+    writingDirection: "rtl",
+    fontWeight: "600",
+  },
+  prayerTitle: {
+    fontSize: 18,
+    marginBottom: 8,
+    fontWeight: "700",
+  },
+  introText: {
+    fontSize: 14,
+    opacity: 0.7,
+    marginTop: 4,
+    lineHeight: 20,
+    fontStyle: 'italic',
+  },
+  cardFooter: {
     flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.05)',
   },
-  favoriteIcon: {
-    marginRight: 12,
+  readMoreText: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginRight: 4,
+    color: 'rgba(5, 121, 88, 1)',
+  },
+  // Empty state styles
+  emptyIcon: {
+    marginBottom: 16,
+    opacity: 0.5,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    marginBottom: 8,
+    textAlign: "center",
   },
   emptyText: {
-    textAlign: "center",
-    fontWeight: "500",
     fontSize: 16,
-    lineHeight: 24,
+    opacity: 0.7,
+    textAlign: "center",
+    lineHeight: 22,
+    maxWidth: width * 0.8,
+  },
+  // Error state styles
+  errorIcon: {
+    marginBottom: 16,
+  },
+  errorText: {
+    fontSize: 16,
+    textAlign: "center",
+    opacity: 0.8,
+  },
+  // Loading state styles
+  loadingImage: {
+    width: 120,
+    height: 120,
+    marginBottom: 16,
+  },
+  loadingText: {
+    fontSize: 16,
+    opacity: 0.8,
   },
 });
 

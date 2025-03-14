@@ -27,7 +27,7 @@ import {
 import { useLanguage } from "@/context/LanguageContext";
 import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import { useRefreshFavorites } from "@/stores/refreshFavoriteStore";
 // Define types for prayer content
 interface PrayerSegment {
   arabic: string;
@@ -51,7 +51,7 @@ interface PrayerData {
 const RenderPrayer = () => {
   // Translations
   const { t } = useTranslation();
-  
+
   // Get prayer ID from URL params
   const { prayerId, prayerTitle } = useLocalSearchParams<{
     prayerId: string;
@@ -66,11 +66,13 @@ const RenderPrayer = () => {
     arabic: true,
     transliteration: true,
   });
-  const [bookmarkedSegment, setBookmarkedSegment] = useState<number | null>(null);
+  const [bookmarkedSegment, setBookmarkedSegment] = useState<number | null>(
+    null
+  );
   const [importantSegments, setImportantSegments] = useState<number[]>([]);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
   const [fontSizeModalVisible, setFontSizeModalVisible] = useState(false);
-
+  const { triggerRefreshFavorites } = useRefreshFavorites();
   // Animations
   const headerAnimation = useRef(new Animated.Value(0)).current;
 
@@ -89,11 +91,22 @@ const RenderPrayer = () => {
     secondary: Colors.universal.third, // #e8f5e9 - Light green/background
     textPrimary: colorScheme === "dark" ? Colors.dark.text : Colors.light.text, // #d0d0c0 or #000000
     textSecondary: colorScheme === "dark" ? "#a0a090" : "#333333", // Muted text colors
-    background: colorScheme === "dark" ? Colors.dark.background : Colors.light.background, // #242c40 or #fbf9f1
-    backgroundLight: colorScheme === "dark" ? "#2d374d" : Colors.universal.third, // Slightly lighter background
-    divider: colorScheme === "dark" ? "rgba(208, 208, 192, 0.2)" : "rgba(5, 121, 88, 0.15)", // Divider based on text/primary
-    bookmarkBackground: colorScheme === "dark" ? "rgba(5, 121, 88, 0.2)" : "rgba(5, 121, 88, 0.1)", // Bookmark background
-    importantBackground: colorScheme === "dark" ? "rgba(5, 121, 88, 0.1)" : "rgba(5, 121, 88, 0.05)", // Important background
+    background:
+      colorScheme === "dark" ? Colors.dark.background : Colors.light.background, // #242c40 or #fbf9f1
+    backgroundLight:
+      colorScheme === "dark" ? "#2d374d" : Colors.universal.third, // Slightly lighter background
+    divider:
+      colorScheme === "dark"
+        ? "rgba(208, 208, 192, 0.2)"
+        : "rgba(5, 121, 88, 0.15)", // Divider based on text/primary
+    bookmarkBackground:
+      colorScheme === "dark"
+        ? "rgba(5, 121, 88, 0.2)"
+        : "rgba(5, 121, 88, 0.1)", // Bookmark background
+    importantBackground:
+      colorScheme === "dark"
+        ? "rgba(5, 121, 88, 0.1)"
+        : "rgba(5, 121, 88, 0.05)", // Important background
   };
 
   // Storage keys
@@ -111,14 +124,14 @@ const RenderPrayer = () => {
   useEffect(() => {
     const loadUserPreferences = async () => {
       if (!prayerId) return;
-      
+
       try {
         // Load bookmark
         const bookmarkData = await AsyncStorage.getItem(BOOKMARK_STORAGE_KEY);
         if (bookmarkData) {
           setBookmarkedSegment(JSON.parse(bookmarkData));
         }
-        
+
         // Load important segments
         const importantData = await AsyncStorage.getItem(IMPORTANT_STORAGE_KEY);
         if (importantData) {
@@ -128,7 +141,7 @@ const RenderPrayer = () => {
         console.error("Error loading user preferences:", error);
       }
     };
-    
+
     loadUserPreferences();
   }, [prayerId]);
 
@@ -225,9 +238,11 @@ const RenderPrayer = () => {
 
       if (isFavorite) {
         await removePrayerFromFavorite(id);
+        triggerRefreshFavorites();
         setIsFavorite(false);
       } else {
         await addPrayerToFavorite(id);
+        triggerRefreshFavorites();
         setIsFavorite(true);
       }
     } catch (error) {
@@ -241,24 +256,23 @@ const RenderPrayer = () => {
       // If there's already a bookmark and it's different from the current one
       if (bookmarkedSegment !== null && bookmarkedSegment !== index) {
         // Show confirmation alert
-        Alert.alert(
-          t('confirmBookmarkChange'),
-          t('bookmarkReplaceQuestion'),
-          [
-            {
-              text: t('cancel'),
-              style: "cancel",
+        Alert.alert(t("confirmBookmarkChange"), t("bookmarkReplaceQuestion"), [
+          {
+            text: t("cancel"),
+            style: "cancel",
+          },
+          {
+            text: t("replace"),
+            onPress: async () => {
+              setBookmarkedSegment(index);
+              await AsyncStorage.setItem(
+                BOOKMARK_STORAGE_KEY,
+                JSON.stringify(index)
+              );
+              // You can also update in Supabase
             },
-            {
-              text: t('replace'),
-              onPress: async () => {
-                setBookmarkedSegment(index);
-                await AsyncStorage.setItem(BOOKMARK_STORAGE_KEY, JSON.stringify(index));
-                // You can also update in Supabase
-              },
-            },
-          ]
-        );
+          },
+        ]);
       } else if (bookmarkedSegment === index) {
         // If clicking the same bookmark, remove it
         setBookmarkedSegment(null);
@@ -277,18 +291,21 @@ const RenderPrayer = () => {
   const toggleImportantSegment = async (index: number) => {
     try {
       let newImportantSegments = [...importantSegments];
-      
+
       if (newImportantSegments.includes(index)) {
         // Remove from important
-        newImportantSegments = newImportantSegments.filter(i => i !== index);
+        newImportantSegments = newImportantSegments.filter((i) => i !== index);
       } else {
         // Add to important
         newImportantSegments.push(index);
       }
-      
+
       setImportantSegments(newImportantSegments);
-      await AsyncStorage.setItem(IMPORTANT_STORAGE_KEY, JSON.stringify(newImportantSegments));
-      
+      await AsyncStorage.setItem(
+        IMPORTANT_STORAGE_KEY,
+        JSON.stringify(newImportantSegments)
+      );
+
       // You can also store these in Supabase
       // e.g., supabaseClient.from('prayer_important').upsert(...)
     } catch (error) {
@@ -317,8 +334,7 @@ const RenderPrayer = () => {
         }
 
         shareText += `${
-          segment.translations[language] ||
-          segment.translations.en
+          segment.translations[language] || segment.translations.en
         }\n`;
 
         shareText += "\n";
@@ -345,10 +361,10 @@ const RenderPrayer = () => {
   };
 
   // Toggle display settings
-  const toggleDisplaySetting = (key: 'arabic' | 'transliteration') => {
-    setSelectedLanguages(prev => ({
+  const toggleDisplaySetting = (key: "arabic" | "transliteration") => {
+    setSelectedLanguages((prev) => ({
       ...prev,
-      [key]: !prev[key]
+      [key]: !prev[key],
     }));
   };
 
@@ -361,36 +377,58 @@ const RenderPrayer = () => {
       onRequestClose={() => setIsSettingsModalVisible(false)}
     >
       <View style={styles.modalOverlay}>
-        <View style={[styles.modalContainer, { backgroundColor: theme.backgroundLight }]}>
+        <View
+          style={[
+            styles.modalContainer,
+            { backgroundColor: theme.backgroundLight },
+          ]}
+        >
           <View style={styles.modalHeader}>
             <Text style={[styles.modalTitle, { color: theme.primary }]}>
-              {t('settings')}
+              {t("settings")}
             </Text>
             <TouchableOpacity onPress={() => setIsSettingsModalVisible(false)}>
               <Ionicons name="close" size={24} color={theme.primary} />
             </TouchableOpacity>
           </View>
-          
-          <View style={styles.modalContent}>            
+
+          <View style={styles.modalContent}>
             <TouchableOpacity
-              style={[styles.settingsItem, { borderBottomColor: theme.divider }]}
+              style={[
+                styles.settingsItem,
+                { borderBottomColor: theme.divider },
+              ]}
               onPress={() => setFontSizeModalVisible(true)}
             >
               <View style={styles.settingsItemLeft}>
-                <Ionicons name="text" size={22} color={theme.primary} style={styles.settingsItemIcon} />
-                <Text style={[styles.settingsItemText, { color: theme.textPrimary }]}>
-                  {t('adjustFontSize')}
+                <Ionicons
+                  name="text"
+                  size={22}
+                  color={theme.primary}
+                  style={styles.settingsItemIcon}
+                />
+                <Text
+                  style={[
+                    styles.settingsItemText,
+                    { color: theme.textPrimary },
+                  ]}
+                >
+                  {t("adjustFontSize")}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={22} color={theme.textSecondary} />
+              <Ionicons
+                name="chevron-forward"
+                size={22}
+                color={theme.textSecondary}
+              />
             </TouchableOpacity>
           </View>
-          
+
           <TouchableOpacity
             style={[styles.modalButton, { backgroundColor: theme.primary }]}
             onPress={() => setIsSettingsModalVisible(false)}
           >
-            <Text style={styles.modalButtonText}>{t('close')}</Text>
+            <Text style={styles.modalButtonText}>{t("close")}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -400,12 +438,12 @@ const RenderPrayer = () => {
   if (loading) {
     return (
       <View
-        style={[
-          styles.loadingContainer,
-          { backgroundColor: theme.background }
-        ]}
+        style={[styles.loadingContainer, { backgroundColor: theme.background }]}
       >
-        <ActivityIndicator size="large" color={Colors[colorScheme].prayerLoadingIndicator} />
+        <ActivityIndicator
+          size="large"
+          color={Colors[colorScheme].prayerLoadingIndicator}
+        />
         <Text
           style={{
             marginTop: 12,
@@ -413,7 +451,7 @@ const RenderPrayer = () => {
             fontSize: 16,
           }}
         >
-          {t('loadingPrayer')}
+          {t("loadingPrayer")}
         </Text>
       </View>
     );
@@ -422,10 +460,7 @@ const RenderPrayer = () => {
   if (!prayerData) {
     return (
       <View
-        style={[
-          styles.loadingContainer,
-          { backgroundColor: theme.background }
-        ]}
+        style={[styles.loadingContainer, { backgroundColor: theme.background }]}
       >
         <Ionicons
           name="alert-circle-outline"
@@ -440,7 +475,7 @@ const RenderPrayer = () => {
             textAlign: "center",
           }}
         >
-          {t('unableToLoadPrayer')}
+          {t("unableToLoadPrayer")}
         </Text>
       </View>
     );
@@ -461,24 +496,40 @@ const RenderPrayer = () => {
         scrollEventThrottle={16}
       >
         {/* Prayer Header Section */}
-        <View 
+        <View
           style={[
-            styles.prayerHeader, 
-            { backgroundColor: Colors[colorScheme].prayerHeaderBackground, borderRadius: 16 }
+            styles.prayerHeader,
+            {
+              backgroundColor: Colors[colorScheme].prayerHeaderBackground,
+              borderRadius: 16,
+            },
           ]}
         >
           <View style={styles.prayerTitleContainer}>
-            <Text style={[styles.prayerTitle, { color: Colors[colorScheme].prayerHeaderText }]}>
+            <Text
+              style={[
+                styles.prayerTitle,
+                { color: Colors[colorScheme].prayerHeaderText },
+              ]}
+            >
               {prayerData.title}
             </Text>
-            <Text style={[styles.prayerArabicTitle, { color: Colors[colorScheme].prayerHeaderSubtitle }]}>
+            <Text
+              style={[
+                styles.prayerArabicTitle,
+                { color: Colors[colorScheme].prayerHeaderSubtitle },
+              ]}
+            >
               {prayerData.arabicTitle}
             </Text>
           </View>
 
           <View style={styles.headerActions}>
             <TouchableOpacity
-              style={[styles.iconButton, { backgroundColor: "rgba(255, 255, 255, 0.2)" }]}
+              style={[
+                styles.iconButton,
+                { backgroundColor: "rgba(255, 255, 255, 0.2)" },
+              ]}
               onPress={toggleFavorite}
             >
               <Ionicons
@@ -488,32 +539,51 @@ const RenderPrayer = () => {
               />
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={[styles.iconButton, { backgroundColor: "rgba(255, 255, 255, 0.2)" }]} 
+            <TouchableOpacity
+              style={[
+                styles.iconButton,
+                { backgroundColor: "rgba(255, 255, 255, 0.2)" },
+              ]}
               onPress={handleShare}
             >
-              <Ionicons name="share-outline" size={22} color={Colors.universal.prayerHeaderIcon} />
+              <Ionicons
+                name="share-outline"
+                size={22}
+                color={Colors.universal.prayerHeaderIcon}
+              />
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.iconButton, { backgroundColor: "rgba(255, 255, 255, 0.2)" }]}
+              style={[
+                styles.iconButton,
+                { backgroundColor: "rgba(255, 255, 255, 0.2)" },
+              ]}
               onPress={() => setIsSettingsModalVisible(true)}
             >
-              <Ionicons name="settings-outline" size={22} color={Colors.universal.prayerHeaderIcon} />
+              <Ionicons
+                name="settings-outline"
+                size={22}
+                color={Colors.universal.prayerHeaderIcon}
+              />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Introduction Card */}
         {prayerData.introduction && (
-          <View style={[styles.introductionCard, { backgroundColor: theme.backgroundLight }]}>
+          <View
+            style={[
+              styles.introductionCard,
+              { backgroundColor: theme.backgroundLight },
+            ]}
+          >
             <Text
               style={[
                 styles.introductionText,
                 {
                   fontSize: fontSize - 1,
                   lineHeight: lineHeight - 2,
-                  color: theme.textSecondary
+                  color: theme.textSecondary,
                 },
               ]}
             >
@@ -533,10 +603,11 @@ const RenderPrayer = () => {
                   style={[
                     styles.languageButton,
                     lang === language && styles.languageButtonActive,
-                    { 
-                      backgroundColor: lang === language 
-                        ? Colors[colorScheme].prayerButtonBackgroundActive
-                        : Colors[colorScheme].prayerButtonBackground
+                    {
+                      backgroundColor:
+                        lang === language
+                          ? Colors[colorScheme].prayerButtonBackgroundActive
+                          : Colors[colorScheme].prayerButtonBackground,
                     },
                   ]}
                   onPress={() => {
@@ -550,9 +621,12 @@ const RenderPrayer = () => {
                     style={[
                       styles.languageButtonText,
                       lang === language && styles.languageButtonTextActive,
-                      { color: lang === language 
-                        ? Colors[colorScheme].prayerButtonTextActive
-                        : Colors[colorScheme].prayerButtonText }
+                      {
+                        color:
+                          lang === language
+                            ? Colors[colorScheme].prayerButtonTextActive
+                            : Colors[colorScheme].prayerButtonText,
+                      },
                     ]}
                   >
                     {lang.toUpperCase()}
@@ -568,15 +642,20 @@ const RenderPrayer = () => {
               style={[
                 styles.displayOptionToggle,
                 {
-                  backgroundColor: selectedLanguages.arabic 
+                  backgroundColor: selectedLanguages.arabic
                     ? Colors[colorScheme].prayerButtonBackground
-                    : "rgba(5, 121, 88, 0.1)"
-                }
+                    : "rgba(5, 121, 88, 0.1)",
+                },
               ]}
-              onPress={() => toggleDisplaySetting('arabic')}
+              onPress={() => toggleDisplaySetting("arabic")}
             >
-              <Text style={[styles.displayOptionText, { color: Colors[colorScheme].prayerButtonText }]}>
-                {t('arabic')}
+              <Text
+                style={[
+                  styles.displayOptionText,
+                  { color: Colors[colorScheme].prayerButtonText },
+                ]}
+              >
+                {t("arabic")}
               </Text>
               <Ionicons
                 name={selectedLanguages.arabic ? "checkbox" : "square-outline"}
@@ -589,18 +668,27 @@ const RenderPrayer = () => {
               style={[
                 styles.displayOptionToggle,
                 {
-                  backgroundColor: selectedLanguages.transliteration 
+                  backgroundColor: selectedLanguages.transliteration
                     ? Colors[colorScheme].prayerButtonBackground
-                    : "rgba(5, 121, 88, 0.1)"
-                }
+                    : "rgba(5, 121, 88, 0.1)",
+                },
               ]}
-              onPress={() => toggleDisplaySetting('transliteration')}
+              onPress={() => toggleDisplaySetting("transliteration")}
             >
-              <Text style={[styles.displayOptionText, { color: Colors[colorScheme].prayerButtonText }]}>
-                {t('transliteration')}
+              <Text
+                style={[
+                  styles.displayOptionText,
+                  { color: Colors[colorScheme].prayerButtonText },
+                ]}
+              >
+                {t("transliteration")}
               </Text>
               <Ionicons
-                name={selectedLanguages.transliteration ? "checkbox" : "square-outline"}
+                name={
+                  selectedLanguages.transliteration
+                    ? "checkbox"
+                    : "square-outline"
+                }
                 size={18}
                 color={theme.primary}
               />
@@ -609,16 +697,19 @@ const RenderPrayer = () => {
         </View>
 
         {/* Prayer Segments - Connected Flow */}
-        <View style={[
-          styles.prayerFlowContainer, 
-          { 
-            backgroundColor: colorScheme === "dark" 
-              ? "rgba(36, 44, 64, 0.6)" 
-              : "rgba(255, 255, 255, 0.9)",
-            borderWidth: 1,
-            borderColor: theme.divider
-          }
-        ]}>
+        <View
+          style={[
+            styles.prayerFlowContainer,
+            {
+              backgroundColor:
+                colorScheme === "dark"
+                  ? "rgba(36, 44, 64, 0.6)"
+                  : "rgba(255, 255, 255, 0.9)",
+              borderWidth: 1,
+              borderColor: theme.divider,
+            },
+          ]}
+        >
           {prayerData.segments.map((segment, index) => (
             <View
               key={index}
@@ -627,15 +718,17 @@ const RenderPrayer = () => {
                 index === 0 && styles.firstSegment,
                 index === prayerData.segments.length - 1 && styles.lastSegment,
                 // Add special background for bookmarked segment
-                bookmarkedSegment === index && { 
+                bookmarkedSegment === index && {
                   backgroundColor: Colors[colorScheme].prayerBookmarkBackground,
                   borderLeftWidth: 4,
                   borderLeftColor: Colors[colorScheme].prayerBookmarkBorder,
                 },
                 // Add background for important segments (if not already bookmarked)
-                bookmarkedSegment !== index && importantSegments.includes(index) && { 
-                  backgroundColor: Colors[colorScheme].prayerImportantBackground 
-                }
+                bookmarkedSegment !== index &&
+                  importantSegments.includes(index) && {
+                    backgroundColor:
+                      Colors[colorScheme].prayerImportantBackground,
+                  },
               ]}
             >
               {/* Segment Actions */}
@@ -645,11 +738,17 @@ const RenderPrayer = () => {
                   onPress={() => setBookmark(index)}
                 >
                   <Ionicons
-                    name={bookmarkedSegment === index ? "bookmark" : "bookmark-outline"}
+                    name={
+                      bookmarkedSegment === index
+                        ? "bookmark"
+                        : "bookmark-outline"
+                    }
                     size={20}
-                    color={bookmarkedSegment === index 
-                      ? Colors[colorScheme].prayerActionIcon
-                      : Colors[colorScheme].prayerActionIconInactive}
+                    color={
+                      bookmarkedSegment === index
+                        ? Colors[colorScheme].prayerActionIcon
+                        : Colors[colorScheme].prayerActionIconInactive
+                    }
                   />
                 </TouchableOpacity>
 
@@ -658,11 +757,17 @@ const RenderPrayer = () => {
                   onPress={() => toggleImportantSegment(index)}
                 >
                   <Ionicons
-                    name={importantSegments.includes(index) ? "star" : "star-outline"}
+                    name={
+                      importantSegments.includes(index)
+                        ? "star"
+                        : "star-outline"
+                    }
                     size={20}
-                    color={importantSegments.includes(index)
-                      ? Colors[colorScheme].prayerActionIcon
-                      : Colors[colorScheme].prayerActionIconInactive}
+                    color={
+                      importantSegments.includes(index)
+                        ? Colors[colorScheme].prayerActionIcon
+                        : Colors[colorScheme].prayerActionIconInactive
+                    }
                   />
                 </TouchableOpacity>
               </View>
@@ -707,22 +812,26 @@ const RenderPrayer = () => {
                     fontSize: fontSize,
                     lineHeight: lineHeight,
                     marginTop:
-                      (selectedLanguages.arabic ||
-                      selectedLanguages.transliteration)
+                      selectedLanguages.arabic ||
+                      selectedLanguages.transliteration
                         ? 8
                         : 0,
                     color: Colors[colorScheme].prayerTranslationText,
-                    fontWeight: bookmarkedSegment === index ? '600' : 'normal',
+                    fontWeight: bookmarkedSegment === index ? "600" : "normal",
                   },
                 ]}
               >
-                {segment.translations[language] ||
-                  segment.translations.en}
+                {segment.translations[language] || segment.translations.en}
               </Text>
 
               {/* Subtle divider between segments (except last) */}
               {index < prayerData.segments.length - 1 && (
-                <View style={[styles.segmentDivider, { backgroundColor: theme.divider }]} />
+                <View
+                  style={[
+                    styles.segmentDivider,
+                    { backgroundColor: theme.divider },
+                  ]}
+                />
               )}
             </View>
           ))}
@@ -730,8 +839,15 @@ const RenderPrayer = () => {
 
         {/* Notes Section (if available) */}
         {prayerData.notes && (
-          <View style={[styles.notesContainer, { backgroundColor: theme.backgroundLight }]}>
-            <Text style={[styles.notesTitle, { color: theme.primary }]}>{t('notes')}</Text>
+          <View
+            style={[
+              styles.notesContainer,
+              { backgroundColor: theme.backgroundLight },
+            ]}
+          >
+            <Text style={[styles.notesTitle, { color: theme.primary }]}>
+              {t("notes")}
+            </Text>
             <Text
               style={[
                 styles.notesText,
@@ -750,8 +866,13 @@ const RenderPrayer = () => {
         {/* Source Citation */}
         {prayerData.source && (
           <View style={styles.sourceContainer}>
-            <Text style={[styles.sourceText, { color: colorScheme === "dark" ? "#A5D6A7" : "#757575" }]}>
-              {t('source')}: {prayerData.source}
+            <Text
+              style={[
+                styles.sourceText,
+                { color: colorScheme === "dark" ? "#A5D6A7" : "#757575" },
+              ]}
+            >
+              {t("source")}: {prayerData.source}
             </Text>
           </View>
         )}
@@ -828,7 +949,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginLeft: 8,
   },
-  // Introduction card 
+  // Introduction card
   introductionCard: {
     borderRadius: 14,
     marginBottom: 20,
@@ -894,12 +1015,12 @@ const styles = StyleSheet.create({
   // Modal settings
   modalOverlay: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: Colors.universal.prayerSettingsModalOverlay,
   },
   modalContainer: {
-    width: '85%',
+    width: "85%",
     borderRadius: 16,
     padding: 20,
     elevation: 5,
@@ -909,14 +1030,14 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 20,
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   modalContent: {
     marginBottom: 20,
@@ -924,11 +1045,11 @@ const styles = StyleSheet.create({
   modalButton: {
     padding: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   modalButtonText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 16,
   },
   // Connected prayer flow styles

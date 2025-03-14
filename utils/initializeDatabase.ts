@@ -625,6 +625,74 @@ export const isPrayerInFavorite = async (
   }
 };
 
+// Function to fetch all favorite prayers with robust handling of translations
+const getFavoritePrayers = async (language: string = "de"): Promise<FavoritePrayer[]> => {
+  try {
+    const db = await getDatabase();
+    
+    // Get all favorite prayer IDs first
+    const favoriteIds = await db.getAllAsync<{prayer_id: number}>(
+      "SELECT prayer_id FROM favorites ORDER BY added_at DESC;"
+    );
+    
+    if (!favoriteIds || favoriteIds.length === 0) {
+      return [];
+    }
+    
+    const prayerIds = favoriteIds.map(f => f.prayer_id);
+    const fallbackLanguage = language === "en" ? "de" : "en";
+    
+    // For each prayer, get its details
+    const result = [];
+    
+    for (const id of prayerIds) {
+      // Get basic prayer info
+      const prayerQuery = `
+        SELECT 
+          p.id,
+          p.name,
+          p.arabic_title,
+          c.title as category_title
+        FROM prayers p
+        JOIN categories c ON p.category_id = c.id
+        WHERE p.id = ?;
+      `;
+      
+      const prayer = await db.getFirstAsync(prayerQuery, [id]);
+      
+      if (!prayer) continue;
+      
+      // Try to get translation in preferred language
+      const translationQuery = `
+        SELECT 
+          introduction,
+          SUBSTR(main_body, 1, 150) as prayer_text
+        FROM prayer_translations
+        WHERE prayer_id = ? AND language_code = ?;
+      `;
+      
+      let translation = await db.getFirstAsync(translationQuery, [id, language]);
+      
+      // If no translation in preferred language, try fallback
+      if (!translation || (!translation.introduction && !translation.prayer_text)) {
+        translation = await db.getFirstAsync(translationQuery, [id, fallbackLanguage]);
+      }
+      
+      // Add the prayer with its translation to result
+      result.push({
+        ...prayer,
+        introduction: translation?.introduction || null,
+        prayer_text: translation?.prayer_text || null
+      });
+    }
+    
+    return result;
+  } catch (error) {
+    console.error("Error fetching favorite prayers:", error);
+    throw error;
+  }
+};
+
 /**
  * Content retrieval functions for prayers.
  */

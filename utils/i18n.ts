@@ -135,7 +135,6 @@ const resources: Resource = {
       errorLoadingFavorites: "Fehler beim Laden der Favoriten",
       noFavoritesYet: "Sie haben noch keine Lieblingsgebete!",
       addFavoritesHint: "Tippen Sie auf das Herz-Symbol bei einem Gebet, um es zu Ihren Favoriten hinzuzufügen",
-      
       // Days of week
       days: {
         short: ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
