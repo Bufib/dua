@@ -37,7 +37,7 @@ interface FavoritePrayer {
 const { width } = Dimensions.get('window');
 
 // Function to fetch specific favorite prayers with given IDs
-const getFavoritePrayersWithIds = async (prayerIds: number[], language: string = "en"): Promise<FavoritePrayer[]> => {
+const getFavoritePrayersWithIds = async (prayerIds: number[], language: string = "EN"): Promise<FavoritePrayer[]> => {
   if (!prayerIds || prayerIds.length === 0) return [];
   
   try {
@@ -89,7 +89,7 @@ const getFavoritePrayers = async (language: string = "de"): Promise<FavoritePray
       return [];
     }
     
-    const fallbackLanguage = language === "en" ? "de" : "en";
+    const fallbackLanguage = language === "EN" ? "DE" : "EN";
     
     // For each prayer, get its details
     const result = [];
@@ -296,7 +296,7 @@ function RenderFavoritePrayers() {
             <Pressable
               onPress={() =>
                 router.push({
-                  pathname: "/(prayers)/prayer",
+                  pathname: "/[prayer]",
                   params: {
                     prayerId: item.id.toString(),
                     prayerTitle: item.name,

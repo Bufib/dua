@@ -626,7 +626,7 @@ export const isPrayerInFavorite = async (
 };
 
 // Function to fetch all favorite prayers with robust handling of translations
-const getFavoritePrayers = async (language: string = "de"): Promise<FavoritePrayer[]> => {
+const getFavoritePrayers = async (language: string = "EN"): Promise<FavoritePrayer[]> => {
   try {
     const db = await getDatabase();
     
