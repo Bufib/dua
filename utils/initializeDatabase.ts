@@ -15,6 +15,7 @@ import {
   PrayerWithCategory,
   PayPalType,
   VersionType,
+  FavoritePrayer,
 } from "./types";
 
 // Singleton database instance
@@ -625,70 +626,89 @@ export const isPrayerInFavorite = async (
   }
 };
 
-// Function to fetch all favorite prayers with robust handling of translations
-const getFavoritePrayers = async (language: string = "EN"): Promise<FavoritePrayer[]> => {
+/**
+ * Fetches all favorite prayers with proper translation handling
+ * @param language The preferred language code (e.g., "en", "de")
+ * @returns Array of favorite prayers with appropriate translations
+ */
+export const getFavoritePrayers = async (
+  language: string = "en"
+): Promise<FavoritePrayer[]> => {
   try {
     const db = await getDatabase();
-    
-    // Get all favorite prayer IDs first
-    const favoriteIds = await db.getAllAsync<{prayer_id: number}>(
-      "SELECT prayer_id FROM favorites ORDER BY added_at DESC;"
-    );
-    
-    if (!favoriteIds || favoriteIds.length === 0) {
-      return [];
-    }
-    
-    const prayerIds = favoriteIds.map(f => f.prayer_id);
-    const fallbackLanguage = language === "en" ? "de" : "en";
-    
-    // For each prayer, get its details
-    const result = [];
-    
-    for (const id of prayerIds) {
-      // Get basic prayer info
-      const prayerQuery = `
-        SELECT 
-          p.id,
-          p.name,
-          p.arabic_title,
-          c.title as category_title
-        FROM prayers p
-        JOIN categories c ON p.category_id = c.id
-        WHERE p.id = ?;
-      `;
-      
-      const prayer = await db.getFirstAsync(prayerQuery, [id]);
-      
-      if (!prayer) continue;
-      
-      // Try to get translation in preferred language
-      const translationQuery = `
-        SELECT 
-          introduction,
-          SUBSTR(main_body, 1, 150) as prayer_text
-        FROM prayer_translations
-        WHERE prayer_id = ? AND language_code = ?;
-      `;
-      
-      let translation = await db.getFirstAsync(translationQuery, [id, language]);
-      
-      // If no translation in preferred language, try fallback
-      if (!translation || (!translation.introduction && !translation.prayer_text)) {
-        translation = await db.getFirstAsync(translationQuery, [id, fallbackLanguage]);
+    const normalizedLanguage = language.toLowerCase();
+    const fallbackLanguage = normalizedLanguage === "en" ? "de" : "en";
+
+    // Updated query to include missing fields (created_at, updated_at, languages_available)
+    const query = `
+      WITH favorite_prayers AS (
+        SELECT prayer_id, added_at
+        FROM favorites
+        ORDER BY added_at DESC
+      )
+      SELECT 
+        p.id,
+        p.name,
+        p.arabic_title,
+        p.category_id,
+        c.title as category_title,
+        p.created_at,
+        p.updated_at,
+        p.languages_available,
+        pt.introduction,
+        SUBSTR(pt.main_body, 1, 150) as prayer_text,
+        fp.added_at,
+        pt.language_code
+      FROM favorite_prayers fp
+      JOIN prayers p ON fp.prayer_id = p.id
+      JOIN categories c ON p.category_id = c.id
+      LEFT JOIN prayer_translations pt ON p.id = pt.prayer_id 
+        AND (pt.language_code = ? OR pt.language_code = ?)
+      ORDER BY fp.added_at DESC, 
+        CASE WHEN pt.language_code = ? THEN 0 ELSE 1 END;
+    `;
+
+    // Define the expected row shape and cast the rows accordingly.
+    const rows = (await db.getAllAsync(query, [
+      normalizedLanguage,
+      fallbackLanguage,
+      normalizedLanguage,
+    ])) as Array<FavoritePrayer & { languages_available: string }>;
+
+    // Process results ensuring one entry per prayer with the preferred translation
+    const prayerMap = new Map<number, FavoritePrayer>();
+
+    for (const row of rows) {
+      const prayerId = row.id;
+      if (!prayerMap.has(prayerId)) {
+        let languagesAvailable: string[] = [];
+        try {
+          languagesAvailable = JSON.parse(row.languages_available);
+        } catch (e) {
+          console.error("Error parsing languages_available", e);
+        }
+
+        prayerMap.set(prayerId, {
+          id: prayerId,
+          name: row.name,
+          arabic_title: row.arabic_title,
+          category_id: row.category_id,
+          category_title: row.category_title,
+          introduction: row.introduction || null,
+          prayer_text: row.prayer_text || null,
+          created_at: row.created_at,
+          updated_at: row.updated_at,
+          languages_available: languagesAvailable,
+        });
       }
-      
-      // Add the prayer with its translation to result
-      result.push({
-        ...prayer,
-        introduction: translation?.introduction || null,
-        prayer_text: translation?.prayer_text || null
-      });
     }
-    
-    return result;
+
+    return Array.from(prayerMap.values());
   } catch (error) {
     console.error("Error fetching favorite prayers:", error);
+    Alert.alert("Fehler", "Favoriten konnten nicht geladen werden.", [
+      { text: "OK" },
+    ]);
     throw error;
   }
 };
@@ -726,7 +746,9 @@ export const getChildCategories = async (
   }
 };
 
-export const getCategoryById = async (categoryId: number): Promise<CategoryType | null> => {
+export const getCategoryById = async (
+  categoryId: number
+): Promise<CategoryType | null> => {
   try {
     const db = await getDatabase();
     const query = "SELECT * FROM categories WHERE id = ? LIMIT 1;";
@@ -738,7 +760,9 @@ export const getCategoryById = async (categoryId: number): Promise<CategoryType 
   }
 };
 
-export const getCategoryByTitle = async (title: string): Promise<CategoryType | null> => {
+export const getCategoryByTitle = async (
+  title: string
+): Promise<CategoryType | null> => {
   try {
     const db = await getDatabase();
     const query = "SELECT * FROM categories WHERE title = ? LIMIT 1;";
@@ -756,13 +780,13 @@ export const getAllPrayersForCategory = async (
 ): Promise<PrayerWithCategory[]> => {
   try {
     const db = await getDatabase();
-    
+
     // Get the category ID for the given title
     const category = await getCategoryByTitle(categoryTitle);
     if (!category) {
       throw new Error(`Category with title "${categoryTitle}" not found`);
     }
-    
+
     // Get all prayers with this category ID
     // We use category IDs for database relationships, but show titles to the user
     const query = `
@@ -783,13 +807,13 @@ export const getAllPrayersForCategory = async (
       WHERE (p.category_id = ? OR c.parent_id = ?) AND pt.language_code = ?
       ORDER BY datetime(p.created_at) DESC;
     `;
-    
+
     const rows = await db.getAllAsync<PrayerWithCategory>(query, [
       category.id,
       category.id, // Include prayers from subcategories
       language,
     ]);
-    
+
     return rows;
   } catch (error) {
     console.error("Error fetching prayers for category:", error);
@@ -806,19 +830,19 @@ export const getCategoryAndDescendantIds = async (
   db: SQLite.SQLiteDatabase
 ): Promise<number[]> => {
   const ids = [categoryId];
-  
+
   // Fetch immediate child categories
   const childCategories = await db.getAllAsync<{ id: number }>(
     "SELECT id FROM categories WHERE parent_id = ?;",
     [categoryId]
   );
-  
+
   // Recursively collect IDs from children
   for (const child of childCategories) {
     const childIds = await getCategoryAndDescendantIds(child.id, db);
     ids.push(...childIds);
   }
-  
+
   return ids;
 };
 
@@ -860,10 +884,11 @@ export const getPrayer = async (
     if (row) {
       try {
         // Parse the languages_available JSON string if it's a string
-        const languages = typeof row.languages_available === 'string' 
-          ? JSON.parse(row.languages_available) 
-          : row.languages_available;
-          
+        const languages =
+          typeof row.languages_available === "string"
+            ? JSON.parse(row.languages_available)
+            : row.languages_available;
+
         return {
           ...row,
           languages_available: languages,
@@ -913,10 +938,6 @@ export const searchPrayers = async (
       `%${searchTerm}%`,
       language,
     ]);
-
-    if (rows.length === 0) {
-      Alert.alert("Suche", "Keine Ergebnisse gefunden.", [{ text: "OK" }]);
-    }
 
     return rows;
   } catch (error) {

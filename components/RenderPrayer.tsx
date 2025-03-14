@@ -54,7 +54,7 @@ const RenderPrayer = () => {
 
   // Get prayer ID from URL params
   const { prayerId, prayerTitle } = useLocalSearchParams<{
-    prayerId: string;
+    prayerId: string; //! why string?
     prayerTitle: string;
   }>();
 
@@ -1062,8 +1062,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
-   
-
   },
   prayerSegment: {
     padding: 16,

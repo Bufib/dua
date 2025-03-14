@@ -6,10 +6,13 @@ import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColorScheme } from "react-native";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/context/LanguageContext";
 export default function index() {
   const colorScheme = useColorScheme() || "light";
-  
-  console.log(Colors[colorScheme].background);
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+
   return (
     <SafeAreaView
       style={[
@@ -19,7 +22,7 @@ export default function index() {
       edges={["top"]}
     >
       <ThemedText type="title" style={styles.greeting}>
-        As-salamu alaykum
+        {t("welcome")}
       </ThemedText>
       <QuestionLinks />
     </SafeAreaView>

@@ -9,7 +9,6 @@ import {
   TextInput,
   ScrollView,
   Modal,
-  Platform,
 } from "react-native";
 import { router } from "expo-router";
 import { Image } from "expo-image";
@@ -19,48 +18,24 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "./ThemedText";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/context/LanguageContext";
-import { defaultTo } from "lodash";
+import EvilIcons from "@expo/vector-icons/EvilIcons";
+import {
+  TodoItem,
+  WeeklyTodos,
+  TodoToDelete,
+  CategoryItem,
+  PrayerData,
+  PrayersByLanguage,
+} from "@/utils/types";
+import { ThemedView } from "./ThemedView";
 
 // Storage key for weekly calendar todos
 const WEEKLY_TODOS_STORAGE_KEY = "prayer_app_weekly_todos";
 
-// TypeScript interfaces
-interface TodoItem {
-  id: number;
-  text: string;
-  completed: boolean;
-}
-
-interface WeeklyTodos {
-  [key: string]: TodoItem[];
-}
-
-interface TodoToDelete {
-  dayIndex: number | null;
-  todoId: number | null;
-}
-
-interface CategoryItem {
-  id: number;
-  title: string;
-  image: any;
-}
-
-interface PrayerData {
-  title: string;
-  text: string;
-  category: string;
-}
-
-interface PrayersByLanguage {
-  [key: string]: PrayerData;
-}
-
-const HomeScreen: React.FC = () => {
+const HomeScreen = () => {
   const themeStyles = CoustomTheme();
   const { width } = useWindowDimensions();
   const colorScheme: ColorSchemeName = useColorScheme() || "light";
@@ -80,7 +55,6 @@ const HomeScreen: React.FC = () => {
   const categories: CategoryItem[] = [
     { id: 0, title: t("dua"), image: require("@/assets/images/dua.png") },
     { id: 1, title: t("salat"), image: require("@/assets/images/salat.png") },
-
     {
       id: 2,
       title: t("ziyarat"),
@@ -211,14 +185,11 @@ const HomeScreen: React.FC = () => {
 
   // Toggle todo completion status
   const toggleTodo = (dayIndex: number, todoId: number): void => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
     setWeeklyTodos((prevTodos) => {
       const dayTodos = [...(prevTodos[dayIndex] || [])];
       const updatedDayTodos = dayTodos.map((todo) =>
         todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
       );
-
       return {
         ...prevTodos,
         [dayIndex]: updatedDayTodos,
@@ -229,8 +200,6 @@ const HomeScreen: React.FC = () => {
   // Add new todo to selected day
   const addTodo = (): void => {
     if (newTodo.trim() && selectedDay !== null) {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-
       setWeeklyTodos((prevTodos) => {
         const dayTodos = [...(prevTodos[selectedDay] || [])];
         const updatedDayTodos = [
@@ -255,7 +224,6 @@ const HomeScreen: React.FC = () => {
 
   // Show delete confirmation
   const showDeleteConfirmation = (dayIndex: number, todoId: number): void => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setTodoToDelete({ dayIndex, todoId });
     setDeleteModalVisible(true);
   };
@@ -278,7 +246,6 @@ const HomeScreen: React.FC = () => {
 
     setDeleteModalVisible(false);
     setTodoToDelete({ dayIndex: null, todoId: null });
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
   };
 
   // Cancel delete
@@ -287,6 +254,23 @@ const HomeScreen: React.FC = () => {
     setTodoToDelete({ dayIndex: null, todoId: null });
   };
 
+
+  const undoAllTodosForSelectedDay = (): void => {
+    if (selectedDay !== null) {
+      setWeeklyTodos((prevTodos) => {
+        // Create a shallow copy of the previous todos
+        const newTodos = { ...prevTodos };
+        // If there are todos for the selected day, update them
+        if (newTodos[selectedDay]) {
+          newTodos[selectedDay] = newTodos[selectedDay].map((todo) => ({
+            ...todo,
+            completed: false,
+          }));
+        }
+        return newTodos;
+      });
+    }
+  };
   // Get current prayer data
   const todaysPrayer = getTodaysPrayer();
 
@@ -325,10 +309,7 @@ const HomeScreen: React.FC = () => {
   const flexDirection = isRTL ? { flexDirection: "row-reverse" as const } : {};
 
   return (
-    <SafeAreaView
-      edges={["top"]}
-      style={[styles.container, themeStyles.defaultBackgorundColor]}
-    >
+    <View style={[styles.container, themeStyles.defaultBackgorundColor]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
@@ -359,8 +340,11 @@ const HomeScreen: React.FC = () => {
             ]}
             onPress={() =>
               router.push({
-                pathname: "/(tabs)/home/(prayer)/[prayer]",
-                params: { prayerId: 1, prayerTitle: todaysPrayer.title },
+                pathname: "/[prayer]",
+                params: {
+                  prayerId: todaysPrayer.id,
+                  prayerTitle: todaysPrayer.title,
+                },
               })
             }
           >
@@ -451,7 +435,6 @@ const HomeScreen: React.FC = () => {
                 ]}
                 onPress={() => {
                   setSelectedDay(index);
-                  Haptics.selectionAsync();
                 }}
               >
                 <ThemedText
@@ -469,9 +452,18 @@ const HomeScreen: React.FC = () => {
 
           {/* Selected Day Heading */}
           {selectedDay !== null && (
-            <ThemedText style={[styles.selectedDayTitle, textAlign]}>
-              {getFullDayName(selectedDay)}
-            </ThemedText>
+            <ThemedView style={styles.weekPlanerContainer}>
+              <ThemedText style={styles.selectedDayTitle}>
+                {getFullDayName(selectedDay)}
+              </ThemedText>
+              <TouchableOpacity onPress={() => undoAllTodosForSelectedDay()}>
+                <EvilIcons
+                  name="undo"
+                  size={30}
+                  color={colorScheme === "dark" ? "#ffffff" : "#000000"}
+                />
+              </TouchableOpacity>
+            </ThemedView>
           )}
 
           {/* Todos for Selected Day */}
@@ -714,7 +706,7 @@ const HomeScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -857,6 +849,12 @@ const styles = StyleSheet.create({
   },
   currentDayText: {
     color: "#4CAF50",
+  },
+  weekPlanerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 10,
   },
   selectedDayTitle: {
     fontSize: 16,

@@ -125,3 +125,41 @@ export type PrayerWithCategory = {
   notes?: string;
   source?: string;
 };
+
+export interface FavoritePrayer extends PrayerType {
+  category_title: string;
+  introduction: string | null;
+  prayer_text: string | null;
+}
+
+
+export type TodoItem = {
+  id: number;
+  text: string;
+  completed: boolean;
+};
+
+export type WeeklyTodos = {
+  [key: string]: TodoItem[];
+};
+
+export type TodoToDelete = {
+  dayIndex: number | null;
+  todoId: number | null;
+};
+
+export type CategoryItem = {
+  id: number;
+  title: string;
+  image: any;
+};
+
+export type PrayerData = {
+  title: string;
+  text: string;
+  category: string;
+};
+
+export type PrayersByLanguage = {
+  [key: string]: PrayerData;
+};
