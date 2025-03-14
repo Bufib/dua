@@ -51,6 +51,24 @@ interface TranslationType {
   deleteQuestion: string;
   delete: string;
   
+  // Prayer viewer
+  loadingPrayer: string;
+  unableToLoadPrayer: string;
+  notes: string;
+  source: string;
+  close: string;
+  transliteration: string;
+  adjustFontSize: string;
+  confirmBookmarkChange: string;
+  bookmarkReplaceQuestion: string;
+  replace: string;
+  
+  // Favorites
+  loadingFavorites: string;
+  errorLoadingFavorites: string;
+  noFavoritesYet: string;
+  addFavoritesHint: string;
+  
   // Days of week
   days: DayNamesType;
 }
@@ -99,6 +117,24 @@ const resources: Resource = {
       confirmDelete: "Löschen bestätigen",
       deleteQuestion: "Möchtest du dieses Gebet wirklich löschen?",
       delete: "Löschen",
+      
+      // Prayer viewer
+      loadingPrayer: "Gebet wird geladen...",
+      unableToLoadPrayer: "Gebetsinhalt konnte nicht geladen werden. Bitte versuchen Sie es später erneut.",
+      notes: "Notizen",
+      source: "Quelle",
+      close: "Schließen",
+      transliteration: "Transliteration",
+      adjustFontSize: "Schriftgröße anpassen",
+      confirmBookmarkChange: "Lesezeichen ersetzen",
+      bookmarkReplaceQuestion: "Sie haben bereits ein Segment mit einem Lesezeichen versehen. Möchten Sie es ersetzen?",
+      replace: "Ersetzen",
+      
+      // Favorites
+      loadingFavorites: "Favoriten werden geladen...",
+      errorLoadingFavorites: "Fehler beim Laden der Favoriten",
+      noFavoritesYet: "Sie haben noch keine Lieblingsgebete!",
+      addFavoritesHint: "Tippen Sie auf das Herz-Symbol bei einem Gebet, um es zu Ihren Favoriten hinzuzufügen",
       
       // Days of week
       days: {
@@ -150,6 +186,24 @@ const resources: Resource = {
       deleteQuestion: "هل أنت متأكد أنك تريد حذف هذه الصلاة؟",
       delete: "حذف",
       
+      // Prayer viewer
+      loadingPrayer: "جاري تحميل الصلاة...",
+      unableToLoadPrayer: "تعذر تحميل محتوى الصلاة. يرجى المحاولة مرة أخرى لاحقًا.",
+      notes: "ملاحظات",
+      source: "المصدر",
+      close: "إغلاق",
+      transliteration: "النقل الحرفي",
+      adjustFontSize: "تعديل حجم الخط",
+      confirmBookmarkChange: "استبدال الإشارة المرجعية",
+      bookmarkReplaceQuestion: "لديك بالفعل جزء محدد بإشارة مرجعية. هل تريد استبداله؟",
+      replace: "استبدال",
+      
+      // Favorites
+      loadingFavorites: "جاري تحميل المفضلة...",
+      errorLoadingFavorites: "خطأ في تحميل المفضلة",
+      noFavoritesYet: "ليس لديك أي صلوات مفضلة بعد!",
+      addFavoritesHint: "انقر على رمز القلب على أي صلاة لإضافتها إلى المفضلة لديك",
+      
       // Days of week
       days: {
         short: ['إث', 'ثل', 'أر', 'خم', 'جم', 'سب', 'أح'],
@@ -199,6 +253,24 @@ const resources: Resource = {
       confirmDelete: "Confirm Deletion",
       deleteQuestion: "Are you sure you want to delete this prayer?",
       delete: "Delete",
+      
+      // Prayer viewer
+      loadingPrayer: "Loading prayer...",
+      unableToLoadPrayer: "Unable to load prayer content. Please try again later.",
+      notes: "Notes",
+      source: "Source",
+      close: "Close",
+      transliteration: "Transliteration",
+      adjustFontSize: "Adjust Font Size",
+      confirmBookmarkChange: "Replace Bookmark",
+      bookmarkReplaceQuestion: "You already have a bookmarked segment. Do you want to replace it?",
+      replace: "Replace",
+      
+      // Favorites
+      loadingFavorites: "Loading favorites...",
+      errorLoadingFavorites: "Error loading favorites",
+      noFavoritesYet: "You don't have any favorite prayers yet!",
+      addFavoritesHint: "Tap the heart icon on any prayer to add it to your favorites",
       
       // Days of week
       days: {

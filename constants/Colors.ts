@@ -45,7 +45,30 @@ export const Colors = {
     inverseTextPicker: "#FFFFFF",
     inverseQuestionText: "rgba(0, 0, 0, 1)",
     pickerContainerBorder: "#000000",
+
+    // Prayer viewer colors - Light Mode
+    prayerHeaderBackground: "#057958",
+    prayerHeaderText: "#FFFFFF",
+    prayerHeaderSubtitle: "rgba(255, 255, 255, 0.9)",
+    prayerBookmarkBackground: "rgba(5, 121, 88, 0.1)",
+    prayerBookmarkBorder: "#057958",
+    prayerImportantBackground: "rgba(5, 121, 88, 0.05)",
+    prayerSegmentDivider: "rgba(5, 121, 88, 0.15)",
+    prayerArabicText: "#057958",
+    prayerTransliterationText: "#616161",
+    prayerTranslationText: "#212121",
+    prayerButtonBackground: "rgba(5, 121, 88, 0.2)",
+    prayerButtonBackgroundActive: "#057958",
+    prayerButtonText: "#057958",
+    prayerButtonTextActive: "#FFFFFF",
+    prayerActionIcon: "#057958",
+    prayerActionIconInactive: "rgba(5, 121, 88, 0.6)",
+    prayerIntroductionBackground: "#e8f5e9",
+    prayerNotesBackground: "#e8f5e9",
+    prayerSourceText: "#757575",
+    prayerLoadingIndicator: "#057958",
   },
+  
   dark: {
     text: "#d0d0c0",
     background: "#242c40",
@@ -70,7 +93,7 @@ export const Colors = {
     indexCategoryTextBorder: "#808080",
     black: "#000000",
     addNewsButton: "#d0d0c0",
-    tabbarIcon: "##000000",
+    tabbarIcon: "#000000",
     categorieBackground: "#96BFCC",
     categorieText: "#000000",
     indexBorderDash: "#DDC092",
@@ -90,7 +113,30 @@ export const Colors = {
     inverseTextPicker: "#000000",
     inverseQuestionText: "rgba(255, 255, 255, 1)",
     pickerContainerBorder: "#FFFFFF",
+
+    // Prayer viewer colors - Dark Mode
+    prayerHeaderBackground: "#046347",
+    prayerHeaderText: "#e8f5e9",
+    prayerHeaderSubtitle: "rgba(232, 245, 233, 0.9)",
+    prayerBookmarkBackground: "rgba(5, 121, 88, 0.2)",
+    prayerBookmarkBorder: "#057958",
+    prayerImportantBackground: "rgba(5, 121, 88, 0.1)",
+    prayerSegmentDivider: "rgba(208, 208, 192, 0.2)",
+    prayerArabicText: "#2ea853",
+    prayerTransliterationText: "#a0a090",
+    prayerTranslationText: "#d0d0c0",
+    prayerButtonBackground: "rgba(5, 121, 88, 0.2)",
+    prayerButtonBackgroundActive: "#057958",
+    prayerButtonText: "#2ea853",
+    prayerButtonTextActive: "#e8f5e9",
+    prayerActionIcon: "#057958",
+    prayerActionIconInactive: "rgba(5, 121, 88, 0.6)",
+    prayerIntroductionBackground: "#2d374d",
+    prayerNotesBackground: "#2d374d",
+    prayerSourceText: "#a0a090",
+    prayerLoadingIndicator: "#057958",
   },
+  
   universal: {
     primary: "#057958",
     secondary: "#2ea853",
@@ -113,11 +159,19 @@ export const Colors = {
     indexItemBackgroundColor: "#4fa1b8",
     error: "#dc3545",
     QuestionLinksIconContainer: "#057958",
+    
+    // Prayer viewer universal colors
+    prayerPrimaryColor: "#057958", // Main green color
+    prayerSecondaryColor: "#2ea853", // Secondary green
+    prayerBackgroundColor: "#e8f5e9", // Light background for prayer cards
+    prayerHeaderIcon: "#FFFFFF", // Icons in the header (always white)
+    prayerSettingsModalOverlay: "rgba(0, 0, 0, 0.5)",
   },
 };
 
+// Color reference
 // hellgrün: #2ea853
-// dunkelgrün  "#057958"
+// dunkelgrün "#057958"
 // background: "#e8f5e9",
 // alternative beige: fbf9f1
-// alternative  background: "#F7FDF8",
+// alternative background: "#F7FDF8"

@@ -10,7 +10,8 @@ import {
   ActivityIndicator,
   Platform,
   Share,
-  Pressable,
+  Modal,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,14 +19,14 @@ import { Colors } from "@/constants/Colors";
 import { useFontSizeStore } from "@/stores/fontSizeStore";
 import FontSizePickerModal from "@/components/FontSizePickerModal";
 import { useLocalSearchParams, router } from "expo-router";
-import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import {
   isPrayerInFavorite,
   addPrayerToFavorite,
   removePrayerFromFavorite,
 } from "@/utils/initializeDatabase";
 import { useLanguage } from "@/context/LanguageContext";
+import { useTranslation } from "react-i18next";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Define types for prayer content
 interface PrayerSegment {
@@ -48,6 +49,9 @@ interface PrayerData {
 }
 
 const RenderPrayer = () => {
+  // Translations
+  const { t } = useTranslation();
+  
   // Get prayer ID from URL params
   const { prayerId, prayerTitle } = useLocalSearchParams<{
     prayerId: string;
@@ -61,23 +65,40 @@ const RenderPrayer = () => {
   const [selectedLanguages, setSelectedLanguages] = useState({
     arabic: true,
     transliteration: true,
-    translation: true,
   });
-  const [selectedTranslationLanguage, setSelectedTranslationLanguage] =
-    useState("de");
-  const [showSettings, setShowSettings] = useState(false);
+  const [bookmarkedSegment, setBookmarkedSegment] = useState<number | null>(null);
+  const [importantSegments, setImportantSegments] = useState<number[]>([]);
+  const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
   const [fontSizeModalVisible, setFontSizeModalVisible] = useState(false);
 
   // Animations
   const headerAnimation = useRef(new Animated.Value(0)).current;
-  const settingsAnimation = useRef(new Animated.Value(0)).current;
 
   // Hooks
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() || "light";
   const { fontSize, lineHeight } = useFontSizeStore();
   const insets = useSafeAreaInsets();
-  const { language } = useLanguage();
+  const { language, changeLanguage } = useLanguage();
   const scrollRef = useRef<ScrollView>(null);
+
+  // Theme colors from Colors constant
+  const theme = {
+    primary: Colors.universal.primary, // #057958 - Main green
+    primaryDark: colorScheme === "dark" ? "#046347" : "#046347", // Darkened primary
+    primaryLight: Colors.universal.secondary, // #2ea853 - Secondary green
+    secondary: Colors.universal.third, // #e8f5e9 - Light green/background
+    textPrimary: colorScheme === "dark" ? Colors.dark.text : Colors.light.text, // #d0d0c0 or #000000
+    textSecondary: colorScheme === "dark" ? "#a0a090" : "#333333", // Muted text colors
+    background: colorScheme === "dark" ? Colors.dark.background : Colors.light.background, // #242c40 or #fbf9f1
+    backgroundLight: colorScheme === "dark" ? "#2d374d" : Colors.universal.third, // Slightly lighter background
+    divider: colorScheme === "dark" ? "rgba(208, 208, 192, 0.2)" : "rgba(5, 121, 88, 0.15)", // Divider based on text/primary
+    bookmarkBackground: colorScheme === "dark" ? "rgba(5, 121, 88, 0.2)" : "rgba(5, 121, 88, 0.1)", // Bookmark background
+    importantBackground: colorScheme === "dark" ? "rgba(5, 121, 88, 0.1)" : "rgba(5, 121, 88, 0.05)", // Important background
+  };
+
+  // Storage keys
+  const BOOKMARK_STORAGE_KEY = `prayer_bookmark_${prayerId}`;
+  const IMPORTANT_STORAGE_KEY = `prayer_important_${prayerId}`;
 
   // Header opacity based on scroll
   const headerOpacity = headerAnimation.interpolate({
@@ -86,12 +107,30 @@ const RenderPrayer = () => {
     extrapolate: "clamp",
   });
 
-  // Settings panel slide in/out
-  const settingsPosition = settingsAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [300, 0],
-    extrapolate: "clamp",
-  });
+  // Load bookmark and important segments from storage
+  useEffect(() => {
+    const loadUserPreferences = async () => {
+      if (!prayerId) return;
+      
+      try {
+        // Load bookmark
+        const bookmarkData = await AsyncStorage.getItem(BOOKMARK_STORAGE_KEY);
+        if (bookmarkData) {
+          setBookmarkedSegment(JSON.parse(bookmarkData));
+        }
+        
+        // Load important segments
+        const importantData = await AsyncStorage.getItem(IMPORTANT_STORAGE_KEY);
+        if (importantData) {
+          setImportantSegments(JSON.parse(importantData));
+        }
+      } catch (error) {
+        console.error("Error loading user preferences:", error);
+      }
+    };
+    
+    loadUserPreferences();
+  }, [prayerId]);
 
   // Check if prayer is in favorites
   useEffect(() => {
@@ -161,19 +200,10 @@ const RenderPrayer = () => {
           notes:
             "You may then repeat the following Laan one hundred times: اَللَّهُمَّ ٱلْعَنْ أَوَّلَ ظَالِمٍ",
           source: "Mafatih al-Jinan",
-          languages_available: ["en", "de", "ar"],
+          languages_available: ["en", "de"],
         };
 
         setPrayerData(mockPrayer);
-
-        // Set default translation language
-        if (mockPrayer.languages_available.includes(language)) {
-          setSelectedTranslationLanguage(language);
-        } else {
-          setSelectedTranslationLanguage(
-            mockPrayer.languages_available[0] || "en"
-          );
-        }
       } catch (error) {
         console.error("Error fetching prayer:", error);
       } finally {
@@ -182,7 +212,8 @@ const RenderPrayer = () => {
     };
 
     fetchPrayerData();
-  }, [prayerId, prayerTitle, language]);
+    // Remove language from dependency array - we don't need to refetch when language changes
+  }, [prayerId, prayerTitle]);
 
   // Toggle favorite status
   const toggleFavorite = async () => {
@@ -199,24 +230,70 @@ const RenderPrayer = () => {
         await addPrayerToFavorite(id);
         setIsFavorite(true);
       }
-
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch (error) {
       console.error("Error toggling favorite status:", error);
     }
   };
 
-  // Toggle settings panel
-  const toggleSettings = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setShowSettings(!showSettings);
+  // Set bookmark for a segment
+  const setBookmark = async (index: number) => {
+    try {
+      // If there's already a bookmark and it's different from the current one
+      if (bookmarkedSegment !== null && bookmarkedSegment !== index) {
+        // Show confirmation alert
+        Alert.alert(
+          t('confirmBookmarkChange'),
+          t('bookmarkReplaceQuestion'),
+          [
+            {
+              text: t('cancel'),
+              style: "cancel",
+            },
+            {
+              text: t('replace'),
+              onPress: async () => {
+                setBookmarkedSegment(index);
+                await AsyncStorage.setItem(BOOKMARK_STORAGE_KEY, JSON.stringify(index));
+                // You can also update in Supabase
+              },
+            },
+          ]
+        );
+      } else if (bookmarkedSegment === index) {
+        // If clicking the same bookmark, remove it
+        setBookmarkedSegment(null);
+        await AsyncStorage.removeItem(BOOKMARK_STORAGE_KEY);
+      } else {
+        // If no bookmark exists, add this one
+        setBookmarkedSegment(index);
+        await AsyncStorage.setItem(BOOKMARK_STORAGE_KEY, JSON.stringify(index));
+      }
+    } catch (error) {
+      console.error("Error setting bookmark:", error);
+    }
+  };
 
-    Animated.spring(settingsAnimation, {
-      toValue: showSettings ? 0 : 1,
-      useNativeDriver: true,
-      friction: 8,
-      tension: 60,
-    }).start();
+  // Toggle important for a segment
+  const toggleImportantSegment = async (index: number) => {
+    try {
+      let newImportantSegments = [...importantSegments];
+      
+      if (newImportantSegments.includes(index)) {
+        // Remove from important
+        newImportantSegments = newImportantSegments.filter(i => i !== index);
+      } else {
+        // Add to important
+        newImportantSegments.push(index);
+      }
+      
+      setImportantSegments(newImportantSegments);
+      await AsyncStorage.setItem(IMPORTANT_STORAGE_KEY, JSON.stringify(newImportantSegments));
+      
+      // You can also store these in Supabase
+      // e.g., supabaseClient.from('prayer_important').upsert(...)
+    } catch (error) {
+      console.error("Error toggling important:", error);
+    }
   };
 
   // Share prayer
@@ -224,8 +301,6 @@ const RenderPrayer = () => {
     if (!prayerData) return;
 
     try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
       let shareText = `${prayerData.title}\n${prayerData.arabicTitle}\n\n`;
 
       if (prayerData.introduction) {
@@ -241,12 +316,10 @@ const RenderPrayer = () => {
           shareText += `${segment.transliteration}\n`;
         }
 
-        if (selectedLanguages.translation) {
-          shareText += `${
-            segment.translations[selectedTranslationLanguage] ||
-            segment.translations.en
-          }\n`;
-        }
+        shareText += `${
+          segment.translations[language] ||
+          segment.translations.en
+        }\n`;
 
         shareText += "\n";
       });
@@ -271,73 +344,88 @@ const RenderPrayer = () => {
     router.back();
   };
 
-  // Render language selection buttons
-  const renderLanguageButtons = () => {
-    if (!prayerData) return null;
-
-    return (
-      <View style={styles.languageButtonsContainer}>
-        {prayerData.languages_available.map((lang) => (
-          <TouchableOpacity
-            key={lang}
-            style={[
-              styles.languageButton,
-              selectedTranslationLanguage === lang &&
-                styles.languageButtonActive,
-            ]}
-            onPress={() => {
-              setSelectedTranslationLanguage(lang);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }}
-          >
-            <Text
-              style={[
-                styles.languageButtonText,
-                selectedTranslationLanguage === lang &&
-                  styles.languageButtonTextActive,
-              ]}
-            >
-              {lang.toUpperCase()}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    );
+  // Toggle display settings
+  const toggleDisplaySetting = (key: 'arabic' | 'transliteration') => {
+    setSelectedLanguages(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
   };
+
+  // Settings Modal Component
+  const SettingsModal = () => (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={isSettingsModalVisible}
+      onRequestClose={() => setIsSettingsModalVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={[styles.modalContainer, { backgroundColor: theme.backgroundLight }]}>
+          <View style={styles.modalHeader}>
+            <Text style={[styles.modalTitle, { color: theme.primary }]}>
+              {t('settings')}
+            </Text>
+            <TouchableOpacity onPress={() => setIsSettingsModalVisible(false)}>
+              <Ionicons name="close" size={24} color={theme.primary} />
+            </TouchableOpacity>
+          </View>
+          
+          <View style={styles.modalContent}>            
+            <TouchableOpacity
+              style={[styles.settingsItem, { borderBottomColor: theme.divider }]}
+              onPress={() => setFontSizeModalVisible(true)}
+            >
+              <View style={styles.settingsItemLeft}>
+                <Ionicons name="text" size={22} color={theme.primary} style={styles.settingsItemIcon} />
+                <Text style={[styles.settingsItemText, { color: theme.textPrimary }]}>
+                  {t('adjustFontSize')}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={22} color={theme.textSecondary} />
+            </TouchableOpacity>
+          </View>
+          
+          <TouchableOpacity
+            style={[styles.modalButton, { backgroundColor: theme.primary }]}
+            onPress={() => setIsSettingsModalVisible(false)}
+          >
+            <Text style={styles.modalButtonText}>{t('close')}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
 
   if (loading) {
     return (
-      <LinearGradient
-        colors={
-          colorScheme === "dark"
-            ? ["#10172b", "#1e2a4a"]
-            : ["#edf4ff", "#ffffff"]
-        }
-        style={styles.loadingContainer}
+      <View
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: theme.background }
+        ]}
       >
-        <ActivityIndicator size="large" color="#4878e0" />
+        <ActivityIndicator size="large" color={Colors[colorScheme].prayerLoadingIndicator} />
         <Text
           style={{
             marginTop: 12,
-            color: colorScheme === "dark" ? "#b3c5ef" : "#4878e0",
+            color: theme.textSecondary,
             fontSize: 16,
           }}
         >
-          Loading prayer...
+          {t('loadingPrayer')}
         </Text>
-      </LinearGradient>
+      </View>
     );
   }
 
   if (!prayerData) {
     return (
-      <LinearGradient
-        colors={
-          colorScheme === "dark"
-            ? ["#10172b", "#1e2a4a"]
-            : ["#edf4ff", "#ffffff"]
-        }
-        style={styles.loadingContainer}
+      <View
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: theme.background }
+        ]}
       >
         <Ionicons
           name="alert-circle-outline"
@@ -347,28 +435,19 @@ const RenderPrayer = () => {
         <Text
           style={{
             marginTop: 12,
-            color: colorScheme === "dark" ? "#b3c5ef" : "#4878e0",
+            color: theme.textSecondary,
             fontSize: 16,
             textAlign: "center",
           }}
         >
-          Unable to load prayer content. Please try again later.
+          {t('unableToLoadPrayer')}
         </Text>
-      </LinearGradient>
+      </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <LinearGradient
-        colors={
-          colorScheme === "dark"
-            ? ["#10172b", "#1e2a4a"]
-            : ["#edf4ff", "#ffffff"]
-        }
-        style={StyleSheet.absoluteFillObject}
-      />
-
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Main Scroll Content */}
       <ScrollView
         ref={scrollRef}
@@ -382,167 +461,164 @@ const RenderPrayer = () => {
         scrollEventThrottle={16}
       >
         {/* Prayer Header Section */}
-        <LinearGradient
-         colors={
-          colorScheme === "dark"
-            ? ["#1e5c3f", "#0c2d1e"]  // Deep forest green
-            : ["#3cb371", "#2e8b57"]  // Bright medium sea green
-        }
-          style={styles.prayerHeaderGradient}
+        <View 
+          style={[
+            styles.prayerHeader, 
+            { backgroundColor: Colors[colorScheme].prayerHeaderBackground, borderRadius: 16 }
+          ]}
         >
-          <View style={styles.prayerHeader}>
-            <View style={styles.prayerTitleContainer}>
-              <Text style={styles.prayerTitle}>{prayerData.title}</Text>
-              <Text style={styles.prayerArabicTitle}>
-                {prayerData.arabicTitle}
-              </Text>
-            </View>
-
-            <View style={styles.headerActions}>
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={toggleFavorite}
-              >
-                <Ionicons
-                  name={isFavorite ? "heart" : "heart-outline"}
-                  size={22}
-                  color="#ffffff"
-                />
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.iconButton} onPress={handleShare}>
-                <Ionicons name="share-outline" size={22} color="#ffffff" />
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.iconButton}
-                onPress={toggleSettings}
-              >
-                <Ionicons name="text" size={22} color="#ffffff" />
-              </TouchableOpacity>
-            </View>
+          <View style={styles.prayerTitleContainer}>
+            <Text style={[styles.prayerTitle, { color: Colors[colorScheme].prayerHeaderText }]}>
+              {prayerData.title}
+            </Text>
+            <Text style={[styles.prayerArabicTitle, { color: Colors[colorScheme].prayerHeaderSubtitle }]}>
+              {prayerData.arabicTitle}
+            </Text>
           </View>
-        </LinearGradient>
+
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={[styles.iconButton, { backgroundColor: "rgba(255, 255, 255, 0.2)" }]}
+              onPress={toggleFavorite}
+            >
+              <Ionicons
+                name={isFavorite ? "heart" : "heart-outline"}
+                size={22}
+                color={Colors.universal.prayerHeaderIcon}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.iconButton, { backgroundColor: "rgba(255, 255, 255, 0.2)" }]} 
+              onPress={handleShare}
+            >
+              <Ionicons name="share-outline" size={22} color={Colors.universal.prayerHeaderIcon} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.iconButton, { backgroundColor: "rgba(255, 255, 255, 0.2)" }]}
+              onPress={() => setIsSettingsModalVisible(true)}
+            >
+              <Ionicons name="settings-outline" size={22} color={Colors.universal.prayerHeaderIcon} />
+            </TouchableOpacity>
+          </View>
+        </View>
 
         {/* Introduction Card */}
         {prayerData.introduction && (
-          <View style={styles.introductionCard}>
-            <LinearGradient
-              colors={
-                colorScheme === "dark"
-                  ? ["#1d2f53", "#253862"]
-                  : ["#d6e2ff", "#e6eeff"]
-              }
-              style={styles.introductionGradient}
+          <View style={[styles.introductionCard, { backgroundColor: theme.backgroundLight }]}>
+            <Text
+              style={[
+                styles.introductionText,
+                {
+                  fontSize: fontSize - 1,
+                  lineHeight: lineHeight - 2,
+                  color: theme.textSecondary
+                },
+              ]}
             >
-              <Text
-                style={[
-                  styles.introductionText,
-                  {
-                    fontSize: fontSize - 1,
-                    lineHeight: lineHeight - 2,
-                  },
-                ]}
-              >
-                {prayerData.introduction}
-              </Text>
-            </LinearGradient>
+              {prayerData.introduction}
+            </Text>
           </View>
         )}
 
-        {/* Language Selection */}
+        {/* Language Selection with Toggle Options */}
         <View style={styles.languageSelectorContainer}>
-          {renderLanguageButtons()}
+          <View style={styles.languageRow}>
+            {/* Language buttons */}
+            <View style={styles.languageButtons}>
+              {prayerData.languages_available.map((lang) => (
+                <TouchableOpacity
+                  key={lang}
+                  style={[
+                    styles.languageButton,
+                    lang === language && styles.languageButtonActive,
+                    { 
+                      backgroundColor: lang === language 
+                        ? Colors[colorScheme].prayerButtonBackgroundActive
+                        : Colors[colorScheme].prayerButtonBackground
+                    },
+                  ]}
+                  onPress={() => {
+                    /* Use the changeLanguage function from the hook */
+                    if (lang !== language) {
+                      changeLanguage(lang);
+                    }
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.languageButtonText,
+                      lang === language && styles.languageButtonTextActive,
+                      { color: lang === language 
+                        ? Colors[colorScheme].prayerButtonTextActive
+                        : Colors[colorScheme].prayerButtonText }
+                    ]}
+                  >
+                    {lang.toUpperCase()}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
 
-          <View style={styles.displayToggles}>
+          {/* Display Toggles */}
+          <View style={styles.displayOptionsContainer}>
             <TouchableOpacity
               style={[
-                styles.toggleButton,
-                selectedLanguages.arabic
-                  ? styles.toggleActive
-                  : styles.toggleInactive,
+                styles.displayOptionToggle,
+                {
+                  backgroundColor: selectedLanguages.arabic 
+                    ? Colors[colorScheme].prayerButtonBackground
+                    : "rgba(5, 121, 88, 0.1)"
+                }
               ]}
-              onPress={() => {
-                setSelectedLanguages({
-                  ...selectedLanguages,
-                  arabic: !selectedLanguages.arabic,
-                });
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
+              onPress={() => toggleDisplaySetting('arabic')}
             >
-              <Text
-                style={[
-                  styles.toggleText,
-                  selectedLanguages.arabic
-                    ? styles.toggleTextActive
-                    : styles.toggleTextInactive,
-                ]}
-              >
-                Arabic
+              <Text style={[styles.displayOptionText, { color: Colors[colorScheme].prayerButtonText }]}>
+                {t('arabic')}
               </Text>
               <Ionicons
-                name={
-                  selectedLanguages.arabic
-                    ? "checkmark-circle"
-                    : "circle-outline"
-                }
-                size={16}
-                color={
-                  selectedLanguages.arabic
-                    ? "#38bdf8"
-                    : colorScheme === "dark"
-                    ? "#8098d0"
-                    : "#5d8adb"
-                }
+                name={selectedLanguages.arabic ? "checkbox" : "square-outline"}
+                size={18}
+                color={Colors[colorScheme].prayerActionIcon}
               />
             </TouchableOpacity>
 
             <TouchableOpacity
               style={[
-                styles.toggleButton,
-                selectedLanguages.transliteration
-                  ? styles.toggleActive
-                  : styles.toggleInactive,
+                styles.displayOptionToggle,
+                {
+                  backgroundColor: selectedLanguages.transliteration 
+                    ? Colors[colorScheme].prayerButtonBackground
+                    : "rgba(5, 121, 88, 0.1)"
+                }
               ]}
-              onPress={() => {
-                setSelectedLanguages({
-                  ...selectedLanguages,
-                  transliteration: !selectedLanguages.transliteration,
-                });
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
+              onPress={() => toggleDisplaySetting('transliteration')}
             >
-              <Text
-                style={[
-                  styles.toggleText,
-                  selectedLanguages.transliteration
-                    ? styles.toggleTextActive
-                    : styles.toggleTextInactive,
-                ]}
-              >
-                Transliteration
+              <Text style={[styles.displayOptionText, { color: Colors[colorScheme].prayerButtonText }]}>
+                {t('transliteration')}
               </Text>
               <Ionicons
-                name={
-                  selectedLanguages.transliteration
-                    ? "checkmark-circle"
-                    : "circle-outline"
-                }
-                size={16}
-                color={
-                  selectedLanguages.transliteration
-                    ? "#38bdf8"
-                    : colorScheme === "dark"
-                    ? "#8098d0"
-                    : "#5d8adb"
-                }
+                name={selectedLanguages.transliteration ? "checkbox" : "square-outline"}
+                size={18}
+                color={theme.primary}
               />
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Prayer Segments - Connected Flow */}
-        <View style={styles.prayerFlowContainer}>
+        <View style={[
+          styles.prayerFlowContainer, 
+          { 
+            backgroundColor: colorScheme === "dark" 
+              ? "rgba(36, 44, 64, 0.6)" 
+              : "rgba(255, 255, 255, 0.9)",
+            borderWidth: 1,
+            borderColor: theme.divider
+          }
+        ]}>
           {prayerData.segments.map((segment, index) => (
             <View
               key={index}
@@ -550,8 +626,47 @@ const RenderPrayer = () => {
                 styles.prayerSegment,
                 index === 0 && styles.firstSegment,
                 index === prayerData.segments.length - 1 && styles.lastSegment,
+                // Add special background for bookmarked segment
+                bookmarkedSegment === index && { 
+                  backgroundColor: Colors[colorScheme].prayerBookmarkBackground,
+                  borderLeftWidth: 4,
+                  borderLeftColor: Colors[colorScheme].prayerBookmarkBorder,
+                },
+                // Add background for important segments (if not already bookmarked)
+                bookmarkedSegment !== index && importantSegments.includes(index) && { 
+                  backgroundColor: Colors[colorScheme].prayerImportantBackground 
+                }
               ]}
             >
+              {/* Segment Actions */}
+              <View style={styles.segmentActions}>
+                <TouchableOpacity
+                  style={styles.segmentActionButton}
+                  onPress={() => setBookmark(index)}
+                >
+                  <Ionicons
+                    name={bookmarkedSegment === index ? "bookmark" : "bookmark-outline"}
+                    size={20}
+                    color={bookmarkedSegment === index 
+                      ? Colors[colorScheme].prayerActionIcon
+                      : Colors[colorScheme].prayerActionIconInactive}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.segmentActionButton}
+                  onPress={() => toggleImportantSegment(index)}
+                >
+                  <Ionicons
+                    name={importantSegments.includes(index) ? "star" : "star-outline"}
+                    size={20}
+                    color={importantSegments.includes(index)
+                      ? Colors[colorScheme].prayerActionIcon
+                      : Colors[colorScheme].prayerActionIconInactive}
+                  />
+                </TouchableOpacity>
+              </View>
+
               {/* Arabic Text */}
               {selectedLanguages.arabic && (
                 <Text
@@ -560,6 +675,7 @@ const RenderPrayer = () => {
                     {
                       fontSize: fontSize + 6,
                       lineHeight: lineHeight + 10,
+                      color: Colors[colorScheme].prayerArabicText,
                     },
                   ]}
                 >
@@ -575,6 +691,7 @@ const RenderPrayer = () => {
                     {
                       fontSize: fontSize - 2,
                       lineHeight: lineHeight - 2,
+                      color: Colors[colorScheme].prayerTransliterationText,
                     },
                   ]}
                 >
@@ -582,30 +699,30 @@ const RenderPrayer = () => {
                 </Text>
               )}
 
-              {/* Translation */}
-              {selectedLanguages.translation && (
-                <Text
-                  style={[
-                    styles.translationText,
-                    {
-                      fontSize: fontSize,
-                      lineHeight: lineHeight,
-                      marginTop:
-                        selectedLanguages.arabic ||
-                        selectedLanguages.transliteration
-                          ? 8
-                          : 0,
-                    },
-                  ]}
-                >
-                  {segment.translations[selectedTranslationLanguage] ||
-                    segment.translations.en}
-                </Text>
-              )}
+              {/* Translation (always shown) */}
+              <Text
+                style={[
+                  styles.translationText,
+                  {
+                    fontSize: fontSize,
+                    lineHeight: lineHeight,
+                    marginTop:
+                      (selectedLanguages.arabic ||
+                      selectedLanguages.transliteration)
+                        ? 8
+                        : 0,
+                    color: Colors[colorScheme].prayerTranslationText,
+                    fontWeight: bookmarkedSegment === index ? '600' : 'normal',
+                  },
+                ]}
+              >
+                {segment.translations[language] ||
+                  segment.translations.en}
+              </Text>
 
               {/* Subtle divider between segments (except last) */}
               {index < prayerData.segments.length - 1 && (
-                <View style={styles.segmentDivider} />
+                <View style={[styles.segmentDivider, { backgroundColor: theme.divider }]} />
               )}
             </View>
           ))}
@@ -613,35 +730,29 @@ const RenderPrayer = () => {
 
         {/* Notes Section (if available) */}
         {prayerData.notes && (
-          <View style={styles.notesContainer}>
-            <LinearGradient
-              colors={
-                colorScheme === "dark"
-                  ? ["#1d2f53", "#253862"]
-                  : ["#d6e2ff", "#e6eeff"]
-              }
-              style={styles.notesGradient}
+          <View style={[styles.notesContainer, { backgroundColor: theme.backgroundLight }]}>
+            <Text style={[styles.notesTitle, { color: theme.primary }]}>{t('notes')}</Text>
+            <Text
+              style={[
+                styles.notesText,
+                {
+                  fontSize: fontSize - 1,
+                  lineHeight: lineHeight - 2,
+                  color: theme.textSecondary,
+                },
+              ]}
             >
-              <Text style={styles.notesTitle}>Notes</Text>
-              <Text
-                style={[
-                  styles.notesText,
-                  {
-                    fontSize: fontSize - 1,
-                    lineHeight: lineHeight - 2,
-                  },
-                ]}
-              >
-                {prayerData.notes}
-              </Text>
-            </LinearGradient>
+              {prayerData.notes}
+            </Text>
           </View>
         )}
 
         {/* Source Citation */}
         {prayerData.source && (
           <View style={styles.sourceContainer}>
-            <Text style={styles.sourceText}>Source: {prayerData.source}</Text>
+            <Text style={[styles.sourceText, { color: colorScheme === "dark" ? "#A5D6A7" : "#757575" }]}>
+              {t('source')}: {prayerData.source}
+            </Text>
           </View>
         )}
 
@@ -649,187 +760,16 @@ const RenderPrayer = () => {
         <View style={{ height: 20 + insets.bottom }} />
       </ScrollView>
 
-      {/* Settings Panel */}
-      <Animated.View
-        style={[
-          styles.settingsPanel,
-          {
-            paddingBottom: insets.bottom + 20,
-            transform: [{ translateY: settingsPosition }],
-          },
-        ]}
-      >
-        <LinearGradient
-          colors={
-            colorScheme === "dark"
-              ? ["#253862", "#1d2f53"]
-              : ["#e6eeff", "#d6e2ff"]
-          }
-          style={styles.settingsPanelGradient}
-        >
-          <View style={styles.settingsPanelHeader}>
-            <Text style={styles.settingsPanelTitle}>Display Settings</Text>
-            <TouchableOpacity onPress={toggleSettings}>
-              <Ionicons
-                name="close-circle"
-                size={24}
-                color={colorScheme === "dark" ? "#b3c5ef" : "#4878e0"}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.settingsList}>
-            <TouchableOpacity
-              style={styles.settingsItem}
-              onPress={() => {
-                setSelectedLanguages({
-                  ...selectedLanguages,
-                  arabic: !selectedLanguages.arabic,
-                });
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-            >
-              <View style={styles.settingsItemLeft}>
-                <Ionicons
-                  name="language-outline"
-                  size={22}
-                  color={colorScheme === "dark" ? "#b3c5ef" : "#4878e0"}
-                  style={styles.settingsItemIcon}
-                />
-                <Text style={styles.settingsItemText}>Show Arabic Text</Text>
-              </View>
-              <Ionicons
-                name={selectedLanguages.arabic ? "checkbox" : "square-outline"}
-                size={22}
-                color={
-                  selectedLanguages.arabic
-                    ? "#38bdf8"
-                    : colorScheme === "dark"
-                    ? "#8098d0"
-                    : "#5d8adb"
-                }
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.settingsItem}
-              onPress={() => {
-                setSelectedLanguages({
-                  ...selectedLanguages,
-                  transliteration: !selectedLanguages.transliteration,
-                });
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-            >
-              <View style={styles.settingsItemLeft}>
-                <Ionicons
-                  name="text-outline"
-                  size={22}
-                  color={colorScheme === "dark" ? "#b3c5ef" : "#4878e0"}
-                  style={styles.settingsItemIcon}
-                />
-                <Text style={styles.settingsItemText}>
-                  Show Transliteration
-                </Text>
-              </View>
-              <Ionicons
-                name={
-                  selectedLanguages.transliteration
-                    ? "checkbox"
-                    : "square-outline"
-                }
-                size={22}
-                color={
-                  selectedLanguages.transliteration
-                    ? "#38bdf8"
-                    : colorScheme === "dark"
-                    ? "#8098d0"
-                    : "#5d8adb"
-                }
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.settingsItem}
-              onPress={() => {
-                setSelectedLanguages({
-                  ...selectedLanguages,
-                  translation: !selectedLanguages.translation,
-                });
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-            >
-              <View style={styles.settingsItemLeft}>
-                <Ionicons
-                  name="globe-outline"
-                  size={22}
-                  color={colorScheme === "dark" ? "#b3c5ef" : "#4878e0"}
-                  style={styles.settingsItemIcon}
-                />
-                <Text style={styles.settingsItemText}>Show Translation</Text>
-              </View>
-              <Ionicons
-                name={
-                  selectedLanguages.translation ? "checkbox" : "square-outline"
-                }
-                size={22}
-                color={
-                  selectedLanguages.translation
-                    ? "#38bdf8"
-                    : colorScheme === "dark"
-                    ? "#8098d0"
-                    : "#5d8adb"
-                }
-              />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.settingsItem}
-              onPress={() => {
-                setFontSizeModalVisible(true);
-                toggleSettings();
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-            >
-              <View style={styles.settingsItemLeft}>
-                <Ionicons
-                  name="text"
-                  size={22}
-                  color={colorScheme === "dark" ? "#b3c5ef" : "#4878e0"}
-                  style={styles.settingsItemIcon}
-                />
-                <Text style={styles.settingsItemText}>Adjust Font Size</Text>
-              </View>
-              <Ionicons
-                name="chevron-forward"
-                size={22}
-                color={colorScheme === "dark" ? "#8098d0" : "#5d8adb"}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={styles.closeSettingsButton}
-            onPress={toggleSettings}
-          >
-            <LinearGradient
-              colors={
-                colorScheme === "dark"
-                  ? ["#2a4080", "#162851"]
-                  : ["#5b8af5", "#3b6ef8"]
-              }
-              style={styles.closeButtonGradient}
-            >
-              <Text style={styles.closeButtonText}>Close</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </LinearGradient>
-      </Animated.View>
+      {/* Settings Modal */}
+      <SettingsModal />
 
       {/* Font Size Picker Modal */}
       <FontSizePickerModal
         visible={fontSizeModalVisible}
-        onClose={() => setFontSizeModalVisible(false)}
+        onClose={() => {
+          setFontSizeModalVisible(false);
+          setIsSettingsModalVisible(true);
+        }}
       />
     </View>
   );
@@ -850,56 +790,18 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 16,
   },
-  // Floating header styles
-  floatingHeader: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-  },
-  floatingHeaderGradient: {
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(99, 146, 237, 0.3)",
-    paddingBottom: 8,
-  },
-  floatingHeaderContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  backButton: {
-    padding: 8,
-    marginRight: 8,
-  },
-  floatingHeaderTitle: {
-    fontSize: 17,
-    fontWeight: "600",
-    flex: 1,
-    color: "#4878e0",
-  },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  headerButton: {
-    padding: 8,
-  },
-  // Colorful Prayer header
-  prayerHeaderGradient: {
-    borderRadius: 16,
-    marginBottom: 20,
-    elevation: 4,
-    shadowColor: "#4878e0",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3.84,
-  },
+  // Prayer header
   prayerHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
     padding: 16,
+    marginBottom: 20,
+    elevation: 2,
+    shadowColor: Colors.universal.prayerPrimaryColor,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
   prayerTitleContainer: {
     flex: 1,
@@ -908,13 +810,15 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "700",
     marginBottom: 4,
-    color: "#ffffff",
   },
   prayerArabicTitle: {
     fontSize: 18,
     fontWeight: "600",
     writingDirection: "rtl",
-    color: "#d4e3ff",
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   iconButton: {
     width: 36,
@@ -923,99 +827,136 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 8,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
-  // Introduction card with gradient
+  // Introduction card 
   introductionCard: {
     borderRadius: 14,
     marginBottom: 20,
-    overflow: "hidden",
-    elevation: 2,
-    shadowColor: "#4878e0",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2.5,
-  },
-  introductionGradient: {
     padding: 16,
+    elevation: 1,
+    shadowColor: "#43A047",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   introductionText: {
     lineHeight: 22,
-    color: "#4878e0",
   },
   // Language selection styles
   languageSelectorContainer: {
     marginBottom: 20,
   },
-  languageButtonsContainer: {
+  languageRow: {
     flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
+  },
+  languageButtons: {
+    flexDirection: "row",
   },
   languageButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 8,
     marginRight: 8,
-    backgroundColor: "rgba(99, 146, 237, 0.2)",
   },
   languageButtonActive: {
-    backgroundColor: "#4878e0",
+    backgroundColor: "#43A047",
   },
   languageButtonText: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#4878e0",
   },
   languageButtonTextActive: {
     color: "#ffffff",
   },
-  displayToggles: {
+  // Display options
+  displayOptionsContainer: {
     flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
   },
-  toggleButton: {
+  displayOptionToggle: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 8,
-    marginRight: 8,
     flex: 1,
+    marginRight: 8,
   },
-  toggleActive: {
-    backgroundColor: "rgba(99, 146, 237, 0.2)",
-  },
-  toggleInactive: {
-    backgroundColor: "rgba(99, 146, 237, 0.1)",
-    opacity: 0.8,
-  },
-  toggleText: {
+  displayOptionText: {
     fontSize: 13,
-    fontWeight: "600",
+    fontWeight: "500",
   },
-  toggleTextActive: {
-    color: "#4878e0",
+  // Modal settings
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.universal.prayerSettingsModalOverlay,
   },
-  toggleTextInactive: {
-    color: "#8098d0",
+  modalContainer: {
+    width: '85%',
+    borderRadius: 16,
+    padding: 20,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  modalContent: {
+    marginBottom: 20,
+  },
+  modalButton: {
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
   },
   // Connected prayer flow styles
   prayerFlowContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.6)",
     borderRadius: 16,
     overflow: "hidden",
     marginBottom: 24,
-    elevation: 2,
-    shadowColor: "#4878e0",
+    elevation: 1,
+    shadowColor: "#43A047",
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2.5,
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   prayerSegment: {
     padding: 16,
     paddingBottom: 8,
     paddingTop: 8,
     backgroundColor: "transparent",
+    position: "relative",
+  },
+  segmentActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginBottom: 8,
+  },
+  segmentActionButton: {
+    padding: 4,
+    marginLeft: 12,
   },
   firstSegment: {
     paddingTop: 16,
@@ -1028,47 +969,38 @@ const styles = StyleSheet.create({
     writingDirection: "rtl",
     fontWeight: "600",
     marginBottom: 4,
-    color: "#2563eb",
   },
   transliterationText: {
     textAlign: "left",
     fontStyle: "italic",
     marginBottom: 4,
-    color: "#6b7280",
   },
   translationText: {
     textAlign: "left",
-    color: "#1f2937",
   },
   segmentDivider: {
     height: 1,
-    backgroundColor: "rgba(99, 146, 237, 0.2)",
     marginTop: 10,
     marginBottom: 2,
   },
-  // Notes with gradient
+  // Notes
   notesContainer: {
     borderRadius: 14,
     marginBottom: 16,
-    overflow: "hidden",
-    elevation: 2,
-    shadowColor: "#4878e0",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2.5,
-  },
-  notesGradient: {
     padding: 16,
+    elevation: 1,
+    shadowColor: "#43A047",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   notesTitle: {
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 8,
-    color: "#4878e0",
   },
   notesText: {
     fontStyle: "italic",
-    color: "#4878e0",
   },
   // Source citation styles
   sourceContainer: {
@@ -1079,50 +1011,14 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontStyle: "italic",
     textAlign: "center",
-    color: "#6b7280",
   },
-  // Settings panel with gradient
-  settingsPanel: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    overflow: "hidden",
-    elevation: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-  },
-  settingsPanelGradient: {
-    paddingTop: 16,
-    paddingHorizontal: 16,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  settingsPanelHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  settingsPanelTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#4878e0",
-  },
-  settingsList: {
-    marginBottom: 16,
-  },
+  // Settings items
   settingsItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(99, 146, 237, 0.2)",
   },
   settingsItemLeft: {
     flexDirection: "row",
@@ -1132,27 +1028,6 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   settingsItemText: {
-    fontSize: 16,
-    color: "#4878e0",
-  },
-  closeSettingsButton: {
-    marginBottom: 16,
-    borderRadius: 12,
-    overflow: "hidden",
-    elevation: 2,
-    shadowColor: "#4878e0",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-  },
-  closeButtonGradient: {
-    paddingVertical: 12,
-    alignItems: "center",
-    borderRadius: 12,
-  },
-  closeButtonText: {
-    color: "#ffffff",
-    fontWeight: "600",
     fontSize: 16,
   },
 });
