@@ -90,20 +90,26 @@ export type CategoryType = {
 
 export type PrayerType = {
   id: number;
-  name?: string;
-  arabic_title?: string;
+  name: string;
+  arabic_title?: string | null;
   category_id: number;
   created_at: string;
   updated_at: string;
-  languages_available: string[]; // Array of language codes
+  arabic_text?: string;           // als optional
+  arabic_notes?: string | null;
+  transliteration_text?: string;  // als optional
+  transliteration_notes?: string | null;
+  source?: string | null;
+  languages_available: string[];
 };
+
 
 export type PrayerTranslationType = {
   id: number;
   prayer_id: number;
-  language_code: string; // e.g., "arabic", "german", etc.
+  language_code: string; 
   introduction?: string | null;
-  main_body?: string | null;
+  main_body: string | null;
   notes?: string | null;
   source?: string | null;
   created_at: string;
@@ -114,14 +120,14 @@ export type PrayerWithCategory = {
   id: number;
   category_id: number;
   category_name: string;
-  name?: string;
+  name: string;
   arabic_title?: string;
   created_at: string;
   updated_at: string;
-  languages_available: string[]; // Now defined as an array
+  languages_available: string[]; 
   category_title: string;
   introduction?: string;
-  prayer_text?: string;
+  prayer_text: string;
   notes?: string;
   source?: string;
 };

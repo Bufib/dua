@@ -273,20 +273,6 @@ export default function CategoryScreen() {
                   onPress={() => handleSubcategoryPress(category)}
                   activeOpacity={0.7}
                 >
-                  <Ionicons
-                    name={getCategoryIcon(category.title)}
-                    size={18}
-                    color={
-                      selectedSubcategory?.id === category.id
-                        ? colorScheme === "dark"
-                          ? "#fff"
-                          : "#3b82f6"
-                        : colorScheme === "dark"
-                        ? "#90cdf4"
-                        : "#3b82f6"
-                    }
-                    style={styles.chipIcon}
-                  />
                   <Text
                     style={[
                       styles.chipText,
