@@ -85,7 +85,7 @@ export type CategoryType = {
   id: number;
   title: string;
   image?: string | null;
-  parent_id?: number | null;
+  parent_id?: string | null;
 };
 
 export type PrayerType = {

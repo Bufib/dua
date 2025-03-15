@@ -254,7 +254,6 @@ const HomeScreen = () => {
     setTodoToDelete({ dayIndex: null, todoId: null });
   };
 
-
   const undoAllTodosForSelectedDay = (): void => {
     if (selectedDay !== null) {
       setWeeklyTodos((prevTodos) => {
@@ -365,10 +364,18 @@ const HomeScreen = () => {
             <Pressable
               key={category.id}
               onPress={() => {
-                router.push({
-                  pathname: "/(tabs)/home/(category)/[category]",
-                  params: { categoryName: category.title },
-                });
+                router.push(
+                  category.title === "tasbih"
+                    ? {
+                      
+                        pathname: "/(tabs)/home/tasbih",
+                        params: { categoryName: category.title },
+                      }
+                    : {
+                        pathname: "/(tabs)/home/(category)/[category]",
+                        params: { categoryName: category.title },
+                      }
+                );
               }}
               style={({ pressed }) => [
                 styles.categoryButton,

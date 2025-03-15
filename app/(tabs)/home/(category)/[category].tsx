@@ -22,10 +22,10 @@ import { useColorScheme } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/context/LanguageContext";
-import * as Haptics from 'expo-haptics';
+import * as Haptics from "expo-haptics";
 
 // Icons for different categories
-const categoryIcons: {[key: string]: string} = {
+const categoryIcons: { [key: string]: string } = {
   dua: "heart-outline",
   ziyarat: "compass-outline",
   salat: "people-outline",
@@ -42,15 +42,20 @@ export default function CategoryScreen() {
   const themeStyles = CoustomTheme();
   const { t } = useTranslation();
   const { language } = useLanguage();
-  const isRTL = language === 'ar';
+  const isRTL = language === "ar";
 
   const [childCategories, setChildCategories] = useState<CategoryType[]>([]);
   const [allPrayers, setAllPrayers] = useState<PrayerWithCategory[]>([]);
-  const [filteredPrayers, setFilteredPrayers] = useState<PrayerWithCategory[]>([]);
+  const [filteredPrayers, setFilteredPrayers] = useState<PrayerWithCategory[]>(
+    []
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [fadeAnim] = useState(new Animated.Value(0));
-  const [currentCategory, setCurrentCategory] = useState<CategoryType | null>(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<CategoryType | null>(null);
+  const [currentCategory, setCurrentCategory] = useState<CategoryType | null>(
+    null
+  );
+  const [selectedSubcategory, setSelectedSubcategory] =
+    useState<CategoryType | null>(null);
 
   // Helper function to get icon for category
   const getCategoryIcon = (name: string): string => {
@@ -69,16 +74,16 @@ export default function CategoryScreen() {
       try {
         setLoading(true);
         setSelectedSubcategory(null);
-        
+
         // Fetch category by title
         const category = await getCategoryByTitle(categoryName);
         console.log("Category found:", category);
-        
+
         if (!category) {
           console.error("Category not found");
           return;
         }
-        
+
         setCurrentCategory(category);
 
         // Fetch subcategories using the parent category ID
@@ -112,29 +117,30 @@ export default function CategoryScreen() {
   // Function to handle subcategory selection and filter prayers
   const handleSubcategoryPress = async (category: CategoryType) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    
+
     // If already selected, deselect it and show all prayers
     if (selectedSubcategory && selectedSubcategory.id === category.id) {
       setSelectedSubcategory(null);
       setFilteredPrayers(allPrayers);
       return;
     }
-    
+
     setSelectedSubcategory(category);
 
     try {
       // Fetch prayers for this specific subcategory
       const subcategoryPrayers = await getAllPrayersForCategory(
         category.title,
-        language
+        language.toUpperCase()
       );
       setFilteredPrayers(subcategoryPrayers);
     } catch (error) {
       console.error("Error fetching subcategory prayers:", error);
       // Fallback: filter client-side if server filtering fails
-      const filtered = allPrayers.filter(prayer => 
-        prayer.category_id === category.id || 
-        prayer.category_title === category.title
+      const filtered = allPrayers.filter(
+        (prayer) =>
+          prayer.category_id === category.id ||
+          prayer.category_title === category.title
       );
       setFilteredPrayers(filtered.length > 0 ? filtered : allPrayers);
     }
@@ -165,25 +171,30 @@ export default function CategoryScreen() {
     <SafeAreaView
       style={[styles.container, themeStyles.defaultBackgorundColor]}
     >
-      <Animated.ScrollView 
+      <Animated.ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         style={{ opacity: fadeAnim }}
       >
         {/* Simple Clean Header */}
         <View style={styles.headerContainer}>
-          <View style={[styles.headerIcon, { backgroundColor: colorScheme === 'dark' ? '#444' : '#e8edf4' }]}>
-            <Ionicons 
-              name={getCategoryIcon(categoryName)} 
-              size={24} 
-              color={colorScheme === 'dark' ? '#90cdf4' : '#3b82f6'} 
+          <View
+            style={[
+              styles.headerIcon,
+              { backgroundColor: colorScheme === "dark" ? "#444" : "#e8edf4" },
+            ]}
+          >
+            <Ionicons
+              name={getCategoryIcon(categoryName)}
+              size={24}
+              color={colorScheme === "dark" ? "#90cdf4" : "#3b82f6"}
             />
           </View>
-          <Text 
+          <Text
             style={[
-              styles.header, 
-              { color: colorScheme === 'dark' ? '#fff' : '#1e293b' },
-              isRTL && { textAlign: 'right' }
+              styles.header,
+              { color: colorScheme === "dark" ? "#fff" : "#1e293b" },
+              isRTL && { textAlign: "right" },
             ]}
           >
             {/* Display the category name */}
@@ -194,15 +205,20 @@ export default function CategoryScreen() {
         {/* Subcategories Section - Simple chips */}
         {childCategories.length > 0 && (
           <View style={styles.sectionContainer}>
-            <View style={[styles.sectionHeaderRow, isRTL && {flexDirection: 'row-reverse'}]}>
-              <Text 
+            <View
+              style={[
+                styles.sectionHeaderRow,
+                isRTL && { flexDirection: "row-reverse" },
+              ]}
+            >
+              <Text
                 style={[
-                  styles.sectionTitle, 
-                  { color: colorScheme === 'dark' ? '#e2e8f0' : '#334155' },
-                  isRTL && {textAlign: 'right'}
+                  styles.sectionTitle,
+                  { color: colorScheme === "dark" ? "#e2e8f0" : "#334155" },
+                  isRTL && { textAlign: "right" },
                 ]}
               >
-                {t('categories')}
+                {t("categories")}
               </Text>
 
               {/* Show a "Show All" button when a subcategory is selected */}
@@ -215,54 +231,74 @@ export default function CategoryScreen() {
                   }}
                   style={styles.showAllButton}
                 >
-                  <Text style={{
-                    color: colorScheme === 'dark' ? '#90cdf4' : '#3b82f6',
-                    fontSize: 14,
-                    fontWeight: '500'
-                  }}>
-                    {language === 'ar' ? 'عرض الكل' : 
-                     language === 'de' ? 'Alle anzeigen' : 
-                     'Show All'}
+                  <Text
+                    style={{
+                      color: colorScheme === "dark" ? "#90cdf4" : "#3b82f6",
+                      fontSize: 14,
+                      fontWeight: "500",
+                    }}
+                  >
+                    {language === "ar"
+                      ? "عرض الكل"
+                      : language === "de"
+                      ? "Alle anzeigen"
+                      : "Show All"}
                   </Text>
                 </TouchableOpacity>
               )}
             </View>
 
-            <ScrollView 
-              horizontal 
+            <ScrollView
+              horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.chipContainer}
-              dir={isRTL ? "rtl" : "ltr"}
             >
               {childCategories.map((category) => (
                 <TouchableOpacity
                   key={category.id}
                   style={[
                     styles.chip,
-                    { backgroundColor: colorScheme === 'dark' ? '#2d3748' : '#f1f5f9' },
+                    {
+                      backgroundColor:
+                        colorScheme === "dark" ? "#2d3748" : "#f1f5f9",
+                    },
                     selectedSubcategory?.id === category.id && {
-                      backgroundColor: colorScheme === 'dark' ? '#3b82f6' : '#dbeafe',
+                      backgroundColor:
+                        colorScheme === "dark" ? "#3b82f6" : "#dbeafe",
                       borderWidth: 1,
-                      borderColor: colorScheme === 'dark' ? '#90cdf4' : '#3b82f6',
-                    }
+                      borderColor:
+                        colorScheme === "dark" ? "#90cdf4" : "#3b82f6",
+                    },
                   ]}
                   onPress={() => handleSubcategoryPress(category)}
                   activeOpacity={0.7}
                 >
-                  <Ionicons 
-                    name={getCategoryIcon(category.title)} 
-                    size={18} 
-                    color={selectedSubcategory?.id === category.id ? 
-                      (colorScheme === 'dark' ? '#fff' : '#3b82f6') : 
-                      (colorScheme === 'dark' ? '#90cdf4' : '#3b82f6')} 
+                  <Ionicons
+                    name={getCategoryIcon(category.title)}
+                    size={18}
+                    color={
+                      selectedSubcategory?.id === category.id
+                        ? colorScheme === "dark"
+                          ? "#fff"
+                          : "#3b82f6"
+                        : colorScheme === "dark"
+                        ? "#90cdf4"
+                        : "#3b82f6"
+                    }
                     style={styles.chipIcon}
                   />
-                  <Text 
+                  <Text
                     style={[
                       styles.chipText,
-                      selectedSubcategory?.id === category.id ? 
-                        { color: colorScheme === 'dark' ? '#fff' : '#3b82f6', fontWeight: '600' } : 
-                        { color: colorScheme === 'dark' ? '#e2e8f0' : '#334155' }
+                      selectedSubcategory?.id === category.id
+                        ? {
+                            color: colorScheme === "dark" ? "#fff" : "#3b82f6",
+                            fontWeight: "600",
+                          }
+                        : {
+                            color:
+                              colorScheme === "dark" ? "#e2e8f0" : "#334155",
+                          },
                     ]}
                   >
                     {category.title}
@@ -275,21 +311,28 @@ export default function CategoryScreen() {
 
         {/* Prayers Section - Clean, readable cards */}
         <View style={styles.sectionContainer}>
-          <View style={[styles.sectionHeaderRow, isRTL && {flexDirection: 'row-reverse'}]}>
-            <Text 
+          <View
+            style={[
+              styles.sectionHeaderRow,
+              isRTL && { flexDirection: "row-reverse" },
+            ]}
+          >
+            <Text
               style={[
-                styles.sectionTitle, 
-                { color: colorScheme === 'dark' ? '#e2e8f0' : '#334155' },
-                isRTL && {textAlign: 'right'}
+                styles.sectionTitle,
+                { color: colorScheme === "dark" ? "#e2e8f0" : "#334155" },
+                isRTL && { textAlign: "right" },
               ]}
             >
-              {t('prayers')}
+              {t("prayers")}
               {selectedSubcategory && ` • ${selectedSubcategory.title}`}
             </Text>
-            <Text style={{
-              color: colorScheme === 'dark' ? '#94a3b8' : '#94a3b8',
-              fontSize: 14,
-            }}>
+            <Text
+              style={{
+                color: colorScheme === "dark" ? "#94a3b8" : "#94a3b8",
+                fontSize: 14,
+              }}
+            >
               {filteredPrayers.length}
             </Text>
           </View>
@@ -300,21 +343,25 @@ export default function CategoryScreen() {
                 <TouchableOpacity
                   key={prayer.id}
                   style={[
-                    styles.prayerCard, 
-                    { 
-                      backgroundColor: colorScheme === 'dark' ? '#1e293b' : '#ffffff',
-                    }
+                    styles.prayerCard,
+                    {
+                      backgroundColor:
+                        colorScheme === "dark" ? "#1e293b" : "#ffffff",
+                    },
                   ]}
                   onPress={() => handlePrayerPress(prayer)}
                   activeOpacity={0.8}
                 >
                   <View style={styles.prayerHeader}>
                     <View style={styles.prayerTitleContainer}>
-                      <Text 
+                      <Text
                         style={[
-                          styles.prayerTitle, 
-                          { color: colorScheme === 'dark' ? '#f8fafc' : '#1e293b' },
-                          isRTL && {textAlign: 'right'}
+                          styles.prayerTitle,
+                          {
+                            color:
+                              colorScheme === "dark" ? "#f8fafc" : "#1e293b",
+                          },
+                          isRTL && { textAlign: "right" },
                         ]}
                         numberOfLines={1}
                       >
@@ -322,36 +369,42 @@ export default function CategoryScreen() {
                       </Text>
                     </View>
                   </View>
-                  
+
                   {prayer.prayer_text && (
                     <Text
                       style={[
                         styles.prayerText,
-                        { color: colorScheme === 'dark' ? '#cbd5e0' : '#64748b' },
-                        isRTL && {textAlign: 'right'}
+                        {
+                          color: colorScheme === "dark" ? "#cbd5e0" : "#64748b",
+                        },
+                        isRTL && { textAlign: "right" },
                       ]}
                       numberOfLines={3}
                     >
                       {prayer.prayer_text.replace(/<[^>]*>/g, "").trim()}
                     </Text>
                   )}
-                  
-                  <View style={[
-                    styles.prayerFooter,
-                    isRTL ? { flexDirection: 'row-reverse' } : {}
-                  ]}>
-                    <Text 
+
+                  <View
+                    style={[
+                      styles.prayerFooter,
+                      isRTL ? { flexDirection: "row-reverse" } : {},
+                    ]}
+                  >
+                    <Text
                       style={[
                         styles.readMore,
-                        { color: colorScheme === 'dark' ? '#90cdf4' : '#3b82f6' }
+                        {
+                          color: colorScheme === "dark" ? "#90cdf4" : "#3b82f6",
+                        },
                       ]}
                     >
-                      {t('readMore')}
+                      {t("readMore")}
                     </Text>
-                    <Ionicons 
-                      name={isRTL ? "chevron-back" : "chevron-forward"} 
-                      size={16} 
-                      color={colorScheme === 'dark' ? '#90cdf4' : '#3b82f6'} 
+                    <Ionicons
+                      name={isRTL ? "chevron-back" : "chevron-forward"}
+                      size={16}
+                      color={colorScheme === "dark" ? "#90cdf4" : "#3b82f6"}
                     />
                   </View>
                 </TouchableOpacity>
@@ -359,22 +412,24 @@ export default function CategoryScreen() {
             </View>
           ) : (
             <View style={styles.emptyState}>
-              <Ionicons 
-                name="search-outline" 
-                size={36} 
-                color={colorScheme === 'dark' ? '#64748b' : '#94a3b8'} 
-                style={styles.emptyStateIcon} 
+              <Ionicons
+                name="search-outline"
+                size={36}
+                color={colorScheme === "dark" ? "#64748b" : "#94a3b8"}
+                style={styles.emptyStateIcon}
               />
-              <Text 
+              <Text
                 style={[
                   styles.emptyStateText,
-                  { color: colorScheme === 'dark' ? '#94a3b8' : '#64748b' },
-                  isRTL && {textAlign: 'right'}
+                  { color: colorScheme === "dark" ? "#94a3b8" : "#64748b" },
+                  isRTL && { textAlign: "right" },
                 ]}
               >
-                {language === 'ar' ? 'لا توجد صلوات في هذه الفئة' : 
-                 language === 'de' ? 'Keine Gebete in dieser Kategorie' : 
-                 'No prayers in this category'}
+                {language === "ar"
+                  ? "لا توجد صلوات في هذه الفئة"
+                  : language === "de"
+                  ? "Keine Gebete in dieser Kategorie"
+                  : "No prayers in this category"}
               </Text>
               <TouchableOpacity
                 onPress={() => {
@@ -384,16 +439,23 @@ export default function CategoryScreen() {
                 }}
                 style={[
                   styles.resetButton,
-                  { backgroundColor: colorScheme === 'dark' ? '#2d3748' : '#f1f5f9' }
+                  {
+                    backgroundColor:
+                      colorScheme === "dark" ? "#2d3748" : "#f1f5f9",
+                  },
                 ]}
               >
-                <Text style={{ 
-                  color: colorScheme === 'dark' ? '#90cdf4' : '#3b82f6',
-                  fontWeight: '500'
-                }}>
-                  {language === 'ar' ? 'عرض كل الصلوات' : 
-                   language === 'de' ? 'Alle Gebete anzeigen' : 
-                   'Show all prayers'}
+                <Text
+                  style={{
+                    color: colorScheme === "dark" ? "#90cdf4" : "#3b82f6",
+                    fontWeight: "500",
+                  }}
+                >
+                  {language === "ar"
+                    ? "عرض كل الصلوات"
+                    : language === "de"
+                    ? "Alle Gebete anzeigen"
+                    : "Show all prayers"}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -419,8 +481,8 @@ const styles = StyleSheet.create({
   },
   // Clean Header styles
   headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 24,
     paddingVertical: 6,
   },
@@ -428,8 +490,8 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 14,
   },
   header: {
@@ -441,9 +503,9 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
   sectionTitle: {
@@ -456,13 +518,13 @@ const styles = StyleSheet.create({
   },
   // Simple chip styles for subcategories
   chipContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingBottom: 8,
     paddingTop: 4,
   },
   chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 50,
@@ -470,7 +532,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.05,
         shadowRadius: 2,
@@ -496,7 +558,7 @@ const styles = StyleSheet.create({
     padding: 16,
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.08,
         shadowRadius: 4,
@@ -507,8 +569,8 @@ const styles = StyleSheet.create({
     }),
   },
   prayerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   prayerTitleContainer: {
@@ -524,8 +586,8 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   prayerFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   readMore: {
     fontSize: 14,
@@ -551,5 +613,5 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 50,
-  }
+  },
 });

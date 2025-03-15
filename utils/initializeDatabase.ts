@@ -142,13 +142,13 @@ export const createTables = async () => {
     const db = await getDatabase();
 
     await db.execAsync(`
-      -- Create categories table
+    -- Create categories table 
       CREATE TABLE IF NOT EXISTS categories (
         id INTEGER PRIMARY KEY,
         title TEXT NOT NULL,
-        parent_id INTEGER,
-        FOREIGN KEY (parent_id) REFERENCES categories(id) ON DELETE CASCADE
+        parent_id TEXT  -- now storing a JSON array of numbers
       );
+
       
       -- Create prayers table
       CREATE TABLE IF NOT EXISTS prayers (
@@ -288,7 +288,7 @@ const fetchAndSyncCategories = async () => {
           await statement.executeAsync([
             category.id,
             category.title,
-            category.parent_id || null,
+            category.parent_id ? JSON.stringify(category.parent_id) : null,
           ]);
         }
       } finally {
@@ -737,14 +737,26 @@ export const getChildCategories = async (
 ): Promise<CategoryType[]> => {
   try {
     const db = await getDatabase();
-    const query = "SELECT * FROM categories WHERE parent_id = ?;";
-    const rows = await db.getAllAsync<CategoryType>(query, [parentId]);
-    return rows;
+    // Get all categories because filtering directly in SQLite isn't straightforward
+    const allCategories = await db.getAllAsync<CategoryType>("SELECT * FROM categories;");
+    // Filter categories by checking if their JSON parent_id array includes the given parentId
+    return allCategories.filter((cat) => {
+      if (!cat.parent_id) return false;
+      try {
+        const parentIds: number[] = JSON.parse(cat.parent_id);
+        return Array.isArray(parentIds) && parentIds.includes(parentId);
+      } catch (error) {
+        console.error(`Error parsing parent_id for category ${cat.id}`, error);
+        return false;
+      }
+    });
   } catch (error) {
     console.error("Error fetching child categories:", error);
     throw error;
   }
 };
+
+
 
 export const getCategoryById = async (
   categoryId: number
@@ -781,14 +793,17 @@ export const getAllPrayersForCategory = async (
   try {
     const db = await getDatabase();
 
-    // Get the category ID for the given title
+    // Get the category for the given title
     const category = await getCategoryByTitle(categoryTitle);
     if (!category) {
       throw new Error(`Category with title "${categoryTitle}" not found`);
     }
 
-    // Get all prayers with this category ID
-    // We use category IDs for database relationships, but show titles to the user
+    // Get all descendant category IDs including itself
+    const descendantIds = await getCategoryAndDescendantIds(category.id, db);
+    const placeholders = descendantIds.map(() => '?').join(',');
+
+    // Query to fetch prayers that have a category_id in the descendant IDs
     const query = `
       SELECT 
         p.id,
@@ -804,25 +819,21 @@ export const getAllPrayersForCategory = async (
       FROM prayers p
       INNER JOIN categories c ON p.category_id = c.id
       INNER JOIN prayer_translations pt ON pt.prayer_id = p.id
-      WHERE (p.category_id = ? OR c.parent_id = ?) AND pt.language_code = ?
+      WHERE p.category_id IN (${placeholders}) AND pt.language_code = ?
       ORDER BY datetime(p.created_at) DESC;
     `;
-
-    const rows = await db.getAllAsync<PrayerWithCategory>(query, [
-      category.id,
-      category.id, // Include prayers from subcategories
-      language,
-    ]);
-
+    
+    // Combine descendant IDs with the language parameter
+    const params = [...descendantIds, language];
+    const rows = await db.getAllAsync<PrayerWithCategory>(query, params);
     return rows;
   } catch (error) {
     console.error("Error fetching prayers for category:", error);
-    Alert.alert("Fehler", "Gebete konnten nicht geladen werden.", [
-      { text: "OK" },
-    ]);
+    Alert.alert("Fehler", "Gebete konnten nicht geladen werden.", [{ text: "OK" }]);
     throw error;
   }
 };
+
 
 // Helper function to get a category ID and all descendant category IDs recursively
 export const getCategoryAndDescendantIds = async (
@@ -830,21 +841,33 @@ export const getCategoryAndDescendantIds = async (
   db: SQLite.SQLiteDatabase
 ): Promise<number[]> => {
   const ids = [categoryId];
-
-  // Fetch immediate child categories
-  const childCategories = await db.getAllAsync<{ id: number }>(
-    "SELECT id FROM categories WHERE parent_id = ?;",
-    [categoryId]
+  // Get all categories (with id and parent_id)
+  const allCategories = await db.getAllAsync<{ id: number; parent_id: string }>(
+    "SELECT id, parent_id FROM categories;"
   );
+  
+  const findDescendants = (parentId: number) => {
+    for (const cat of allCategories) {
+      if (cat.parent_id) {
+        try {
+          const parentIds: number[] = JSON.parse(cat.parent_id);
+          if (Array.isArray(parentIds) && parentIds.includes(parentId)) {
+            if (!ids.includes(cat.id)) {
+              ids.push(cat.id);
+              findDescendants(cat.id);
+            }
+          }
+        } catch (e) {
+          console.error("Error parsing parent_id for category", cat.id, e);
+        }
+      }
+    }
+  };
 
-  // Recursively collect IDs from children
-  for (const child of childCategories) {
-    const childIds = await getCategoryAndDescendantIds(child.id, db);
-    ids.push(...childIds);
-  }
-
+  findDescendants(categoryId);
   return ids;
 };
+
 
 export const getPrayer = async (
   prayerId: number,
