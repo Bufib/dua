@@ -1095,7 +1095,6 @@
 // });
 
 // export default RenderPrayer;
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
@@ -1127,11 +1126,15 @@ import { useTranslation } from "react-i18next";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRefreshFavorites } from "@/stores/refreshFavoriteStore";
 
+interface TextPart {
+  text: string;
+  isSpecial: boolean;
+}
+
 interface PrayerSegment {
   arabic: string;
   transliteration: string;
-  translations: { [key: string]: string };
-  isExtra?: boolean;
+  translations: { [key: string]: TextPart[] };
 }
 
 interface PrayerData {
@@ -1140,7 +1143,7 @@ interface PrayerData {
   arabicTitle: string;
   introduction: string | null;
   segments: PrayerSegment[];
-  notes: string | null;
+  notes: { [key: string]: string | null };
   source: string | null;
   languages_available: string[];
 }
@@ -1164,6 +1167,7 @@ const RenderPrayer = () => {
   const [importantSegments, setImportantSegments] = useState<number[]>([]);
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
   const [fontSizeModalVisible, setFontSizeModalVisible] = useState(false);
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
   const { triggerRefreshFavorites } = useRefreshFavorites();
   const headerAnimation = useRef(new Animated.Value(0)).current;
   const colorScheme = useColorScheme() || "light";
@@ -1171,6 +1175,9 @@ const RenderPrayer = () => {
   const insets = useSafeAreaInsets();
   const { language, changeLanguage } = useLanguage();
   const scrollRef = useRef<ScrollView>(null);
+  
+  // Create a Map to store refs for each segment
+  const segmentRefs = useRef<Map<number, View>>(new Map());
 
   const theme = {
     primary: Colors.universal.primary,
@@ -1206,6 +1213,47 @@ const RenderPrayer = () => {
     extrapolate: "clamp",
   });
 
+  // Function to scroll to bookmark when opening prayer
+  const scrollToBookmark = () => {
+    if (bookmarkedSegment !== null && scrollRef.current && prayerData) {
+      // Get the ref for the bookmarked segment
+      const segmentRef = segmentRefs.current.get(bookmarkedSegment);
+      
+      if (segmentRef) {
+        // Add some delay to ensure the content is rendered
+        setTimeout(() => {
+          segmentRef.measureLayout(
+            // @ts-ignore - Known issue with type definition but works correctly
+            scrollRef.current.getInnerViewNode(),
+            (_, y) => {
+              // Adjust position to account for header and some offset
+              const offsetY = Math.max(0, y - 80);
+              scrollRef.current?.scrollTo({ y: offsetY, animated: true });
+            },
+            () => {
+              console.error("Failed to measure bookmark segment position");
+              // Fallback to approximate position
+              const estimatedPosition = bookmarkedSegment * 150;
+              scrollRef.current?.scrollTo({ y: estimatedPosition, animated: true });
+            }
+          );
+        }, 300);
+      } else {
+        console.log("Bookmark segment ref not found, using estimated position");
+        // Fallback to estimated position with a longer delay
+        setTimeout(() => {
+          const estimatedPosition = bookmarkedSegment * 120;
+          scrollRef.current?.scrollTo({ y: estimatedPosition, animated: true });
+        }, 800);
+      }
+    }
+  };
+
+  // Scroll to top function
+  const scrollToTop = () => {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  };
+
   useEffect(() => {
     const loadUserPreferences = async () => {
       if (!prayerId) return;
@@ -1226,6 +1274,17 @@ const RenderPrayer = () => {
     };
     loadUserPreferences();
   }, [prayerId]);
+
+  // Jump to bookmark when prayer data is loaded and bookmark exists
+  useEffect(() => {
+    if (prayerData && bookmarkedSegment !== null) {
+      // Clear out any old refs first
+      segmentRefs.current = new Map();
+      
+      // Wait for refs to be populated after render
+      setTimeout(scrollToBookmark, 300);
+    }
+  }, [prayerData, bookmarkedSegment]);
 
   useEffect(() => {
     const checkFavoriteStatus = async () => {
@@ -1280,26 +1339,108 @@ const RenderPrayer = () => {
           console.log("Error parsing languages_available, using raw value.", e);
           languagesAvailable = prayerFromDB.languages_available;
         }
+        
+        // Split the prayer text into lines
         const rawSegments = prayerFromDB.prayer_text
           .split(/\r?\n/)
           .filter((line) => line.trim() !== "");
+          
+        // Process segments with better handling of @Text@ markers
         const segments = rawSegments.map((line) => {
-          const isExtra = line.includes("@text@");
-          const processed = line.replace(/@text@/g, "").trim();
-          return {
-            arabic: "",
-            transliteration: "",
-            translations: { [language]: processed },
-            isExtra,
-          };
+          if (/@text@/i.test(line)) {
+            // Process line with @Text@ markers
+            const parts: TextPart[] = [];
+            
+            // Split the line by @Text@ markers and process each part
+            const regex = /(@text@)(.*?)(@text@)/gi;
+            let lastIndex = 0;
+            let match;
+            
+            // Create a working copy of the line
+            let workingLine = line;
+            
+            // First, extract all regular text before any @Text@ tags
+            match = regex.exec(workingLine);
+            if (match) {
+              // Add text before the first @Text@ if it exists
+              const beforeFirstTag = workingLine.substring(0, match.index).trim();
+              if (beforeFirstTag) {
+                parts.push({ text: beforeFirstTag, isSpecial: false });
+              }
+              
+              // Reset regex to search from beginning
+              regex.lastIndex = 0;
+            }
+            
+            // Process all @Text@ sections
+            while ((match = regex.exec(workingLine)) !== null) {
+              // The matched text without the markers
+              const specialText = match[2].trim();
+              if (specialText) {
+                parts.push({ text: specialText, isSpecial: true });
+              }
+              
+              // Check if there's regular text after this match and before next match
+              const end = match.index + match[0].length;
+              const nextMatch = regex.exec(workingLine);
+              regex.lastIndex = end; // Reset to continue after current match
+              
+              if (nextMatch) {
+                const regularText = workingLine.substring(end, nextMatch.index).trim();
+                if (regularText) {
+                  parts.push({ text: regularText, isSpecial: false });
+                }
+                regex.lastIndex = end; // Reset again after checking next match
+              } else {
+                // Get text after the last @Text@ tag
+                const afterLastTag = workingLine.substring(end).trim();
+                if (afterLastTag) {
+                  parts.push({ text: afterLastTag, isSpecial: false });
+                }
+              }
+            }
+            
+            // If no matches were found or parts is empty, treat whole line as regular text
+            if (parts.length === 0) {
+              parts.push({ text: line.replace(/@text@/ig, "").trim(), isSpecial: false });
+            }
+            
+            return {
+              arabic: "",
+              transliteration: "",
+              translations: { [language]: parts }
+            };
+          } else {
+            // Regular line without @Text@ markers
+            return {
+              arabic: "",
+              transliteration: "",
+              translations: { 
+                [language]: [{ text: line.trim(), isSpecial: false }] 
+              }
+            };
+          }
         });
+        
+        // Parse notes with language-specific content
+        let notesObj = {};
+        if (prayerFromDB.notes) {
+          try {
+            // Try to parse notes as JSON if they are stored that way
+            notesObj = JSON.parse(prayerFromDB.notes);
+          } catch (e) {
+            // If notes are not JSON, assume they are for the current language
+            notesObj = { [language]: prayerFromDB.notes };
+          }
+        }
+
         const formattedPrayerData: PrayerData = {
           id: prayerFromDB.id,
           title: prayerFromDB.name,
           arabicTitle: prayerFromDB.arabic_title,
           introduction: prayerFromDB.introduction,
           segments,
-          notes: prayerFromDB.notes,
+          notes: notesObj,
           source: prayerFromDB.source,
           languages_available: languagesAvailable,
         };
@@ -1372,16 +1513,29 @@ const RenderPrayer = () => {
       if (selectedLanguages.arabic) shareText += `${segment.arabic}\n`;
       if (selectedLanguages.transliteration)
         shareText += `${segment.transliteration}\n`;
-      shareText += `${
-        segment.translations[language] || segment.translations.en
-      }\n\n`;
+      
+      // Properly handle text parts for sharing
+      const translationParts = segment.translations[language] || segment.translations.en;
+      if (translationParts) {
+        const translationText = translationParts.map(part => {
+          return part.isSpecial ? `*${part.text}*` : part.text;
+        }).join(' ');
+        shareText += `${translationText}\n\n`;
+      }
     });
     await Share.share({ message: shareText, title: prayerData.title });
   };
 
   const handleScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: headerAnimation } } }],
-    { useNativeDriver: false }
+    { 
+      useNativeDriver: false,
+      listener: (event) => {
+        const offsetY = event.nativeEvent.contentOffset.y;
+        // Show scroll to top button when user has scrolled down a bit
+        setShowScrollToTop(offsetY > 300);
+      }
+    }
   );
 
   const handleBack = () => {
@@ -1711,6 +1865,11 @@ const RenderPrayer = () => {
         >
           {prayerData.segments.map((segment, index) => (
             <View
+              ref={(ref) => {
+                if (ref) {
+                  segmentRefs.current.set(index, ref);
+                }
+              }}
               key={index}
               style={[
                 styles.prayerSegment,
@@ -1794,25 +1953,39 @@ const RenderPrayer = () => {
                   {segment.transliteration}
                 </Text>
               )}
-              <Text
+              <View
                 style={[
-                  styles.translationText,
-                  segment.isExtra && styles.extraText,
+                  styles.translationContainer,
                   {
-                    fontSize: fontSize,
-                    lineHeight: lineHeight,
                     marginTop:
                       selectedLanguages.arabic ||
                       selectedLanguages.transliteration
                         ? 8
                         : 0,
-                    color: Colors[colorScheme].prayerTranslationText,
-                    fontWeight: bookmarkedSegment === index ? "600" : "normal",
                   },
                 ]}
               >
-                {segment.translations[language] || segment.translations.en}
-              </Text>
+                {(segment.translations[language] || segment.translations.en)?.map((part, partIndex) => (
+                  <Text
+                    key={partIndex}
+                    style={[
+                      styles.translationText,
+                      {
+                        fontSize: fontSize,
+                        lineHeight: lineHeight,
+                        color: Colors[colorScheme].prayerTranslationText,
+                        fontWeight: bookmarkedSegment === index ? 
+                          (part.isSpecial ? "700" : "600") : 
+                          (part.isSpecial ? "700" : "normal"),
+                      },
+                      part.isSpecial && styles.specialText,
+                      partIndex > 0 && styles.textSeparator
+                    ]}
+                  >
+                    {part.text} {part.isSpecial && partIndex < (segment.translations[language] || segment.translations.en).length - 1 ? " | " : ""}
+                  </Text>
+                ))}
+              </View>
               {index < prayerData.segments.length - 1 && (
                 <View
                   style={[
@@ -1824,7 +1997,8 @@ const RenderPrayer = () => {
             </View>
           ))}
         </View>
-        {prayerData.notes && (
+        {/* Only show notes if they exist for the current language */}
+        {prayerData.notes && prayerData.notes[language] && (
           <View
             style={[
               styles.notesContainer,
@@ -1844,7 +2018,7 @@ const RenderPrayer = () => {
                 },
               ]}
             >
-              {prayerData.notes}
+              {prayerData.notes[language]}
             </Text>
           </View>
         )}
@@ -1862,6 +2036,21 @@ const RenderPrayer = () => {
         )}
         <View style={{ height: 20 + insets.bottom }} />
       </ScrollView>
+      
+      {/* Scroll to top button */}
+      {showScrollToTop && (
+        <TouchableOpacity
+          style={[
+            styles.scrollToTopButton,
+            { backgroundColor: theme.primary },
+            { bottom: insets.bottom + 16 }
+          ]}
+          onPress={scrollToTop}
+        >
+          <Ionicons name="arrow-up" size={24} color="#fff" />
+        </TouchableOpacity>
+      )}
+      
       <SettingsModal />
       <FontSizePickerModal
         visible={fontSizeModalVisible}
@@ -2013,8 +2202,20 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     marginBottom: 4,
   },
-  translationText: { textAlign: "left" },
-  extraText: { fontStyle: "italic", color: "#888" },
+  translationContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+  },
+  translationText: { 
+    textAlign: "left" 
+  },
+  specialText: { 
+    fontWeight: "700",
+  },
+  textSeparator: {
+    marginLeft: 4,
+  },
   segmentDivider: { height: 1, marginTop: 10, marginBottom: 2 },
   notesContainer: {
     borderRadius: 14,
@@ -2040,6 +2241,20 @@ const styles = StyleSheet.create({
   settingsItemLeft: { flexDirection: "row", alignItems: "center" },
   settingsItemIcon: { marginRight: 12 },
   settingsItemText: { fontSize: 16 },
+  scrollToTopButton: {
+    position: "absolute",
+    right: 16,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
 });
 
 export default RenderPrayer;
