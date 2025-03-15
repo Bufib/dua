@@ -38,8 +38,8 @@ interface TranslationType {
   categories: string;
 
   // Weekly calendar
-  weeklyPrayers: string;
-  addPrayer: string;
+  weeklyToDo: string;
+  addWeekly: string;
   addForDay: string;
   enterPrayer: string;
   add: string;
@@ -80,6 +80,37 @@ interface TranslationType {
 
   // Days of week
   days: DayNamesType;
+  
+  // Toast and alert messages
+  toast: {
+    // Success messages
+    contentUpdated: string;
+    newContentAvailable: string;
+    favoriteAdded: string;
+    dataLoaded: string;
+    
+    // Error messages
+    error: string;
+    updateError: string;
+    contentLoadError: string;
+    favoriteAddError: string;
+    favoriteRemoved: string;
+    favoriteRemoveError: string;
+    favoritesLoadError: string;
+    categoriesLoadError: string;
+    prayersLoadError: string;
+    searchError: string;
+    latestPrayersError: string;
+    paypalLinkError: string;
+    languagesLoadError: string;
+    offlineMode: string;
+    noConnection: string;
+    syncError: string;
+    offlineModeMessage: string;
+    noConnectionMessage: string;
+    syncErrorMessage: string;
+    updateContentError: string;
+  }
 }
 
 // Translations resources
@@ -114,9 +145,9 @@ const resources: Resource = {
       categories: "Kategorien",
 
       // Weekly calendar
-      weeklyPrayers: "Gebetsplan für die Woche",
-      addPrayer: "Gebet hinzufügen",
-      addForDay: "Gebet hinzufügen für",
+      weeklyToDo: "Plan für die Woche",
+      addWeekly: "Hinzufügent ",
+      addForDay: "Hinzufügen für",
       enterPrayer: "Gib das Gebet ein...",
       add: "Hinzufügen",
       cancel: "Abbrechen",
@@ -171,6 +202,37 @@ const resources: Resource = {
           "Sonntag",
         ],
       },
+      
+      // Toast and alert messages
+      toast: {
+        // Success messages
+        contentUpdated: "Inhalte aktualisiert",
+        newContentAvailable: "Neue Inhalte sind jetzt verfügbar.",
+        favoriteAdded: "Gebet zu Favoriten hinzugefügt.",
+        dataLoaded: "Alle Inhalte wurden erfolgreich synchronisiert.",
+        
+        // Error messages
+        error: "Fehler",
+        updateError: "Fehler bei der Aktualisierung",
+        contentLoadError: "Die neuen Inhalte konnten nicht geladen werden.",
+        favoriteAddError: "Gebet konnte nicht zu Favoriten hinzugefügt werden.",
+        favoriteRemoved: "Gebet aus Favoriten entfernt.",
+        favoriteRemoveError: "Gebet konnte nicht aus Favoriten entfernt werden",
+        favoritesLoadError: "Favoriten konnten nicht geladen werden.",
+        categoriesLoadError: "Kategorien konnten nicht geladen werden.",
+        prayersLoadError: "Gebete konnten nicht geladen werden.",
+        searchError: "Suche konnte nicht durchgeführt werden.",
+        latestPrayersError: "Aktuelle Gebete konnten nicht geladen werden.",
+        paypalLinkError: "PayPal-Link konnte nicht geladen werden.",
+        languagesLoadError: "Sprachen konnten nicht geladen werden.",
+        offlineMode: "Offline-Modus",
+        noConnection: "Keine Verbindung",
+        syncError: "Synchronisierungsfehler",
+        offlineModeMessage: "Sie sind derzeit offline. Die bestehenden Inhalte werden angezeigt.",
+        noConnectionMessage: "Sie sind offline und es sind keine Daten verfügbar. Bitte stellen Sie eine Internetverbindung her.",
+        syncErrorMessage: "Die Daten konnten nicht synchronisiert werden. Bitte versuchen Sie es später erneut.",
+        updateContentError: "Beim Aktualisieren der Inhalte ist ein Fehler aufgetreten."
+      }
     },
   },
   ar: {
@@ -203,9 +265,9 @@ const resources: Resource = {
       categories: "الفئات",
 
       // Weekly calendar
-      weeklyPrayers: "جدول الصلاة الأسبوعي",
-      addPrayer: "إضافة صلاة",
-      addForDay: "إضافة صلاة ليوم",
+      weeklyToDo: "خطة الأسبوع",
+      addWeekly: "إضافة",
+      addForDay: "إضافة ل",
       enterPrayer: "أدخل الصلاة...",
       add: "إضافة",
       cancel: "إلغاء",
@@ -259,6 +321,37 @@ const resources: Resource = {
           "الأحد",
         ],
       },
+      
+      // Toast and alert messages
+      toast: {
+        // Success messages
+        contentUpdated: "تم تحديث المحتوى",
+        newContentAvailable: "المحتوى الجديد متاح الآن.",
+        favoriteAdded: "تمت إضافة الصلاة إلى المفضلة.",
+        dataLoaded: "تمت مزامنة جميع المحتويات بنجاح.",
+        
+        // Error messages
+        error: "خطأ",
+        updateError: "خطأ في التحديث",
+        contentLoadError: "تعذر تحميل المحتوى الجديد.",
+        favoriteAddError: "تعذر إضافة الصلاة إلى المفضلة.",
+        favoriteRemoved: "تمت إزالة الصلاة من المفضلة.",
+        favoriteRemoveError: "تعذر إزالة الصلاة من المفضلة.",
+        favoritesLoadError: "تعذر تحميل المفضلة.",
+        categoriesLoadError: "تعذر تحميل الفئات.",
+        prayersLoadError: "تعذر تحميل الصلوات.",
+        searchError: "تعذر إجراء البحث.",
+        latestPrayersError: "تعذر تحميل أحدث الصلوات.",
+        paypalLinkError: "تعذر تحميل رابط باي بال.",
+        languagesLoadError: "تعذر تحميل اللغات.",
+        offlineMode: "وضع عدم الاتصال",
+        noConnection: "لا يوجد اتصال",
+        syncError: "خطأ في المزامنة",
+        offlineModeMessage: "أنت حاليًا غير متصل. سيتم عرض المحتوى الموجود.",
+        noConnectionMessage: "أنت غير متصل ولا توجد بيانات متاحة. يرجى الاتصال بالإنترنت.",
+        syncErrorMessage: "تعذر مزامنة البيانات. يرجى المحاولة مرة أخرى لاحقًا.",
+        updateContentError: "حدث خطأ أثناء تحديث المحتوى."
+      }
     },
   },
   en: {
@@ -292,9 +385,9 @@ const resources: Resource = {
 
 
       // Weekly calendar
-      weeklyPrayers: "Weekly Prayer Schedule",
-      addPrayer: "Add Prayer",
-      addForDay: "Add prayer for",
+      weeklyToDo: "Weekly Schedule",
+      addWeekly: "Add",
+      addForDay: "Add for",
       enterPrayer: "Enter prayer...",
       add: "Add",
       cancel: "Cancel",
@@ -349,6 +442,37 @@ const resources: Resource = {
           "Sunday",
         ],
       },
+      
+      // Toast and alert messages
+      toast: {
+        // Success messages
+        contentUpdated: "Content Updated",
+        newContentAvailable: "New content is now available.",
+        favoriteAdded: "Prayer added to favorites.",
+        dataLoaded: "All content successfully synchronized.",
+        
+        // Error messages
+        error: "Error",
+        updateError: "Update Error",
+        contentLoadError: "Could not load new content.",
+        favoriteAddError: "Could not add prayer to favorites.",
+        favoriteRemoved: "Prayer removed from favorites.",
+        favoriteRemoveError: "Could not remove prayer from favorites.",
+        favoritesLoadError: "Could not load favorites.",
+        categoriesLoadError: "Could not load categories.",
+        prayersLoadError: "Could not load prayers.",
+        searchError: "Could not perform search.",
+        latestPrayersError: "Could not load latest prayers.",
+        paypalLinkError: "Could not load PayPal link.",
+        languagesLoadError: "Could not load languages.",
+        offlineMode: "Offline Mode",
+        noConnection: "No Connection",
+        syncError: "Synchronization Error",
+        offlineModeMessage: "You are currently offline. Existing content will be displayed.",
+        noConnectionMessage: "You are offline and no data is available. Please connect to the internet.",
+        syncErrorMessage: "Data could not be synchronized. Please try again later.",
+        updateContentError: "An error occurred while updating content."
+      }
     },
   },
 };

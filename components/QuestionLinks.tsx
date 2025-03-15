@@ -276,7 +276,7 @@ const HomeScreen = () => {
   // Get short day names (for day selector buttons)
   const getDayNames = (): string[] => {
     return (
-      t("days.short", { returnObjects: true }) || [
+      t("days.short", { returnObjects: true }) as string[] || [
         "Mon",
         "Tue",
         "Wed",
@@ -290,7 +290,7 @@ const HomeScreen = () => {
 
   // Get full day name for selected day
   const getFullDayName = (dayIndex: number): string => {
-    const names: string[] = t("days.full", { returnObjects: true }) || [
+    const names: string[] = t("days.full", { returnObjects: true }) as string[]|| [
       "Monday",
       "Tuesday",
       "Wednesday",
@@ -341,7 +341,7 @@ const HomeScreen = () => {
               router.push({
                 pathname: "/[prayer]",
                 params: {
-                  prayerId: todaysPrayer.id,
+                  prayerId: todaysPrayer.text,
                   prayerTitle: todaysPrayer.title,
                 },
               })
@@ -369,11 +369,11 @@ const HomeScreen = () => {
                     ? {
                       
                         pathname: "/(tabs)/home/tasbih",
-                        params: { categoryName: category.title },
+                        params: { category: category.title },
                       }
                     : {
                         pathname: "/(tabs)/home/(category)/[category]",
-                        params: { categoryName: category.title },
+                        params: { category: category.title },
                       }
                 );
               }}
@@ -402,7 +402,7 @@ const HomeScreen = () => {
         <View style={styles.calendarSection}>
           <View style={[styles.calendarHeader, flexDirection]}>
             <ThemedText style={[styles.sectionTitle, textAlign]}>
-              {t("weeklyPrayers")}
+              {t("weeklyToDo")}
             </ThemedText>
             <TouchableOpacity
               style={[
@@ -414,7 +414,7 @@ const HomeScreen = () => {
               onPress={() => setAddModalVisible(true)}
             >
               <ThemedText style={styles.addButtonText}>
-                {t("addPrayer")}
+                {t("addWeekly")}
               </ThemedText>
             </TouchableOpacity>
           </View>
@@ -556,7 +556,7 @@ const HomeScreen = () => {
                     onPress={() => setAddModalVisible(true)}
                   >
                     <ThemedText style={styles.emptyDayAddText}>
-                      {t("addPrayer")}
+                      {t("addWeekly")}
                     </ThemedText>
                   </TouchableOpacity>
                 </View>

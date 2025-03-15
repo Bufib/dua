@@ -35,8 +35,8 @@ const categoryIcons: { [key: string]: string } = {
 };
 
 export default function CategoryScreen() {
-  const { categoryName } = useLocalSearchParams<{
-    categoryName: string;
+  const { category } = useLocalSearchParams<{
+    category: string;
   }>();
   const colorScheme = useColorScheme();
   const themeStyles = CoustomTheme();
@@ -76,23 +76,24 @@ export default function CategoryScreen() {
         setSelectedSubcategory(null);
 
         // Fetch category by title
-        const category = await getCategoryByTitle(categoryName);
-        console.log("Category found:", category);
+        const categoryData = await getCategoryByTitle(category);
+        console.log("Category found:", categoryData);
 
-        if (!category) {
+        if (!categoryData) {
           console.error("Category not found");
           return;
         }
 
-        setCurrentCategory(category);
+        setCurrentCategory(categoryData);
 
         // Fetch subcategories using the parent category ID
-        const categoryRows = await getChildCategories(category.id);
+        const categoryRows = await getChildCategories(categoryData.id);
+        console.log(categoryRows)
         setChildCategories(categoryRows);
 
         // Fetch prayers for this category and all subcategories
         const prayerRows = await getAllPrayersForCategory(
-          categoryName,
+          category,
           language.toUpperCase()
         );
         setAllPrayers(prayerRows);
@@ -112,7 +113,7 @@ export default function CategoryScreen() {
     };
 
     fetchData();
-  }, [categoryName, language]);
+  }, [category, language]);
 
   // Function to handle subcategory selection and filter prayers
   const handleSubcategoryPress = async (category: CategoryType) => {
@@ -185,7 +186,7 @@ export default function CategoryScreen() {
             ]}
           >
             <Ionicons
-              name={getCategoryIcon(categoryName)}
+              name={getCategoryIcon(category)}
               size={24}
               color={colorScheme === "dark" ? "#90cdf4" : "#3b82f6"}
             />
@@ -198,7 +199,7 @@ export default function CategoryScreen() {
             ]}
           >
             {/* Display the category name */}
-            {categoryName}
+            {category}
           </Text>
         </View>
 

@@ -84,8 +84,8 @@ export type Sizes = {
 export type CategoryType = {
   id: number;
   title: string;
-  image?: string | null;
   parent_id?: string | null;
+  category: string
 };
 
 export type PrayerType = {
