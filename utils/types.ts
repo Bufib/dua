@@ -1,4 +1,5 @@
 import { TextStyle, TextProps } from "react-native";
+import { string } from "zod";
 
 export type QuestionType = {
   id: number;
@@ -100,7 +101,8 @@ export type PrayerType = {
   transliteration_text?: string;  // als optional
   transliteration_notes?: string | null;
   source?: string | null;
-  languages_available: string[];
+  translated_languages: string[];
+  arabic_introduction?: string
 };
 
 
@@ -124,7 +126,7 @@ export type PrayerWithCategory = {
   arabic_title?: string;
   created_at: string;
   updated_at: string;
-  languages_available: string[]; 
+  translated_languages: string[]; 
   category_title: string;
   introduction?: string;
   prayer_text: string;
@@ -169,3 +171,4 @@ export type PrayerData = {
 export type PrayersByLanguage = {
   [key: string]: PrayerData;
 };
+

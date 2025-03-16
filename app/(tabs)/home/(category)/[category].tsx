@@ -12,9 +12,10 @@ import {
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { CategoryType, PrayerWithCategory } from "@/utils/types";
+// Note: Instead of getAllPrayersForCategory, import the new function that uses the join table:
 import {
   getChildCategories,
-  getAllPrayersForCategory,
+  getPrayersForCategory, // <-- New function: queries via prayer_categories join table
   getCategoryByTitle,
 } from "@/utils/initializeDatabase";
 import { CoustomTheme } from "@/utils/coustomTheme";
@@ -35,14 +36,12 @@ const categoryIcons: { [key: string]: string } = {
 };
 
 export default function CategoryScreen() {
-  const { category } = useLocalSearchParams<{
-    category: string;
-  }>();
+  const { category } = useLocalSearchParams<{ category: string }>();
   const colorScheme = useColorScheme();
   const themeStyles = CoustomTheme();
   const { t } = useTranslation();
   const { language } = useLanguage();
-  const isRTL = language === "ar";
+  const isRTL = language === "AR";
 
   const [childCategories, setChildCategories] = useState<CategoryType[]>([]);
   const [allPrayers, setAllPrayers] = useState<PrayerWithCategory[]>([]);
@@ -68,14 +67,13 @@ export default function CategoryScreen() {
     return categoryIcons.default;
   };
 
-  // Using the original data fetching approach
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setSelectedSubcategory(null);
 
-        // Fetch category by title
+        // Fetch category by title (e.g., "Ziyarat")
         const categoryData = await getCategoryByTitle(category);
         console.log("Category found:", categoryData);
 
@@ -83,17 +81,17 @@ export default function CategoryScreen() {
           console.error("Category not found");
           return;
         }
-
         setCurrentCategory(categoryData);
 
         // Fetch subcategories using the parent category ID
         const categoryRows = await getChildCategories(categoryData.id);
-        console.log(categoryRows)
+        console.log(categoryRows);
         setChildCategories(categoryRows);
 
-        // Fetch prayers for this category and all subcategories
-        const prayerRows = await getAllPrayersForCategory(
-          category,
+        // IMPORTANT: Fetch prayers via the new function that uses the join table.
+        // Use the main category's id to get both prayers from the main and extra associations.
+        const prayerRows = await getPrayersForCategory(
+          categoryData.id,
           language.toUpperCase()
         );
         setAllPrayers(prayerRows);
@@ -116,32 +114,32 @@ export default function CategoryScreen() {
   }, [category, language]);
 
   // Function to handle subcategory selection and filter prayers
-  const handleSubcategoryPress = async (category: CategoryType) => {
+  const handleSubcategoryPress = async (cat: CategoryType) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-    // If already selected, deselect it and show all prayers
-    if (selectedSubcategory && selectedSubcategory.id === category.id) {
+    // Toggle selection if already selected
+    if (selectedSubcategory && selectedSubcategory.id === cat.id) {
       setSelectedSubcategory(null);
       setFilteredPrayers(allPrayers);
       return;
     }
 
-    setSelectedSubcategory(category);
+    setSelectedSubcategory(cat);
 
     try {
-      // Fetch prayers for this specific subcategory
-      const subcategoryPrayers = await getAllPrayersForCategory(
-        category.title,
+      // IMPORTANT: Fetch prayers for this subcategory using the new join-based function.
+      // Pass the subcategory's id.
+      const subcategoryPrayers = await getPrayersForCategory(
+        cat.id,
         language.toUpperCase()
       );
       setFilteredPrayers(subcategoryPrayers);
     } catch (error) {
       console.error("Error fetching subcategory prayers:", error);
-      // Fallback: filter client-side if server filtering fails
+      // Fallback filtering logic if needed
       const filtered = allPrayers.filter(
         (prayer) =>
-          prayer.category_id === category.id ||
-          prayer.category_title === category.title
+          prayer.category_id === cat.id || prayer.category_title === cat.title
       );
       setFilteredPrayers(filtered.length > 0 ? filtered : allPrayers);
     }
@@ -198,7 +196,6 @@ export default function CategoryScreen() {
               isRTL && { textAlign: "right" },
             ]}
           >
-            {/* Display the category name */}
             {category}
           </Text>
         </View>
@@ -221,8 +218,6 @@ export default function CategoryScreen() {
               >
                 {t("categories")}
               </Text>
-
-              {/* Show a "Show All" button when a subcategory is selected */}
               {selectedSubcategory && (
                 <TouchableOpacity
                   onPress={() => {
@@ -239,9 +234,9 @@ export default function CategoryScreen() {
                       fontWeight: "500",
                     }}
                   >
-                    {language === "ar"
+                    {language === "AR"
                       ? "عرض الكل"
-                      : language === "de"
+                      : language === "DE"
                       ? "Alle anzeigen"
                       : "Show All"}
                   </Text>
@@ -254,16 +249,16 @@ export default function CategoryScreen() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.chipContainer}
             >
-              {childCategories.map((category) => (
+              {childCategories.map((cat) => (
                 <TouchableOpacity
-                  key={category.id}
+                  key={cat.id}
                   style={[
                     styles.chip,
                     {
                       backgroundColor:
                         colorScheme === "dark" ? "#2d3748" : "#f1f5f9",
                     },
-                    selectedSubcategory?.id === category.id && {
+                    selectedSubcategory?.id === cat.id && {
                       backgroundColor:
                         colorScheme === "dark" ? "#3b82f6" : "#dbeafe",
                       borderWidth: 1,
@@ -271,13 +266,13 @@ export default function CategoryScreen() {
                         colorScheme === "dark" ? "#90cdf4" : "#3b82f6",
                     },
                   ]}
-                  onPress={() => handleSubcategoryPress(category)}
+                  onPress={() => handleSubcategoryPress(cat)}
                   activeOpacity={0.7}
                 >
                   <Text
                     style={[
                       styles.chipText,
-                      selectedSubcategory?.id === category.id
+                      selectedSubcategory?.id === cat.id
                         ? {
                             color: colorScheme === "dark" ? "#fff" : "#3b82f6",
                             fontWeight: "600",
@@ -288,7 +283,7 @@ export default function CategoryScreen() {
                           },
                     ]}
                   >
-                    {category.title}
+                    {cat.title}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -296,7 +291,7 @@ export default function CategoryScreen() {
           </View>
         )}
 
-        {/* Prayers Section - Clean, readable cards */}
+        {/* Prayers Section */}
         <View style={styles.sectionContainer}>
           <View
             style={[
@@ -356,7 +351,6 @@ export default function CategoryScreen() {
                       </Text>
                     </View>
                   </View>
-
                   {prayer.prayer_text && (
                     <Text
                       style={[
@@ -371,7 +365,6 @@ export default function CategoryScreen() {
                       {prayer.prayer_text.replace(/<[^>]*>/g, "").trim()}
                     </Text>
                   )}
-
                   <View
                     style={[
                       styles.prayerFooter,

@@ -9,113 +9,9 @@ interface DayNamesType {
   full: string[];
 }
 
-interface TranslationType {
-  // Core app translations
-  welcome: string;
-  selectLanguage: string;
-  german: string;
-  arabic: string;
-  english: string;
-  continue: string;
-  settings: string;
-  language: string;
-  theme: string;
-  about: string;
-  home: string;
-  prayers: string;
-  homeSubtitle: string;
-
-  // Prayer categories
-  dua: string;
-  ziyarat: string;
-  salat: string;
-  munajat: string;
-  tasbih: string;
-
-  // Home screen - Today's prayer
-  todaysPrayer: string;
-  readMore: string;
-  categories: string;
-
-  // Weekly calendar
-  weeklyToDo: string;
-  addWeekly: string;
-  addForDay: string;
-  enterPrayer: string;
-  add: string;
-  cancel: string;
-  noPrayersForDay: string;
-
-  // Delete confirmation
-  confirmDelete: string;
-  deleteQuestion: string;
-  delete: string;
-
-  // Prayer viewer
-  loadingPrayer: string;
-  unableToLoadPrayer: string;
-  notes: string;
-  source: string;
-  close: string;
-  transliteration: string;
-  adjustFontSize: string;
-  confirmBookmarkChange: string;
-  bookmarkReplaceQuestion: string;
-  replace: string;
-
-  // Favorites
-  loadingFavorites: string;
-  errorLoadingFavorites: string;
-  noFavoritesYet: string;
-  addFavoritesHint: string;
-
-  // Search (new strings)
-  searchPlaceholder: string;
-  errorSearching: string;
-  searching: string;
-  recentSearches: string;
-  clear: string;
-  noResults: string;
-  tryDifferentSearch: string;
-
-  // Days of week
-  days: DayNamesType;
-  
-  // Toast and alert messages
-  toast: {
-    // Success messages
-    contentUpdated: string;
-    newContentAvailable: string;
-    favoriteAdded: string;
-    dataLoaded: string;
-    
-    // Error messages
-    error: string;
-    updateError: string;
-    contentLoadError: string;
-    favoriteAddError: string;
-    favoriteRemoved: string;
-    favoriteRemoveError: string;
-    favoritesLoadError: string;
-    categoriesLoadError: string;
-    prayersLoadError: string;
-    searchError: string;
-    latestPrayersError: string;
-    paypalLinkError: string;
-    languagesLoadError: string;
-    offlineMode: string;
-    noConnection: string;
-    syncError: string;
-    offlineModeMessage: string;
-    noConnectionMessage: string;
-    syncErrorMessage: string;
-    updateContentError: string;
-  }
-}
-
 // Translations resources
 const resources: Resource = {
-  de: {
+  DE: {
     translation: {
       // Core app translations
       welcome: "As-salamu alaykum",
@@ -152,7 +48,7 @@ const resources: Resource = {
       add: "Hinzufügen",
       cancel: "Abbrechen",
       noPrayersForDay: "Keine Gebete für diesen Tag",
-      unDo: "Neustart", 
+      unDo: "Neustart",
 
       // Delete confirmation
       confirmDelete: "Löschen bestätigen",
@@ -202,7 +98,7 @@ const resources: Resource = {
           "Sonntag",
         ],
       },
-      
+
       // Toast and alert messages
       toast: {
         // Success messages
@@ -210,7 +106,7 @@ const resources: Resource = {
         newContentAvailable: "Neue Inhalte sind jetzt verfügbar.",
         favoriteAdded: "Gebet zu Favoriten hinzugefügt.",
         dataLoaded: "Alle Inhalte wurden erfolgreich synchronisiert.",
-        
+
         // Error messages
         error: "Fehler",
         updateError: "Fehler bei der Aktualisierung",
@@ -228,14 +124,18 @@ const resources: Resource = {
         offlineMode: "Offline-Modus",
         noConnection: "Keine Verbindung",
         syncError: "Synchronisierungsfehler",
-        offlineModeMessage: "Sie sind derzeit offline. Die bestehenden Inhalte werden angezeigt.",
-        noConnectionMessage: "Sie sind offline und es sind keine Daten verfügbar. Bitte stellen Sie eine Internetverbindung her.",
-        syncErrorMessage: "Die Daten konnten nicht synchronisiert werden. Bitte versuchen Sie es später erneut.",
-        updateContentError: "Beim Aktualisieren der Inhalte ist ein Fehler aufgetreten."
-      }
+        offlineModeMessage:
+          "Sie sind derzeit offline. Die bestehenden Inhalte werden angezeigt.",
+        noConnectionMessage:
+          "Sie sind offline und es sind keine Daten verfügbar. Bitte stellen Sie eine Internetverbindung her.",
+        syncErrorMessage:
+          "Die Daten konnten nicht synchronisiert werden. Bitte versuchen Sie es später erneut.",
+        updateContentError:
+          "Beim Aktualisieren der Inhalte ist ein Fehler aufgetreten.",
+      },
     },
   },
-  ar: {
+  AR: {
     translation: {
       // Core app translations
       welcome: "السلام عليكم",
@@ -272,7 +172,7 @@ const resources: Resource = {
       add: "إضافة",
       cancel: "إلغاء",
       noPrayersForDay: "لا توجد صلوات لهذا اليوم",
-      unDo: "الغاء الكل", 
+      unDo: "الغاء الكل",
       // Delete confirmation
       confirmDelete: "تأكيد الحذف",
       deleteQuestion: "هل أنت متأكد أنك تريد حذف هذه الصلاة؟",
@@ -321,7 +221,7 @@ const resources: Resource = {
           "الأحد",
         ],
       },
-      
+
       // Toast and alert messages
       toast: {
         // Success messages
@@ -329,7 +229,7 @@ const resources: Resource = {
         newContentAvailable: "المحتوى الجديد متاح الآن.",
         favoriteAdded: "تمت إضافة الصلاة إلى المفضلة.",
         dataLoaded: "تمت مزامنة جميع المحتويات بنجاح.",
-        
+
         // Error messages
         error: "خطأ",
         updateError: "خطأ في التحديث",
@@ -348,13 +248,15 @@ const resources: Resource = {
         noConnection: "لا يوجد اتصال",
         syncError: "خطأ في المزامنة",
         offlineModeMessage: "أنت حاليًا غير متصل. سيتم عرض المحتوى الموجود.",
-        noConnectionMessage: "أنت غير متصل ولا توجد بيانات متاحة. يرجى الاتصال بالإنترنت.",
-        syncErrorMessage: "تعذر مزامنة البيانات. يرجى المحاولة مرة أخرى لاحقًا.",
-        updateContentError: "حدث خطأ أثناء تحديث المحتوى."
-      }
+        noConnectionMessage:
+          "أنت غير متصل ولا توجد بيانات متاحة. يرجى الاتصال بالإنترنت.",
+        syncErrorMessage:
+          "تعذر مزامنة البيانات. يرجى المحاولة مرة أخرى لاحقًا.",
+        updateContentError: "حدث خطأ أثناء تحديث المحتوى.",
+      },
     },
   },
-  en: {
+  EN: {
     translation: {
       // Core app translations
       welcome: "As-salamu alaykum",
@@ -383,7 +285,6 @@ const resources: Resource = {
       readMore: "Read more",
       categories: "Categories",
 
-
       // Weekly calendar
       weeklyToDo: "Weekly Schedule",
       addWeekly: "Add",
@@ -392,7 +293,7 @@ const resources: Resource = {
       add: "Add",
       cancel: "Cancel",
       noPrayersForDay: "No prayers for this day",
-      unDo: "Un-do all", 
+      unDo: "Un-do all",
 
       // Delete confirmation
       confirmDelete: "Confirm Deletion",
@@ -442,7 +343,7 @@ const resources: Resource = {
           "Sunday",
         ],
       },
-      
+
       // Toast and alert messages
       toast: {
         // Success messages
@@ -450,7 +351,7 @@ const resources: Resource = {
         newContentAvailable: "New content is now available.",
         favoriteAdded: "Prayer added to favorites.",
         dataLoaded: "All content successfully synchronized.",
-        
+
         // Error messages
         error: "Error",
         updateError: "Update Error",
@@ -468,11 +369,14 @@ const resources: Resource = {
         offlineMode: "Offline Mode",
         noConnection: "No Connection",
         syncError: "Synchronization Error",
-        offlineModeMessage: "You are currently offline. Existing content will be displayed.",
-        noConnectionMessage: "You are offline and no data is available. Please connect to the internet.",
-        syncErrorMessage: "Data could not be synchronized. Please try again later.",
-        updateContentError: "An error occurred while updating content."
-      }
+        offlineModeMessage:
+          "You are currently offline. Existing content will be displayed.",
+        noConnectionMessage:
+          "You are offline and no data is available. Please connect to the internet.",
+        syncErrorMessage:
+          "Data could not be synchronized. Please try again later.",
+        updateContentError: "An error occurred while updating content.",
+      },
     },
   },
 };
@@ -480,8 +384,8 @@ const resources: Resource = {
 // Initialize i18n
 i18n.use(initReactI18next).init({
   resources,
-  lng: "de", // Default language
-  fallbackLng: "de",
+  lng: "DE", // Default language
+  fallbackLng: "DE",
   interpolation: {
     escapeValue: false,
   },

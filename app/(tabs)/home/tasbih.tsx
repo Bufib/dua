@@ -91,7 +91,7 @@ export default function TasbihScreen() {
   const themeStyles = CoustomTheme();
   const { t } = useTranslation();
   const { language } = useLanguage();
-  const isRTL = language === 'ar';
+  const isRTL = language === 'AR';
 
   // State
   const [selectedDhikr, setSelectedDhikr] = useState(dhikrPresets[0]);
@@ -369,7 +369,7 @@ export default function TasbihScreen() {
                   styles.dhikrTranslation,
                   { color: colorScheme === 'dark' ? '#94a3b8' : '#64748b' }
                 ]}>
-                  {item.translation[language] || item.translation.en}
+                  {item.translation[language] || item.translation.EN}
                 </Text>
               </TouchableOpacity>
             )}

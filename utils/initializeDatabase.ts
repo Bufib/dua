@@ -7,7 +7,7 @@ import {
   checkInternetConnection,
   setupConnectivityListener,
 } from "./checkNetwork";
-import { CategoryType, PrayerWithCategory, FavoritePrayer } from "./types";
+import { CategoryType, PrayerWithCategory, FavoritePrayer, PrayerType } from "./types";
 import Toast from "react-native-toast-message";
 import i18n from "./i18n";
 // Singleton database instance
@@ -52,8 +52,8 @@ export const initializeDatabase = async () => {
       );
       Toast.show({
         type: "error",
-        text1: i18n.t('toast.offlineMode'),
-        text2: i18n.t('toast.offlineModeMessage'),
+        text1: i18n.t("toast.offlineMode"),
+        text2: i18n.t("toast.offlineModeMessage"),
       });
 
       return;
@@ -63,8 +63,8 @@ export const initializeDatabase = async () => {
     );
     Toast.show({
       type: "error",
-      text1: i18n.t('toast.noConnection'),
-      text2: i18n.t('toast.noConnectionMessage'),
+      text1: i18n.t("toast.noConnection"),
+      text2: i18n.t("toast.noConnectionMessage"),
     });
 
     setupConnectivityListener(() => {
@@ -84,8 +84,8 @@ export const initializeDatabase = async () => {
         await Storage.setItemSync("version", versionFromSupabase);
         Toast.show({
           type: "success",
-          text1: i18n.t('toast.contentUpdated'),
-          text2: i18n.t('toast.dataLoaded'),
+          text1: i18n.t("toast.contentUpdated"),
+          text2: i18n.t("toast.dataLoaded"),
         });
       }
     } catch (error: any) {
@@ -95,8 +95,8 @@ export const initializeDatabase = async () => {
       );
       Toast.show({
         type: "error",
-        text1: i18n.t('toast.error'),
-        text2: i18n.t('toast.updateContentError'),
+        text1: i18n.t("toast.error"),
+        text2: i18n.t("toast.updateContentError"),
       });
     }
   };
@@ -130,7 +130,8 @@ export const createTables = async () => {
         category_id INTEGER NOT NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        languages_available TEXT NOT NULL,
+        translated_languages TEXT NOT NULL,
+        arabic_introduction TEXT,
         arabic_text TEXT,
         arabic_notes TEXT,
         transliteration_text TEXT,
@@ -205,6 +206,7 @@ const fetchVersionFromSupabase = async (): Promise<string | null> => {
 const fetchAndSyncAllData = async () => {
   try {
     await fetchAndSyncCategories();
+    await fetchAndSyncPrayerCategories();
     await fetchAndSyncPrayers();
     await fetchAndSyncPrayerTranslations();
     await fetchAndSyncLanguages();
@@ -214,8 +216,8 @@ const fetchAndSyncAllData = async () => {
     console.error("Error syncing data:", error);
     Toast.show({
       type: "error",
-      text1: i18n.t('toast.error'),
-      text2: i18n.t('toast.syncErrorMessage'),
+      text1: i18n.t("toast.error"),
+      text2: i18n.t("toast.syncErrorMessage"),
     });
 
     throw error;
@@ -266,6 +268,36 @@ const fetchAndSyncCategories = async () => {
   }
 };
 
+const fetchAndSyncPrayerCategories = async () => {
+  const { data: prayerCategories, error } = await supabase
+    .from("prayer_categories")
+    .select("*");
+  if (error) {
+    console.error("Error fetching prayer categories:", error);
+    return;
+  }
+  if (!prayerCategories || prayerCategories.length === 0) {
+    console.log("No prayer categories found in Supabase.");
+    return;
+  }
+  const db = await getDatabase();
+  await db.withExclusiveTransactionAsync(async (txn) => {
+    const statement = await txn.prepareAsync(`
+      INSERT OR REPLACE INTO prayer_categories
+      (prayer_id, category_id)
+      VALUES (?, ?);
+    `);
+    try {
+      for (const pc of prayerCategories) {
+        await statement.executeAsync([pc.prayer_id, pc.category_id]);
+      }
+    } finally {
+      await statement.finalizeAsync();
+    }
+  });
+  console.log("Prayer categories successfully synced to SQLite.");
+};
+
 const fetchAndSyncPrayers = async () => {
   try {
     const { data: prayers, error } = await supabase.from("prayers").select("*");
@@ -275,8 +307,8 @@ const fetchAndSyncPrayers = async () => {
     await db.withExclusiveTransactionAsync(async (txn) => {
       const statement = await txn.prepareAsync(`
         INSERT OR REPLACE INTO prayers
-        (id, name, arabic_title, category_id, created_at, updated_at, languages_available, arabic_text, arabic_notes, transliteration_text, transliteration_notes)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        (id, name, arabic_title, category_id, created_at, updated_at, translated_languages, arabic_introduction, arabic_text, arabic_notes, transliteration_text, transliteration_notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       `);
       try {
         for (const prayer of prayers) {
@@ -287,7 +319,8 @@ const fetchAndSyncPrayers = async () => {
             prayer.category_id,
             prayer.created_at,
             prayer.updated_at,
-            JSON.stringify(prayer.languages_available || []),
+            JSON.stringify(prayer.translated_languages || []),
+            prayer.arabic_introduction,
             prayer.arabic_text,
             prayer.arabic_notes,
             prayer.transliteration_text,
@@ -448,15 +481,15 @@ const setupSubscriptions = () => {
           router.replace("/(tabs)/home");
           Toast.show({
             type: "success",
-            text1: i18n.t('toast.contentUpdated'),
-            text2: i18n.t('toast.newContentAvailable'),
+            text1: i18n.t("toast.contentUpdated"),
+            text2: i18n.t("toast.newContentAvailable"),
           });
         } catch (error) {
           console.error("Error handling version change:", error);
           Toast.show({
             type: "error",
-            text1: i18n.t('toast.updateError'),
-            text2: i18n.t('toast.contentLoadError'),
+            text1: i18n.t("toast.updateError"),
+            text2: i18n.t("toast.contentLoadError"),
           });
         }
       }
@@ -475,15 +508,15 @@ const setupSubscriptions = () => {
           router.replace("/(tabs)/home");
           Toast.show({
             type: "success",
-            text1: i18n.t('toast.contentUpdated'),
-            text2: i18n.t('toast.newContentAvailable'),
+            text1: i18n.t("toast.contentUpdated"),
+            text2: i18n.t("toast.newContentAvailable"),
           });
         } catch (error) {
           console.error("Error handling PayPal change:", error);
           Toast.show({
             type: "error",
-            text1: i18n.t('toast.updateError'),
-            text2: i18n.t('toast.contentLoadError'),
+            text1: i18n.t("toast.updateError"),
+            text2: i18n.t("toast.contentLoadError"),
           });
         }
       }
@@ -514,15 +547,15 @@ export const addPrayerToFavorite = async (prayerId: number): Promise<void> => {
     console.log(`Prayer ${prayerId} added to favorites.`);
     Toast.show({
       type: "success",
-      text1: i18n.t('favorites'),
-      text2: i18n.t('toast.favoriteAdded'),
+      text1: i18n.t("favorites"),
+      text2: i18n.t("toast.favoriteAdded"),
     });
   } catch (error) {
     console.error("Error adding to favorites:", error);
     Toast.show({
       type: "error",
-      text1: i18n.t('toast.error'),
-      text2: i18n.t('toast.favoriteAddError'),
+      text1: i18n.t("toast.error"),
+      text2: i18n.t("toast.favoriteAddError"),
     });
     throw error;
   }
@@ -537,15 +570,15 @@ export const removePrayerFromFavorite = async (
     console.log(`Prayer ${prayerId} removed from favorites.`);
     Toast.show({
       type: "error",
-      text1: i18n.t('favorites'),
-      text2: i18n.t('toast.favoriteRemoved'),
+      text1: i18n.t("favorites"),
+      text2: i18n.t("toast.favoriteRemoved"),
     });
   } catch (error) {
     console.error("Error removing from favorites:", error);
     Toast.show({
       type: "error",
-      text1: i18n.t('toast.error'),
-      text2: i18n.t('toast.favoriteRemoveError'),
+      text1: i18n.t("toast.error"),
+      text2: i18n.t("toast.favoriteRemoveError"),
     });
     throw error;
   }
@@ -586,7 +619,7 @@ export const getFavoritePrayers = async (
         c.title as category_title,
         p.created_at,
         p.updated_at,
-        p.languages_available,
+        p.translated_languages,
         pt.introduction,
         SUBSTR(pt.main_body, 1, 150) as prayer_text,
         fp.added_at,
@@ -600,7 +633,7 @@ export const getFavoritePrayers = async (
         CASE WHEN pt.language_code = ? THEN 0 ELSE 1 END;
     `;
     const rows = (await db.getAllAsync(query, [language])) as Array<
-      FavoritePrayer & { languages_available: string }
+      FavoritePrayer & { translated_languages: string }
     >;
     const prayerMap = new Map<number, FavoritePrayer>();
     for (const row of rows) {
@@ -608,9 +641,9 @@ export const getFavoritePrayers = async (
       if (!prayerMap.has(prayerId)) {
         let languagesAvailable: string[] = [];
         try {
-          languagesAvailable = JSON.parse(row.languages_available);
+          languagesAvailable = JSON.parse(row.translated_languages);
         } catch (e) {
-          console.error("Error parsing languages_available", e);
+          console.error("Error parsing translated_languages", e);
         }
         prayerMap.set(prayerId, {
           id: prayerId,
@@ -622,7 +655,7 @@ export const getFavoritePrayers = async (
           prayer_text: row.prayer_text || null,
           created_at: row.created_at,
           updated_at: row.updated_at,
-          languages_available: languagesAvailable,
+          translated_languages: languagesAvailable,
         });
       }
     }
@@ -631,8 +664,8 @@ export const getFavoritePrayers = async (
     console.error("Error fetching favorite prayers:", error);
     Toast.show({
       type: "error",
-      text1: i18n.t('toast.error'),
-      text2: i18n.t('toast.favoritesLoadError'),
+      text1: i18n.t("toast.error"),
+      text2: i18n.t("toast.favoritesLoadError"),
     });
     throw error;
   }
@@ -649,8 +682,8 @@ export const getCategories = async (): Promise<CategoryType[]> => {
     console.error("Error fetching categories:", error);
     Toast.show({
       type: "error",
-      text1: i18n.t('toast.error'),
-      text2: i18n.t('toast.categoriesLoadError'),
+      text1: i18n.t("toast.error"),
+      text2: i18n.t("toast.categoriesLoadError"),
     });
     throw error;
   }
@@ -694,6 +727,50 @@ export const getCategoryByTitle = async (
   }
 };
 
+export const getAllPrayersForCategory = async (
+  categoryTitle: string,
+  language: string
+): Promise<PrayerWithCategory[]> => {
+  try {
+    const db = await getDatabase();
+    const category = await getCategoryByTitle(categoryTitle);
+    if (!category) {
+      throw new Error(`Category with title "${categoryTitle}" not found`);
+    }
+    const descendantIds = await getCategoryAndDescendantIds(category.id, db);
+    const placeholders = descendantIds.map(() => "?").join(",");
+    const query = `
+      SELECT 
+      p.id,
+      p.name,
+      p.arabic_title,
+      p.created_at,
+      p.updated_at,
+      c.title as category_title,
+      pt.main_body as prayer_text,
+      pt.notes as notes
+    FROM prayers p
+    INNER JOIN prayer_categories pc ON p.id = pc.prayer_id
+    INNER JOIN categories c ON pc.category_id = c.id
+    INNER JOIN prayer_translations pt ON pt.prayer_id = p.id
+    WHERE c.id IN (${placeholders}) AND pt.language_code = ?
+    ORDER BY datetime(p.created_at) DESC;
+
+    `;
+    const params = [...descendantIds, language];
+    const rows = await db.getAllAsync<PrayerWithCategory>(query, params);
+    return rows;
+  } catch (error) {
+    console.error("Error fetching prayers for category:", error);
+    Toast.show({
+      type: "error",
+      text1: i18n.t("toast.error"),
+      text2: i18n.t("toast.prayersLoadError"),
+    });
+    throw error;
+  }
+};
+
 // export const getAllPrayersForCategory = async (
 //   categoryTitle: string,
 //   language: string
@@ -701,13 +778,132 @@ export const getCategoryByTitle = async (
 //   try {
 //     const db = await getDatabase();
 //     const category = await getCategoryByTitle(categoryTitle);
+
 //     if (!category) {
-//       throw new Error(`Category with title "${categoryTitle}" not found`);
+//       console.error(`Category with title "${categoryTitle}" not found`);
+//       return [];
 //     }
-//     const descendantIds = await getCategoryAndDescendantIds(category.id, db);
+
+//     console.log(`Found category:`, category);
+
+//     // First, check if this is a subcategory
+//     let isSubcategory = false;
+//     let parentCategoryIds: number[] = [];
+
+//     if (category.parent_id) {
+//       try {
+//         parentCategoryIds = JSON.parse(category.parent_id);
+//         isSubcategory =
+//           Array.isArray(parentCategoryIds) && parentCategoryIds.length > 0;
+//         console.log(
+//           `Category ${category.title} is a subcategory with parents:`,
+//           parentCategoryIds
+//         );
+//       } catch (e) {
+//         console.error(`Error parsing parent_id for ${category.title}:`, e);
+//       }
+//     }
+
+//     // First approach: Try to find prayers directly tied to this category
+//     const directCategoryIds = [category.id];
+//     let directPlaceholders = directCategoryIds.map(() => "?").join(",");
+
+//     const directQuery = `
+//       SELECT
+//         p.id,
+//         p.category_id,
+//         p.name,
+//         p.arabic_title,
+//         p.created_at,
+//         p.updated_at,
+//         c.title as category_title,
+//         p.name as translation_title,
+//         pt.main_body as prayer_text,
+//         pt.notes as notes
+//       FROM prayers p
+//       INNER JOIN categories c ON p.category_id = c.id
+//       INNER JOIN prayer_translations pt ON pt.prayer_id = p.id
+//       WHERE p.category_id IN (${directPlaceholders}) AND pt.language_code = ?
+//       ORDER BY datetime(p.created_at) DESC;
+//     `;
+
+//     const directParams = [...directCategoryIds, language];
+//     const directRows = await db.getAllAsync<PrayerWithCategory>(
+//       directQuery,
+//       directParams
+//     );
+
+//     console.log(
+//       `Found ${directRows.length} prayers directly tied to category ${category.title}`
+//     );
+
+//     // If we found prayers directly, or if this is not a subcategory, return those results
+//     if (directRows.length > 0 || !isSubcategory) {
+//       return directRows;
+//     }
+
+//     // If this is a subcategory with no direct prayers, try using the parent category
+//     console.log(
+//       `No direct prayers found for subcategory. Trying parent categories...`
+//     );
+
+//     const parentPlaceholders = parentCategoryIds.map(() => "?").join(",");
+//     const parentQuery = `
+//       SELECT
+//         p.id,
+//         p.category_id,
+//         p.name,
+//         p.arabic_title,
+//         p.created_at,
+//         p.updated_at,
+//         c.title as category_title,
+//         p.name as translation_title,
+//         pt.main_body as prayer_text,
+//         pt.notes as notes
+//       FROM prayers p
+//       INNER JOIN categories c ON p.category_id = c.id
+//       INNER JOIN prayer_translations pt ON pt.prayer_id = p.id
+//       WHERE p.category_id IN (${parentPlaceholders}) AND pt.language_code = ?
+//       ORDER BY datetime(p.created_at) DESC;
+//     `;
+
+//     const parentParams = [...parentCategoryIds, language];
+//     const parentRows = await db.getAllAsync<PrayerWithCategory>(
+//       parentQuery,
+//       parentParams
+//     );
+
+//     console.log(`Found ${parentRows.length} prayers from parent categories`);
+
+//     // Filter the parent results to match the subcategory if possible
+//     // This is where you could add more sophisticated filtering if needed
+//     const filteredRows = parentRows.filter((prayer) => {
+//       // Here you could add more specific filtering logic based on your data structure
+//       // For example, check if prayer.name or prayer.prayer_text contains subcategory.title
+//       return true; // For now, return all parent prayers
+//     });
+
+//     return filteredRows;
+//   } catch (error) {
+//     console.error("Error fetching prayers for category:", error);
+//     Toast.show({
+//       type: "error",
+//       text1: i18n.t("toast.error"),
+//       text2: i18n.t("toast.prayersLoadError"),
+//     });
+//     throw error;
+//   }
+// };
+// export const getAllPrayersForCategoryById = async (
+//   categoryId: number,
+//   language: string
+// ): Promise<PrayerWithCategory[]> => {
+//   try {
+//     const db = await getDatabase();
+//     const descendantIds = await getCategoryAndDescendantIds(categoryId, db);
 //     const placeholders = descendantIds.map(() => "?").join(",");
 //     const query = `
-//       SELECT 
+//       SELECT
 //         p.id,
 //         p.category_id,
 //         p.name,
@@ -729,148 +925,34 @@ export const getCategoryByTitle = async (
 //     return rows;
 //   } catch (error) {
 //     console.error("Error fetching prayers for category:", error);
-//     Toast.show({
-//       type: "error",
-//       text1: i18n.t('toast.error'),
-//       text2: i18n.t('toast.prayersLoadError'),
-//     });
 //     throw error;
 //   }
 // };
 
-export const getAllPrayersForCategory = async (
-  categoryTitle: string,
-  language: string
-): Promise<PrayerWithCategory[]> => {
-  try {
-    const db = await getDatabase();
-    const category = await getCategoryByTitle(categoryTitle);
-    
-    if (!category) {
-      console.error(`Category with title "${categoryTitle}" not found`);
-      return [];
-    }
-    
-    console.log(`Found category:`, category);
-    
-    // First, check if this is a subcategory
-    let isSubcategory = false;
-    let parentCategoryIds: number[] = [];
-    
-    if (category.parent_id) {
-      try {
-        parentCategoryIds = JSON.parse(category.parent_id);
-        isSubcategory = Array.isArray(parentCategoryIds) && parentCategoryIds.length > 0;
-        console.log(`Category ${category.title} is a subcategory with parents:`, parentCategoryIds);
-      } catch (e) {
-        console.error(`Error parsing parent_id for ${category.title}:`, e);
-      }
-    }
-    
-    // First approach: Try to find prayers directly tied to this category
-    const directCategoryIds = [category.id];
-    let directPlaceholders = directCategoryIds.map(() => "?").join(",");
-    
-    const directQuery = `
-      SELECT 
-        p.id,
-        p.category_id,
-        p.name,
-        p.arabic_title,
-        p.created_at,
-        p.updated_at,
-        c.title as category_title,
-        p.name as translation_title,
-        pt.main_body as prayer_text,
-        pt.notes as notes
-      FROM prayers p
-      INNER JOIN categories c ON p.category_id = c.id
-      INNER JOIN prayer_translations pt ON pt.prayer_id = p.id
-      WHERE p.category_id IN (${directPlaceholders}) AND pt.language_code = ?
-      ORDER BY datetime(p.created_at) DESC;
-    `;
-    
-    const directParams = [...directCategoryIds, language];
-    const directRows = await db.getAllAsync<PrayerWithCategory>(directQuery, directParams);
-    
-    console.log(`Found ${directRows.length} prayers directly tied to category ${category.title}`);
-    
-    // If we found prayers directly, or if this is not a subcategory, return those results
-    if (directRows.length > 0 || !isSubcategory) {
-      return directRows;
-    }
-    
-    // If this is a subcategory with no direct prayers, try using the parent category
-    console.log(`No direct prayers found for subcategory. Trying parent categories...`);
-    
-    const parentPlaceholders = parentCategoryIds.map(() => "?").join(",");
-    const parentQuery = `
-      SELECT 
-        p.id,
-        p.category_id,
-        p.name,
-        p.arabic_title,
-        p.created_at,
-        p.updated_at,
-        c.title as category_title,
-        p.name as translation_title,
-        pt.main_body as prayer_text,
-        pt.notes as notes
-      FROM prayers p
-      INNER JOIN categories c ON p.category_id = c.id
-      INNER JOIN prayer_translations pt ON pt.prayer_id = p.id
-      WHERE p.category_id IN (${parentPlaceholders}) AND pt.language_code = ?
-      ORDER BY datetime(p.created_at) DESC;
-    `;
-    
-    const parentParams = [...parentCategoryIds, language];
-    const parentRows = await db.getAllAsync<PrayerWithCategory>(parentQuery, parentParams);
-    
-    console.log(`Found ${parentRows.length} prayers from parent categories`);
-    
-    // Filter the parent results to match the subcategory if possible
-    // This is where you could add more sophisticated filtering if needed
-    const filteredRows = parentRows.filter(prayer => {
-      // Here you could add more specific filtering logic based on your data structure
-      // For example, check if prayer.name or prayer.prayer_text contains subcategory.title
-      return true; // For now, return all parent prayers
-    });
-    
-    return filteredRows;
-  } catch (error) {
-    console.error("Error fetching prayers for category:", error);
-    Toast.show({
-      type: "error",
-      text1: i18n.t('toast.error'),
-      text2: i18n.t('toast.prayersLoadError'),
-    });
-    throw error;
-  }
-};
-export const getAllPrayersForCategoryById = async (
+export const getPrayersForCategory = async (
   categoryId: number,
   language: string
 ): Promise<PrayerWithCategory[]> => {
   try {
     const db = await getDatabase();
+    // Get descendant category ids (including the current one)
     const descendantIds = await getCategoryAndDescendantIds(categoryId, db);
     const placeholders = descendantIds.map(() => "?").join(",");
     const query = `
-      SELECT 
+      SELECT DISTINCT
         p.id,
-        p.category_id,
         p.name,
         p.arabic_title,
         p.created_at,
         p.updated_at,
         c.title as category_title,
-        p.name as translation_title,
         pt.main_body as prayer_text,
         pt.notes as notes
       FROM prayers p
-      INNER JOIN categories c ON p.category_id = c.id
+      INNER JOIN prayer_categories pc ON p.id = pc.prayer_id
+      INNER JOIN categories c ON pc.category_id = c.id
       INNER JOIN prayer_translations pt ON pt.prayer_id = p.id
-      WHERE p.category_id IN (${placeholders}) AND pt.language_code = ?
+      WHERE c.id IN (${placeholders}) AND pt.language_code = ?
       ORDER BY datetime(p.created_at) DESC;
     `;
     const params = [...descendantIds, language];
@@ -881,7 +963,6 @@ export const getAllPrayersForCategoryById = async (
     throw error;
   }
 };
-
 
 export const getCategoryAndDescendantIds = async (
   categoryId: number,
@@ -925,12 +1006,13 @@ export const getPrayer = async (
         p.name,
         p.arabic_title,
         p.arabic_text,
+        p.arabic_introduction,
         p.arabic_notes,
         p.transliteration_text,
         p.transliteration_notes,
         p.created_at,
         p.updated_at,
-        p.languages_available,
+        p.translated_languages,
         c.title as category_title,
         COALESCE(pt.introduction, '') as introduction,
         COALESCE(pt.main_body, p.transliteration_text, p.arabic_text, '') as prayer_text,
@@ -948,19 +1030,105 @@ export const getPrayer = async (
     if (row) {
       try {
         const languages =
-          typeof row.languages_available === "string"
-            ? JSON.parse(row.languages_available)
-            : row.languages_available;
-        console.log("Parsed languages_available:", languages);
-        return { ...row, languages_available: languages };
+          typeof row.translated_languages === "string"
+            ? JSON.parse(row.translated_languages)
+            : row.translated_languages;
+        console.log("Parsed translated_languages:", languages);
+        return { ...row, translated_languages: languages };
       } catch (e) {
-        console.error("Error parsing languages_available:", e);
+        console.error("Error parsing translated_languages:", e);
         return row;
       }
     }
     return null;
   } catch (error) {
     console.error("Error fetching prayer:", error);
+    throw error;
+  }
+};
+
+export interface PrayerTranslation {
+  id: number;
+  prayer_id: number;
+  language_code: string;
+  introduction?: string | null;
+  main_body?: string | null;
+  notes?: string | null;
+  source?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface PrayerWithTranslations extends PrayerType {
+  translations: PrayerTranslation[];
+}
+
+export const getPrayerWithTranslations = async (
+  prayerId: number
+): Promise<PrayerWithTranslations | null> => {
+  try {
+    const db = await getDatabase();
+
+    // First, fetch the prayer with its basic details and category title.
+    const prayerQuery = `
+      SELECT 
+        p.id,
+        p.category_id,
+        p.name,
+        p.arabic_title,
+        p.arabic_text,
+        p.arabic_introduction,
+        p.arabic_notes,
+        p.transliteration_text,
+        p.transliteration_notes,
+        p.created_at,
+        p.updated_at,
+        p.translated_languages,
+        c.title as category_title
+      FROM prayers p
+      INNER JOIN categories c ON p.category_id = c.id
+      WHERE p.id = ?;
+    `;
+    const prayerRow = await db.getFirstAsync<PrayerWithCategory>(prayerQuery, [
+      prayerId,
+    ]);
+
+    if (!prayerRow) return null;
+
+    // Parse translated_languages if it's stored as a JSON string.
+    try {
+      prayerRow.translated_languages =
+        typeof prayerRow.translated_languages === "string"
+          ? JSON.parse(prayerRow.translated_languages)
+          : prayerRow.translated_languages;
+    } catch (e) {
+      console.error("Error parsing translated_languages:", e);
+    }
+
+    // Next, get all translations for the prayer.
+    const translationsQuery = `
+      SELECT 
+        id,
+        prayer_id,
+        language_code,
+        introduction,
+        main_body,
+        notes,
+        source,
+        created_at,
+        updated_at
+      FROM prayer_translations
+      WHERE prayer_id = ?;
+    `;
+    const translations = await db.getAllAsync<PrayerTranslation>(
+      translationsQuery,
+      [prayerId]
+    );
+
+    // Combine and return the prayer data with its translations.
+    return { ...prayerRow, translations };
+  } catch (error) {
+    console.error("Error fetching prayer with translations:", error);
     throw error;
   }
 };
@@ -998,8 +1166,8 @@ export const searchPrayers = async (
     console.error("Error searching prayers:", error);
     Toast.show({
       type: "error",
-      text1: i18n.t('toast.error'),
-      text2: i18n.t('toast.searchError'),
+      text1: i18n.t("toast.error"),
+      text2: i18n.t("toast.searchError"),
     });
     throw error;
   }
@@ -1039,8 +1207,8 @@ export const getLatestPrayers = async (
     console.error("Error retrieving latest prayers:", error);
     Toast.show({
       type: "error",
-      text1: i18n.t('toast.error'),
-      text2: i18n.t('toast.latestPrayersError'),
+      text1: i18n.t("toast.error"),
+      text2: i18n.t("toast.latestPrayersError"),
     });
     throw error;
   }
@@ -1059,8 +1227,8 @@ export const getPayPalLink = async (): Promise<string> => {
     console.error("Error getting PayPal link:", error);
     Toast.show({
       type: "error",
-      text1: i18n.t('toast.error'),
-      text2: i18n.t('toast.paypalLinkError'),
+      text1: i18n.t("toast.error"),
+      text2: i18n.t("toast.paypalLinkError"),
     });
     return "";
   }
@@ -1077,8 +1245,8 @@ export const getLanguages = async (): Promise<string[]> => {
     console.error("Error fetching languages:", error);
     Toast.show({
       type: "error",
-      text1: i18n.t('toast.error'),
-      text2: i18n.t('toast.languagesLoadError'),
+      text1: i18n.t("toast.error"),
+      text2: i18n.t("toast.languagesLoadError"),
     });
     return [];
   }
