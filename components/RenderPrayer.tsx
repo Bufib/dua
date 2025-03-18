@@ -1,7 +1,13 @@
 // export default RenderPrayer;
 
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import React, { useMemo } from "react";
 import {
   getPrayerWithTranslations,
   PrayerTranslation,
@@ -21,6 +27,9 @@ const RenderPrayer = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [prayers, setPrayers] = useState<PrayerWithTranslations | null>(null);
   const { language } = useLanguage();
+  const [selectTranslations, setSelectTranslations] = useState<
+    Record<string, boolean>
+  >({});
   const colorScheme = useColorScheme() || "light";
   const { t } = i18n;
 
@@ -30,13 +39,11 @@ const RenderPrayer = () => {
       try {
         setIsLoading(true);
         // prayerID [0] in case more than one id is returned
-
         const prayer = await getPrayerWithTranslations(
           parseInt(prayerId[0], 10)
         );
         // All the Prayer with all the translations for this specific ID
         setPrayers(prayer);
-        console.log(prayer);
       } catch (error: any) {
         console.log("RenderPrayer fetchPrayerData " + error);
       } finally {
@@ -46,14 +53,56 @@ const RenderPrayer = () => {
     fetchPrayerData();
   }, [prayerId]);
 
-  const formatePrayer = (data: string) => {
-    const formatedPrayer = data.split("\n");
-    return formatedPrayer;
-  };
+  // Initialize default selected translations so that the app language is selected by default.
+  useEffect(() => {
+    if (prayers) {
+      const initialSelection: Record<string, boolean> = {};
+      prayers.translated_languages.forEach((lang) => {
+        // Normalize the translation language by taking the first two characters and uppercasing them.
+        const normalizedLang = lang.slice(0, 2).toUpperCase();
+        // Compare with the app language (assumed to be in uppercase, e.g. "EN")
+        initialSelection[lang] = normalizedLang === language;
+      });
+      setSelectTranslations(initialSelection);
+    }
+  }, [prayers, language]);
+  
+  // Format the prayer
+  const formattedPrayer = useMemo(() => {
+    if (!prayers) return null;
 
-  const fusePrayer = () => {
+    // Split Arabic and transliteration texts into arrays of lines.
+    const arabicLines = prayers.arabic_text
+      ? prayers.arabic_text.split("\n").filter((line) => line.trim() !== "")
+      : [];
+    const transliterationLines = prayers.transliteration_text
+      ? prayers.transliteration_text
+          .split("\n")
+          .filter((line) => line.trim() !== "")
+      : [];
 
-  }
+    // Map translations with language names from `translated_languages`
+    const translations = prayers.translations.map((translation, index) => ({
+      language:
+        prayers.translated_languages[index] || translation.language_code,
+      lines: translation.main_body
+        ? translation.main_body.split("\n").filter((line) => line.trim() !== "")
+        : [],
+    }));
+
+    return { arabicLines, transliterationLines, translations };
+  }, [prayers]);
+
+  // Get the amount of lines
+  const indices = useMemo(() => {
+    if (!formattedPrayer) return [];
+    const maxLines = Math.max(
+      formattedPrayer.arabicLines.length,
+      formattedPrayer.transliterationLines.length,
+      formattedPrayer.translations.length
+    );
+    return Array.from({ length: maxLines }, (_, i) => i);
+  }, [formattedPrayer]);
   return (
     <ScrollView
       style={[
@@ -106,32 +155,44 @@ const RenderPrayer = () => {
               <TouchableOpacity
                 key={language.toString()}
                 style={styles.languageButton}
+                onPress={() =>
+                  setSelectTranslations((prev) => ({
+                    ...prev,
+                    [language]: !prev[language],
+                  }))
+                }
               >
                 <Text>{language}</Text>
               </TouchableOpacity>
             ))}
         </ScrollView>
       </ThemedView>
+      {/* Body: Render each prayer line */}
       <ThemedView style={styles.bodyContainer}>
-        {prayers &&
-          formatePrayer(prayers.arabic_text ?? "")
-            .filter((prayer) => prayer.trim() !== "")
-            .map((prayer, index) => (
-              <View
-                style={[
-                  styles.prayerContainer,
-                  { backgroundColor: Colors[colorScheme].contrast },
-                ]}
-              >
-                <Text
-                  style={[styles.prayerText, styles.prayerTextArabic]}
-                  key={index}
-                >
-                  {prayer}
-                </Text>
-                <Text style={styles.prayerIndex}> {index + 1}</Text>
-              </View>
-            ))}
+        {isLoading && <ActivityIndicator />}
+        {formattedPrayer &&
+          indices.map((i) => (
+            <View key={i} style={styles.prayerContainer}>
+              <Text style={[styles.prayerText, styles.prayerTextArabic]}>
+                {formattedPrayer.arabicLines[i] || ""}
+              </Text>
+              <Text style={styles.prayerText}>
+                {formattedPrayer.transliterationLines[i] || ""}
+              </Text>
+              {formattedPrayer.translations.map((translation, idx) =>
+                selectTranslations[translation.language] ? (
+                  <View key={idx} style={styles.translationContainer}>
+                    <Text style={styles.translationLanguage}>
+                      {translation.language}
+                    </Text>
+                    <Text style={styles.translationText}>
+                      {translation.lines[i] || ""}
+                    </Text>
+                  </View>
+                ) : null
+              )}
+            </View>
+          ))}
       </ThemedView>
     </ScrollView>
   );
@@ -175,14 +236,14 @@ const styles = StyleSheet.create({
   prayerContainer: {
     flex: 1,
     padding: 10,
-    gap: 30
+    gap: 30,
   },
   prayerText: {
     fontSize: 28,
     color: Colors.universal.secondary,
   },
   prayerIndex: {
-    alignSelf: "center"
+    alignSelf: "center",
   },
   prayerTextArabic: {
     textAlign: "right",
