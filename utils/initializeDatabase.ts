@@ -7,7 +7,13 @@ import {
   checkInternetConnection,
   setupConnectivityListener,
 } from "./checkNetwork";
-import { CategoryType, PrayerWithCategory, FavoritePrayer, PrayerType } from "./types";
+import {
+  CategoryType,
+  PrayerWithCategory,
+  FavoritePrayer,
+  PrayerTranslation,
+  PrayerWithTranslations,
+} from "./types";
 import Toast from "react-native-toast-message";
 import i18n from "./i18n";
 // Singleton database instance
@@ -771,164 +777,6 @@ export const getAllPrayersForCategory = async (
   }
 };
 
-// export const getAllPrayersForCategory = async (
-//   categoryTitle: string,
-//   language: string
-// ): Promise<PrayerWithCategory[]> => {
-//   try {
-//     const db = await getDatabase();
-//     const category = await getCategoryByTitle(categoryTitle);
-
-//     if (!category) {
-//       console.error(`Category with title "${categoryTitle}" not found`);
-//       return [];
-//     }
-
-//     console.log(`Found category:`, category);
-
-//     // First, check if this is a subcategory
-//     let isSubcategory = false;
-//     let parentCategoryIds: number[] = [];
-
-//     if (category.parent_id) {
-//       try {
-//         parentCategoryIds = JSON.parse(category.parent_id);
-//         isSubcategory =
-//           Array.isArray(parentCategoryIds) && parentCategoryIds.length > 0;
-//         console.log(
-//           `Category ${category.title} is a subcategory with parents:`,
-//           parentCategoryIds
-//         );
-//       } catch (e) {
-//         console.error(`Error parsing parent_id for ${category.title}:`, e);
-//       }
-//     }
-
-//     // First approach: Try to find prayers directly tied to this category
-//     const directCategoryIds = [category.id];
-//     let directPlaceholders = directCategoryIds.map(() => "?").join(",");
-
-//     const directQuery = `
-//       SELECT
-//         p.id,
-//         p.category_id,
-//         p.name,
-//         p.arabic_title,
-//         p.created_at,
-//         p.updated_at,
-//         c.title as category_title,
-//         p.name as translation_title,
-//         pt.main_body as prayer_text,
-//         pt.notes as notes
-//       FROM prayers p
-//       INNER JOIN categories c ON p.category_id = c.id
-//       INNER JOIN prayer_translations pt ON pt.prayer_id = p.id
-//       WHERE p.category_id IN (${directPlaceholders}) AND pt.language_code = ?
-//       ORDER BY datetime(p.created_at) DESC;
-//     `;
-
-//     const directParams = [...directCategoryIds, language];
-//     const directRows = await db.getAllAsync<PrayerWithCategory>(
-//       directQuery,
-//       directParams
-//     );
-
-//     console.log(
-//       `Found ${directRows.length} prayers directly tied to category ${category.title}`
-//     );
-
-//     // If we found prayers directly, or if this is not a subcategory, return those results
-//     if (directRows.length > 0 || !isSubcategory) {
-//       return directRows;
-//     }
-
-//     // If this is a subcategory with no direct prayers, try using the parent category
-//     console.log(
-//       `No direct prayers found for subcategory. Trying parent categories...`
-//     );
-
-//     const parentPlaceholders = parentCategoryIds.map(() => "?").join(",");
-//     const parentQuery = `
-//       SELECT
-//         p.id,
-//         p.category_id,
-//         p.name,
-//         p.arabic_title,
-//         p.created_at,
-//         p.updated_at,
-//         c.title as category_title,
-//         p.name as translation_title,
-//         pt.main_body as prayer_text,
-//         pt.notes as notes
-//       FROM prayers p
-//       INNER JOIN categories c ON p.category_id = c.id
-//       INNER JOIN prayer_translations pt ON pt.prayer_id = p.id
-//       WHERE p.category_id IN (${parentPlaceholders}) AND pt.language_code = ?
-//       ORDER BY datetime(p.created_at) DESC;
-//     `;
-
-//     const parentParams = [...parentCategoryIds, language];
-//     const parentRows = await db.getAllAsync<PrayerWithCategory>(
-//       parentQuery,
-//       parentParams
-//     );
-
-//     console.log(`Found ${parentRows.length} prayers from parent categories`);
-
-//     // Filter the parent results to match the subcategory if possible
-//     // This is where you could add more sophisticated filtering if needed
-//     const filteredRows = parentRows.filter((prayer) => {
-//       // Here you could add more specific filtering logic based on your data structure
-//       // For example, check if prayer.name or prayer.prayer_text contains subcategory.title
-//       return true; // For now, return all parent prayers
-//     });
-
-//     return filteredRows;
-//   } catch (error) {
-//     console.error("Error fetching prayers for category:", error);
-//     Toast.show({
-//       type: "error",
-//       text1: i18n.t("toast.error"),
-//       text2: i18n.t("toast.prayersLoadError"),
-//     });
-//     throw error;
-//   }
-// };
-// export const getAllPrayersForCategoryById = async (
-//   categoryId: number,
-//   language: string
-// ): Promise<PrayerWithCategory[]> => {
-//   try {
-//     const db = await getDatabase();
-//     const descendantIds = await getCategoryAndDescendantIds(categoryId, db);
-//     const placeholders = descendantIds.map(() => "?").join(",");
-//     const query = `
-//       SELECT
-//         p.id,
-//         p.category_id,
-//         p.name,
-//         p.arabic_title,
-//         p.created_at,
-//         p.updated_at,
-//         c.title as category_title,
-//         p.name as translation_title,
-//         pt.main_body as prayer_text,
-//         pt.notes as notes
-//       FROM prayers p
-//       INNER JOIN categories c ON p.category_id = c.id
-//       INNER JOIN prayer_translations pt ON pt.prayer_id = p.id
-//       WHERE p.category_id IN (${placeholders}) AND pt.language_code = ?
-//       ORDER BY datetime(p.created_at) DESC;
-//     `;
-//     const params = [...descendantIds, language];
-//     const rows = await db.getAllAsync<PrayerWithCategory>(query, params);
-//     return rows;
-//   } catch (error) {
-//     console.error("Error fetching prayers for category:", error);
-//     throw error;
-//   }
-// };
-
 export const getPrayersForCategory = async (
   categoryId: number,
   language: string
@@ -1046,22 +894,26 @@ export const getPrayer = async (
     throw error;
   }
 };
-
-export interface PrayerTranslation {
-  id: number;
-  prayer_id: number;
-  language_code: string;
-  introduction?: string | null;
-  main_body?: string | null;
-  notes?: string | null;
-  source?: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface PrayerWithTranslations extends PrayerType {
-  translations: PrayerTranslation[];
-}
+export const getRandomPrayerWithCategory = async (
+  language: string
+): Promise<PrayerWithCategory | null> => {
+  try {
+    const db = await getDatabase();
+    // Query a random prayer ID from the prayers table.
+    const randomRow = await db.getFirstAsync<{ id: number }>(
+      "SELECT id FROM prayers ORDER BY RANDOM() LIMIT 1;"
+    );
+    if (!randomRow || !randomRow.id) {
+      console.log("No prayer found in the database.");
+      return null;
+    }
+    // Use the existing getPrayer function to retrieve the full prayer details with category.
+    return await getPrayer(randomRow.id, language);
+  } catch (error) {
+    console.error("Error fetching random prayer with category:", error);
+    throw error;
+  }
+};
 
 export const getPrayerWithTranslations = async (
   prayerId: number

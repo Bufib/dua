@@ -36,13 +36,13 @@ const resources: Resource = {
       tasbih: "tasbih",
 
       // Home screen - Today's prayer
-      todaysPrayer: "Heutiges Gebet",
+      randomPrayer: "Empfehlung",
       readMore: "Vollständig lesen",
       categories: "Kategorien",
 
       // Weekly calendar
       weeklyToDo: "Plan für die Woche",
-      addWeekly: "Hinzufügent ",
+      addWeekly: "Hinzufügen",
       addForDay: "Hinzufügen für",
       enterPrayer: "Gib das Gebet ein...",
       add: "Hinzufügen",
@@ -160,7 +160,7 @@ const resources: Resource = {
       tasbih: "تسبيح",
 
       // Home screen - Today's prayer
-      todaysPrayer: "صلاة اليوم",
+      randomPrayer: "توصية",
       readMore: "قراءة المزيد",
       categories: "الفئات",
 
@@ -281,7 +281,7 @@ const resources: Resource = {
       tasbih: "tasbih",
 
       // Home screen - Today's prayer
-      todaysPrayer: "Today's Prayer",
+      randomPrayer: "Recommendation",
       readMore: "Read more",
       categories: "Categories",
 

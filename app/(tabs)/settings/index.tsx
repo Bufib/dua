@@ -73,9 +73,9 @@ const Settings = () => {
 
   // Available languages - matching those defined in i18n/index.ts
   const languages = [
-    { code: "de", name: t("german"), nativeName: "Deutsch" },
-    { code: "ar", name: t("arabic"), nativeName: "العربية" },
-    { code: "en", name: "English", nativeName: "English" },
+    { code: "DE", name: t("german"), nativeName: "Deutsch" },
+    { code: "AR", name: t("arabic"), nativeName: "العربية" },
+    { code: "EN", name: "English", nativeName: "English" },
   ];
 
   // Get the current language name to display

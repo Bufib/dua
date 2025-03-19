@@ -29,8 +29,10 @@ import {
   CategoryItem,
   PrayerData,
   PrayersByLanguage,
+  PrayerWithCategory,
 } from "@/utils/types";
 import { ThemedView } from "./ThemedView";
+import { getRandomPrayerWithCategory } from "@/utils/initializeDatabase";
 
 // Storage key for weekly calendar todos
 const WEEKLY_TODOS_STORAGE_KEY = "prayer_app_weekly_todos";
@@ -44,6 +46,9 @@ const HomeScreen = () => {
   const [newTodo, setNewTodo] = useState<string>("");
   const [addModalVisible, setAddModalVisible] = useState<boolean>(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
+  const [randomPrayer, setRandomPrayer] = useState<PrayerWithCategory | null>(
+    null
+  );
   const [todoToDelete, setTodoToDelete] = useState<TodoToDelete>({
     dayIndex: null,
     todoId: null,
@@ -72,24 +77,18 @@ const HomeScreen = () => {
     },
   ];
 
-  // Multilingual today's prayer data
-  const todaysPrayers: PrayersByLanguage = {
-    de: {
-      title: "Das Morgengebet",
-      text: "O Allah, ich bitte Dich um einen gesegneten Tag, nützliches Wissen und gute Taten. Führe mich auf dem rechten Weg und vergib mir meine Sünden.",
-      category: "Dua",
-    },
-    ar: {
-      title: "صلاة الصباح",
-      text: "اللهم إني أسألك يومًا مباركًا، وعلمًا نافعًا، وعملًا صالحًا. اهدني إلى الصراط المستقيم واغفر لي ذنوبي.",
-      category: "دعاء",
-    },
-    en: {
-      title: "Morning Prayer",
-      text: "O Allah, I ask You for a blessed day, beneficial knowledge, and good deeds. Guide me to the straight path and forgive my sins.",
-      category: "Dua",
-    },
-  };
+  // Fetch a random prayer (with category and language-specific details) when the language changes.
+  useEffect(() => {
+    const fetchRandomPrayer = async () => {
+      try {
+        const prayer = await getRandomPrayerWithCategory(language);
+        setRandomPrayer(prayer);
+      } catch (error) {
+        console.error("Error fetching random prayer:", error);
+      }
+    };
+    fetchRandomPrayer();
+  }, [language]);
 
   // Default prayers for each day in multiple languages
   const defaultWeeklyTodos: { [key: string]: WeeklyTodos } = {
@@ -127,11 +126,6 @@ const HomeScreen = () => {
     const day = new Date().getDay();
     // Convert from Sunday-Saturday (0-6) to Monday-Sunday (0-6)
     return day === 0 ? 6 : day - 1;
-  };
-
-  // Get today's prayer based on language
-  const getTodaysPrayer = (): PrayerData => {
-    return todaysPrayers[language] || todaysPrayers.en;
   };
 
   // Load todos from storage
@@ -270,13 +264,11 @@ const HomeScreen = () => {
       });
     }
   };
-  // Get current prayer data
-  const todaysPrayer = getTodaysPrayer();
 
   // Get short day names (for day selector buttons)
   const getDayNames = (): string[] => {
     return (
-      t("days.short", { returnObjects: true }) as string[] || [
+      (t("days.short", { returnObjects: true }) as string[]) || [
         "Mon",
         "Tue",
         "Wed",
@@ -290,7 +282,9 @@ const HomeScreen = () => {
 
   // Get full day name for selected day
   const getFullDayName = (dayIndex: number): string => {
-    const names: string[] = t("days.full", { returnObjects: true }) as string[]|| [
+    const names: string[] = (t("days.full", {
+      returnObjects: true,
+    }) as string[]) || [
       "Monday",
       "Tuesday",
       "Wednesday",
@@ -303,7 +297,7 @@ const HomeScreen = () => {
   };
 
   // Right-to-left text direction for Arabic
-  const isRTL = language === "ar";
+  const isRTL = language === "AR";
   const textAlign = isRTL ? { textAlign: "right" as const } : {};
   const flexDirection = isRTL ? { flexDirection: "row-reverse" as const } : {};
 
@@ -313,23 +307,25 @@ const HomeScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.contentContainer}
       >
-        {/* Today's Prayer Section */}
-        <View style={[styles.todaysPrayerCard, themeStyles.contrast]}>
+        {/* Random's Prayer Section */}
+        <View style={[styles.randomPrayerCard, themeStyles.contrast]}>
           <View style={[styles.prayerHeader, flexDirection]}>
             <ThemedText style={styles.todayTitle}>
-              {t("todaysPrayer")}
+              {t("randomPrayer")}
             </ThemedText>
             <View style={styles.prayerCategory}>
               <ThemedText style={styles.categoryText}>
-                {todaysPrayer.category}
+                {randomPrayer?.category_title}
               </ThemedText>
             </View>
           </View>
-          <ThemedText style={[styles.prayerTitle, textAlign]}>
-            {todaysPrayer.title}
+          <ThemedText style={[styles.prayerTitle]}>
+            {language === "AR"
+              ? randomPrayer?.arabic_title
+              : randomPrayer?.name}
           </ThemedText>
-          <ThemedText style={[styles.prayerText, textAlign]}>
-            {todaysPrayer.text}
+          <ThemedText style={[styles.prayerText]}>
+            {randomPrayer?.prayer_text}
           </ThemedText>
           <TouchableOpacity
             style={[
@@ -341,8 +337,8 @@ const HomeScreen = () => {
               router.push({
                 pathname: "/[prayer]",
                 params: {
-                  prayerId: todaysPrayer.text,
-                  prayerTitle: todaysPrayer.title,
+                  prayerId: randomPrayer.text,
+                  prayerTitle: randomPrayer.title,
                 },
               })
             }
@@ -352,9 +348,7 @@ const HomeScreen = () => {
         </View>
 
         {/* Categories Row */}
-        <ThemedText style={[styles.sectionTitle, textAlign]}>
-          {t("categories")}
-        </ThemedText>
+        <ThemedText style={[styles.sectionTitle]}>{t("categories")}</ThemedText>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -367,7 +361,6 @@ const HomeScreen = () => {
                 router.push(
                   category.title === "tasbih"
                     ? {
-                      
                         pathname: "/(tabs)/home/tasbih",
                         params: { category: category.title },
                       }
@@ -401,7 +394,7 @@ const HomeScreen = () => {
         {/* Weekly Calendar */}
         <View style={styles.calendarSection}>
           <View style={[styles.calendarHeader, flexDirection]}>
-            <ThemedText style={[styles.sectionTitle, textAlign]}>
+            <ThemedText style={[styles.sectionTitle]}>
               {t("weeklyToDo")}
             </ThemedText>
             <TouchableOpacity
@@ -513,7 +506,6 @@ const HomeScreen = () => {
                     style={[
                       styles.todoText,
                       todo.completed && styles.todoTextCompleted,
-                      textAlign,
                     ]}
                   >
                     {todo.text}
@@ -674,7 +666,7 @@ const HomeScreen = () => {
               {t("confirmDelete")}
             </ThemedText>
 
-            <ThemedText style={[styles.confirmText, textAlign]}>
+            <ThemedText style={[styles.confirmText]}>
               {t("deleteQuestion")}
             </ThemedText>
 
@@ -726,7 +718,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   // Today's Prayer Section
-  todaysPrayerCard: {
+  randomPrayerCard: {
     borderRadius: 16,
     padding: 16,
     marginBottom: 24,

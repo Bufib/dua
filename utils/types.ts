@@ -86,7 +86,7 @@ export type CategoryType = {
   id: number;
   title: string;
   parent_id?: string | null;
-  category: string
+  category: string;
 };
 
 export type PrayerType = {
@@ -96,20 +96,19 @@ export type PrayerType = {
   category_id: number;
   created_at: string;
   updated_at: string;
-  arabic_text?: string;           // als optional
+  arabic_text?: string; // als optional
   arabic_notes?: string | null;
-  transliteration_text?: string;  // als optional
+  transliteration_text?: string; // als optional
   transliteration_notes?: string | null;
   source?: string | null;
   translated_languages: string[];
-  arabic_introduction?: string
+  arabic_introduction?: string;
 };
 
-
-export type PrayerTranslationType = {
+export type PrayerTranslation = {
   id: number;
   prayer_id: number;
-  language_code: string; 
+  language_code: string;
   introduction?: string | null;
   main_body: string | null;
   notes?: string | null;
@@ -126,7 +125,7 @@ export type PrayerWithCategory = {
   arabic_title?: string;
   created_at: string;
   updated_at: string;
-  translated_languages: string[]; 
+  translated_languages: string[];
   category_title: string;
   introduction?: string;
   prayer_text: string;
@@ -139,7 +138,6 @@ export interface FavoritePrayer extends PrayerType {
   introduction: string | null;
   prayer_text: string | null;
 }
-
 
 export type TodoItem = {
   id: number;
@@ -171,4 +169,6 @@ export type PrayerData = {
 export type PrayersByLanguage = {
   [key: string]: PrayerData;
 };
-
+export interface PrayerWithTranslations extends PrayerType {
+  translations: PrayerTranslation[];
+}

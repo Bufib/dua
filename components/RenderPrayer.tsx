@@ -1,5 +1,3 @@
-
-
 // import {
 //   ActivityIndicator,
 //   StyleSheet,
@@ -244,7 +242,6 @@
 //         </ScrollView>
 //       )}
 
-      
 //     </View>
 //   );
 // };
@@ -413,8 +410,6 @@
 //   },
 // });
 
-
-
 import {
   ActivityIndicator,
   StyleSheet,
@@ -427,17 +422,25 @@ import {
   useColorScheme,
 } from "react-native";
 import React, { useMemo, useState, useLayoutEffect, useEffect } from "react";
-import { getPrayerWithTranslations, PrayerWithTranslations } from "@/utils/initializeDatabase";
+import {
+  getPrayerWithTranslations,
+  getRandomPrayerWithCategory,
+} from "@/utils/initializeDatabase";
+import { PrayerWithTranslations } from "@/utils/types";
 import { useLocalSearchParams } from "expo-router";
 import { useLanguage } from "@/context/LanguageContext";
 import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
 import i18n from "@/utils/i18n";
 import { Colors } from "@/constants/Colors";
-import AntDesign from '@expo/vector-icons/AntDesign';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import AntDesign from "@expo/vector-icons/AntDesign";
+import Ionicons from "@expo/vector-icons/Ionicons";
 // Import favorites functions
-import { addPrayerToFavorite, removePrayerFromFavorite, isPrayerInFavorite } from "@/utils/initializeDatabase";
+import {
+  addPrayerToFavorite,
+  removePrayerFromFavorite,
+  isPrayerInFavorite,
+} from "@/utils/initializeDatabase";
 // Import refresh favorites hook from Zustand
 import { useRefreshFavorites } from "@/stores/refreshFavoriteStore";
 // Import font size functionality
@@ -450,13 +453,15 @@ const RenderPrayer = () => {
   const [prayers, setPrayers] = useState<PrayerWithTranslations | null>(null);
   const { language } = useLanguage();
   // State to track which translations are selected.
-  const [selectTranslations, setSelectTranslations] = useState<Record<string, boolean>>({});
+  const [selectTranslations, setSelectTranslations] = useState<
+    Record<string, boolean>
+  >({});
   const [isFavorite, setIsFavorite] = useState(false);
   const colorScheme = useColorScheme() || "light";
   const { t } = i18n;
   // Get the trigger function to refresh favorites via Zustand.
   const { triggerRefreshFavorites } = useRefreshFavorites();
-  
+
   // Font size state and modal control
   const { fontSize, lineHeight } = useFontSizeStore();
   const [fontSizeModalVisible, setFontSizeModalVisible] = useState(false);
@@ -465,7 +470,9 @@ const RenderPrayer = () => {
     const fetchPrayerData = async () => {
       try {
         setIsLoading(true);
-        const prayer = await getPrayerWithTranslations(parseInt(prayerId[0], 10));
+        const prayer = await getPrayerWithTranslations(
+          parseInt(prayerId[0], 10)
+        );
         setPrayers(prayer);
         // Optionally check if this prayer is in favorites initially:
         const inFavorite = await isPrayerInFavorite(parseInt(prayerId[0], 10));
@@ -516,10 +523,13 @@ const RenderPrayer = () => {
       ? prayers.arabic_text.split("\n").filter((line) => line.trim() !== "")
       : [];
     const transliterationLines = prayers.transliteration_text
-      ? prayers.transliteration_text.split("\n").filter((line) => line.trim() !== "")
+      ? prayers.transliteration_text
+          .split("\n")
+          .filter((line) => line.trim() !== "")
       : [];
     const translations = prayers.translations.map((translation, index) => ({
-      language: prayers.translated_languages[index] || translation.language_code,
+      language:
+        prayers.translated_languages[index] || translation.language_code,
       lines: translation.main_body
         ? translation.main_body.split("\n").filter((line) => line.trim() !== "")
         : [],
@@ -533,17 +543,25 @@ const RenderPrayer = () => {
     const maxLines = Math.max(
       formattedPrayer.arabicLines.length,
       formattedPrayer.transliterationLines.length,
-      ...formattedPrayer.translations.map(t => t.lines.length)
+      ...formattedPrayer.translations.map((t) => t.lines.length)
     );
     return Array.from({ length: maxLines }, (_, i) => i);
   }, [formattedPrayer]);
 
   return (
-    <View style={[styles.container, { backgroundColor: Colors[colorScheme].background }]}>
-      <StatusBar barStyle={colorScheme === 'dark' ? 'light-content' : 'dark-content'} />
-
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: Colors[colorScheme].background },
+      ]}
+    >
       {/* Header */}
-      <View style={[styles.header, { backgroundColor: Colors[colorScheme].prayerHeaderBackground }]}>
+      <View
+        style={[
+          styles.header,
+          { backgroundColor: Colors[colorScheme].prayerHeaderBackground },
+        ]}
+      >
         <View style={styles.headerContent}>
           <View style={styles.titleContainer}>
             <Text style={styles.title} numberOfLines={1}>
@@ -555,15 +573,18 @@ const RenderPrayer = () => {
           </View>
           <View style={styles.headerControls}>
             {/* Font Size Button */}
-            <TouchableOpacity 
-              style={styles.iconButton} 
+            <TouchableOpacity
+              style={styles.iconButton}
               onPress={() => setFontSizeModalVisible(true)}
             >
               <Ionicons name="text" size={22} color="white" />
             </TouchableOpacity>
-            
+
             {/* Favorite Button */}
-            <TouchableOpacity style={styles.iconButton} onPress={handleFavoriteToggle}>
+            <TouchableOpacity
+              style={styles.iconButton}
+              onPress={handleFavoriteToggle}
+            >
               {isFavorite ? (
                 <AntDesign name="heart" size={22} color="white" />
               ) : (
@@ -574,99 +595,126 @@ const RenderPrayer = () => {
         </View>
       </View>
 
-      {/* Prayer Introduction */}
-      {prayers?.translations.find((t) => t.language_code === language)?.introduction && (
-        <View
-          style={[
-            styles.introContainer,
-            {
-              backgroundColor:
-                colorScheme === "dark"
-                  ? Colors.dark.prayerIntroductionBackground
-                  : Colors.light.prayerIntroductionBackground,
-            },
-          ]}
-        >
-          <Text 
-            style={[
-              styles.introText, 
-              { 
-                color: Colors[colorScheme].text,
-                fontSize: fontSize * 0.75, // Slightly smaller than main text
-                lineHeight: lineHeight * 0.75
-              }
-            ]}
-          >
-            {prayers.translations.find((t) => t.language_code === language)?.introduction}
-          </Text>
-        </View>
-      )}
-
-      {/* Language Selection */}
-      <View style={styles.languageSelectContainer}>
-        <Text style={[styles.sectionTitle, { color: Colors[colorScheme].text }]}>
-          {t("translations")}:
-        </Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.languageButtons}>
-          {prayers?.translated_languages.map((lang) => (
-            <TouchableOpacity
-              key={lang}
-              style={[
-                styles.languageButton,
-                selectTranslations[lang]
-                  ? { backgroundColor: Colors[colorScheme].prayerButtonBackgroundActive }
-                  : {
-                      backgroundColor: colorScheme === "dark"
-                        ? "rgba(96, 96, 96, 0.2)"
-                        : "rgba(0, 0, 0, 0.05)",
-                    },
-              ]}
-              onPress={() =>
-                setSelectTranslations((prev) => ({
-                  ...prev,
-                  [lang]: !prev[lang],
-                }))
-              }
-            >
-              <Text
-                style={[
-                  styles.languageButtonText,
-                  selectTranslations[lang]
-                    ? { color: Colors[colorScheme].prayerButtonTextActive }
-                    : { color: Colors[colorScheme].text },
-                ]}
-              >
-                {lang}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
       {/* Main Content */}
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={Colors[colorScheme].prayerLoadingIndicator} />
+          <ActivityIndicator
+            size="large"
+            color={Colors[colorScheme].prayerLoadingIndicator}
+          />
         </View>
       ) : (
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Prayer Introduction */}
+          {prayers?.translations.find((t) => t.language_code === language)
+            ?.introduction && (
+            <View
+              style={[
+                styles.introContainer,
+                {
+                  backgroundColor:
+                    colorScheme === "dark"
+                      ? Colors.dark.prayerIntroductionBackground
+                      : Colors.light.prayerIntroductionBackground,
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.introText,
+                  {
+                    color: Colors[colorScheme].text,
+                    fontSize: fontSize * 0.75, // Slightly smaller than main text
+                    lineHeight: lineHeight * 0.75,
+                  },
+                ]}
+              >
+                {
+                  prayers.translations.find((t) => t.language_code === language)
+                    ?.introduction
+                }
+              </Text>
+            </View>
+          )}
+
+          {/* Language Selection */}
+          <View style={styles.languageSelectContainer}>
+            <Text
+              style={[styles.sectionTitle, { color: Colors[colorScheme].text }]}
+            >
+              {t("translations")}:
+            </Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.languageButtons}
+            >
+              {prayers?.translated_languages.map((lang) => (
+                <TouchableOpacity
+                  key={lang}
+                  style={[
+                    styles.languageButton,
+                    selectTranslations[lang]
+                      ? {
+                          backgroundColor:
+                            Colors[colorScheme].prayerButtonBackgroundActive,
+                        }
+                      : {
+                          backgroundColor:
+                            colorScheme === "dark"
+                              ? "rgba(96, 96, 96, 0.2)"
+                              : "rgba(0, 0, 0, 0.05)",
+                        },
+                  ]}
+                  onPress={() =>
+                    setSelectTranslations((prev) => ({
+                      ...prev,
+                      [lang]: !prev[lang],
+                    }))
+                  }
+                >
+                  <Text
+                    style={[
+                      styles.languageButtonText,
+                      selectTranslations[lang]
+                        ? { color: Colors[colorScheme].prayerButtonTextActive }
+                        : { color: Colors[colorScheme].text },
+                    ]}
+                  >
+                    {lang}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+
           {formattedPrayer &&
             indices.map((i) => (
-              <View key={i} style={[styles.prayerSegment, { backgroundColor: Colors[colorScheme].contrast }]}>
+              <View
+                key={i}
+                style={[
+                  styles.prayerSegment,
+                  { backgroundColor: Colors[colorScheme].contrast },
+                ]}
+              >
                 {/* Line Number Badge */}
                 <View style={styles.lineNumberBadge}>
                   <Text style={styles.lineNumber}>{i + 1}</Text>
                 </View>
                 {/* Arabic Text */}
                 {formattedPrayer.arabicLines[i] && (
-                  <Text 
+                  <Text
                     style={[
-                      styles.arabicText, 
-                      { 
+                      styles.arabicText,
+                      {
                         color: Colors[colorScheme].prayerArabicText,
                         fontSize: fontSize * 1.1, // Slightly larger
-                        lineHeight: lineHeight * 1.1
-                      }
+                        lineHeight: lineHeight * 1.1,
+                      },
                     ]}
                   >
                     {formattedPrayer.arabicLines[i]}
@@ -674,14 +722,14 @@ const RenderPrayer = () => {
                 )}
                 {/* Transliteration */}
                 {formattedPrayer.transliterationLines[i] && (
-                  <Text 
+                  <Text
                     style={[
-                      styles.transliterationText, 
-                      { 
+                      styles.transliterationText,
+                      {
                         color: Colors[colorScheme].prayerTransliterationText,
                         fontSize: fontSize * 0.8, // Slightly smaller
-                        lineHeight: lineHeight * 0.8
-                      }
+                        lineHeight: lineHeight * 0.8,
+                      },
                     ]}
                   >
                     {formattedPrayer.transliterationLines[i]}
@@ -689,25 +737,27 @@ const RenderPrayer = () => {
                 )}
                 {/* Translations */}
                 {formattedPrayer.translations
-                  .filter((translation) => selectTranslations[translation.language])
+                  .filter(
+                    (translation) => selectTranslations[translation.language]
+                  )
                   .map((translation, idx) => (
                     <View key={idx} style={styles.translationBlock}>
-                      <Text 
+                      <Text
                         style={[
-                          styles.translationLabel, 
-                          { color: Colors[colorScheme].prayerButtonText }
+                          styles.translationLabel,
+                          { color: Colors[colorScheme].prayerButtonText },
                         ]}
                       >
                         {translation.language}
                       </Text>
-                      <Text 
+                      <Text
                         style={[
-                          styles.translationText, 
-                          { 
+                          styles.translationText,
+                          {
                             color: Colors[colorScheme].text,
                             fontSize: fontSize,
-                            lineHeight: lineHeight
-                          }
+                            lineHeight: lineHeight,
+                          },
                         ]}
                       >
                         {translation.lines[i] || ""}
@@ -718,9 +768,9 @@ const RenderPrayer = () => {
             ))}
         </ScrollView>
       )}
-      
+
       {/* Font Size Picker Modal */}
-      <FontSizePickerModal 
+      <FontSizePickerModal
         visible={fontSizeModalVisible}
         onClose={() => setFontSizeModalVisible(false)}
       />
