@@ -990,6 +990,7 @@ export const searchPrayers = async (
   language: string
 ): Promise<PrayerWithCategory[]> => {
   try {
+    const normalizedSearchTerm = searchTerm.normalize("NFC").replace(/[\u0300-\u036f]/g, "");;
     const db = await getDatabase();
     const query = `
       SELECT 
@@ -1006,13 +1007,15 @@ export const searchPrayers = async (
       FROM prayers p
       INNER JOIN categories c ON p.category_id = c.id
       INNER JOIN prayer_translations pt ON pt.prayer_id = p.id
-      WHERE (pt.main_body LIKE ? OR p.name LIKE ?) AND pt.language_code = ?;
+      WHERE (pt.main_body LIKE ? OR p.name LIKE ? OR p.arabic_title LIKE ?) AND pt.language_code = ?;
     `;
     const rows = await db.getAllAsync<PrayerWithCategory>(query, [
       `%${searchTerm}%`,
       `%${searchTerm}%`,
+      `%${searchTerm.normalize()}%`,
       language,
     ]);
+    console.log(searchTerm)
     return rows;
   } catch (error) {
     console.error("Error searching prayers:", error);
