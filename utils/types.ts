@@ -158,6 +158,7 @@ export type CategoryItem = {
   id: number;
   title: string;
   image: any;
+  value: string
 };
 
 export type PrayerData = {

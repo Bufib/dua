@@ -42,7 +42,7 @@ export default function CategoryScreen() {
   const { t } = useTranslation();
   const { language } = useLanguage();
   const isRTL = language === "AR";
-
+console.log(category)
   const [childCategories, setChildCategories] = useState<CategoryType[]>([]);
   const [allPrayers, setAllPrayers] = useState<PrayerWithCategory[]>([]);
   const [filteredPrayers, setFilteredPrayers] = useState<PrayerWithCategory[]>(

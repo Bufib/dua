@@ -34,7 +34,7 @@ const resources: Resource = {
       salat: "Salat",
       munajat: "Munajat",
       tasbih: "tasbih",
-
+      special: "Speziell",
       // Home screen - Today's prayer
       randomPrayer: "Empfehlung",
       readMore: "Vollständig lesen",
@@ -158,6 +158,7 @@ const resources: Resource = {
       salat: "صلاة",
       munajat: "مناجاة",
       tasbih: "تسبيح",
+      special: "خاصة",
 
       // Home screen - Today's prayer
       randomPrayer: "توصية",
@@ -279,7 +280,7 @@ const resources: Resource = {
       salat: "Salat",
       munajat: "Munajat",
       tasbih: "tasbih",
-
+      special: "Special",
       // Home screen - Today's prayer
       randomPrayer: "Recommendation",
       readMore: "Read more",

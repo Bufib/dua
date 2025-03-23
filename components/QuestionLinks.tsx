@@ -58,22 +58,42 @@ const HomeScreen = () => {
 
   // Prayer categories using translations
   const categories: CategoryItem[] = [
-    { id: 0, title: t("dua"), image: require("@/assets/images/dua.png") },
-    { id: 1, title: t("salat"), image: require("@/assets/images/salat.png") },
+    {
+      id: 0,
+      title: t("dua"),
+      image: require("@/assets/images/dua.png"),
+      value: "Dua",
+    },
+    {
+      id: 1,
+      title: t("salat"),
+      image: require("@/assets/images/salat.png"),
+      value: "Salat",
+    },
     {
       id: 2,
       title: t("ziyarat"),
       image: require("@/assets/images/ziyarat.png"),
+      value: "Ziyarat",
     },
+
     {
       id: 3,
       title: t("munajat"),
       image: require("@/assets/images/munajat.png"),
+      value: "Munajat",
     },
     {
       id: 4,
+      title: t("special"),
+      image: require("@/assets/images/special.png"),
+      value: "Special",
+    },
+    {
+      id: 5,
       title: t("tasbih"),
       image: require("@/assets/images/tasbih.png"),
+      value: "Tasbih",
     },
   ];
 
@@ -359,14 +379,14 @@ const HomeScreen = () => {
               key={category.id}
               onPress={() => {
                 router.push(
-                  category.title === "tasbih"
+                  category.value === "Tasbih"
                     ? {
                         pathname: "/(tabs)/home/tasbih",
-                        params: { category: category.title },
+                        params: { category: category.value },
                       }
                     : {
                         pathname: "/(tabs)/home/(category)/[category]",
-                        params: { category: category.title },
+                        params: { category: category.value },
                       }
                 );
               }}
