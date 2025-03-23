@@ -639,7 +639,7 @@ import { Colors } from "@/constants/Colors";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Octicons from "@expo/vector-icons/Octicons";
-import Markdown from 'react-native-markdown-display';
+import Markdown from "react-native-markdown-display";
 // Import favorites functions
 import {
   addPrayerToFavorite,
@@ -882,35 +882,27 @@ const RenderPrayer = () => {
                     },
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.introText,
-                      {
+                  <Markdown
+                    style={{
+                      body: {
+                        ...styles.introText,
                         color: Colors[colorScheme].text,
-                        fontSize: fontSize * 0.75, // Slightly smaller than main text
+                        fontSize: fontSize * 0.75,
                         lineHeight: lineHeight * 0.75,
                       },
-                    ]}
+                    }}
                   >
                     {
                       prayers.translations.find(
                         (t) => t.language_code === language
                       )?.introduction
                     }
-                  </Text>
+                  </Markdown>
                 </View>
               )}
 
               {/* Language Selection */}
               <View style={styles.languageSelectContainer}>
-                <Text
-                  style={[
-                    styles.sectionTitle,
-                    { color: Colors[colorScheme].text },
-                  ]}
-                >
-                  {t("translations")}:
-                </Text>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -1001,34 +993,36 @@ const RenderPrayer = () => {
                         onPress={() => handleBookmark(index + 1)}
                       />
                     )}
-                    <Text
-                      style={[
-                        styles.arabicText,
-                        {
+
+                    <Markdown
+                      style={{
+                        body: {
+                          ...styles.arabicText,
                           color: Colors[colorScheme].prayerArabicText,
                           fontSize: fontSize * 1.1, // Slightly larger
                           lineHeight: lineHeight * 1.1,
                         },
-                      ]}
+                      }}
                     >
                       {formattedPrayer.arabicLines[index]}
-                    </Text>
+                    </Markdown>
                   </View>
                 )}
                 {/* Transliteration */}
                 {formattedPrayer.transliterationLines[index] && (
-                  <Text
-                    style={[
-                      styles.transliterationText,
-                      {
+                  <Markdown
+                    style={{
+                      body: {
+                        ...styles.transliterationText,
+
                         color: Colors[colorScheme].prayerTransliterationText,
                         fontSize: fontSize * 0.8, // Slightly smaller
                         lineHeight: lineHeight * 0.8,
                       },
-                    ]}
+                    }}
                   >
                     {formattedPrayer.transliterationLines[index]}
-                  </Text>
+                  </Markdown>
                 )}
                 {/* Translations */}
                 {formattedPrayer.translations
@@ -1037,26 +1031,28 @@ const RenderPrayer = () => {
                   )
                   .map((translation, idx) => (
                     <View key={idx} style={styles.translationBlock}>
-                      <Text
-                        style={[
-                          styles.translationLabel,
-                          { color: Colors[colorScheme].prayerButtonText },
-                        ]}
+                      <Markdown
+                        style={{
+                          body: {
+                            ...styles.translationLabel,
+                            color: Colors[colorScheme].prayerButtonText,
+                          },
+                        }}
                       >
                         {translation.language}
-                      </Text>
-                      <Text
-                        style={[
-                          styles.translationText,
-                          {
+                      </Markdown>
+                      <Markdown
+                        style={{
+                          body: {
+                            ...styles.translationText,
                             color: Colors[colorScheme].text,
                             fontSize: fontSize,
                             lineHeight: lineHeight,
                           },
-                        ]}
+                        }}
                       >
                         {translation.lines[index] || ""}
-                      </Text>
+                      </Markdown>
                     </View>
                   ))}
               </View>
