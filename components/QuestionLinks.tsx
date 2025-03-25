@@ -95,6 +95,12 @@ const HomeScreen = () => {
       image: require("@/assets/images/tasbih.png"),
       value: "Tasbih",
     },
+    {
+      id: 6,
+      title: "Al-Asma-ul-Husna",
+      image: require("@/assets/images/tasbih.png"),
+      value: "Names",
+    },
   ];
 
   // Fetch a random prayer (with category and language-specific details) when the language changes.

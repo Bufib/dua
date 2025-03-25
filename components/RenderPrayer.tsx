@@ -954,12 +954,22 @@ const RenderPrayer = () => {
           }
           renderItem={({ item: index }) => {
             if (!formattedPrayer) return null;
+
             return (
               <View
                 key={index}
                 style={[
                   styles.prayerSegment,
                   { backgroundColor: Colors[colorScheme].contrast },
+
+                  ((formattedPrayer.arabicLines[index] &&
+                    formattedPrayer.arabicLines[index].includes("@")) ||
+                    (formattedPrayer.translations &&
+                      formattedPrayer.translations.some(
+                        (t) => t.lines[index] && t.lines[index].includes("@")
+                      ))) && {
+                    backgroundColor: Colors[colorScheme].renderPrayerNotiz,
+                  },
                   bookmark === index + 1 && {
                     backgroundColor: Colors.universal.primary,
                   },
@@ -973,14 +983,14 @@ const RenderPrayer = () => {
                 {formattedPrayer.arabicLines[index] && (
                   <View
                     style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
+                      flexDirection: "column",
+                      alignItems: "flex-end",
                     }}
                   >
                     {bookmark === index + 1 ? (
                       <Octicons
                         name="bookmark-slash"
+                        style={{ alignSelf: "flex-start" }}
                         size={20}
                         color={Colors[colorScheme].iconDefault}
                         onPress={() => handleBookmark(index + 1)}
@@ -988,6 +998,7 @@ const RenderPrayer = () => {
                     ) : (
                       <Octicons
                         name="bookmark"
+                        style={{ alignSelf: "flex-start" }}
                         size={20}
                         color={Colors[colorScheme].iconDefault}
                         onPress={() => handleBookmark(index + 1)}
@@ -1001,6 +1012,12 @@ const RenderPrayer = () => {
                           color: Colors[colorScheme].prayerArabicText,
                           fontSize: fontSize * 1.1, // Slightly larger
                           lineHeight: lineHeight * 1.1,
+                          ...(formattedPrayer.arabicLines[index] &&
+                            formattedPrayer.arabicLines[index].includes(
+                              "@"
+                            ) && {
+                              alignSelf: "center",
+                            }),
                         },
                       }}
                     >
@@ -1014,7 +1031,8 @@ const RenderPrayer = () => {
                     style={{
                       body: {
                         ...styles.transliterationText,
-
+                        borderBottomWidth: 1,
+                        borderBottomColor: Colors[colorScheme].border,
                         color: Colors[colorScheme].prayerTransliterationText,
                         fontSize: fontSize * 0.8, // Slightly smaller
                         lineHeight: lineHeight * 0.8,
@@ -1048,6 +1066,10 @@ const RenderPrayer = () => {
                             color: Colors[colorScheme].text,
                             fontSize: fontSize,
                             lineHeight: lineHeight,
+                            ...(translation.lines[index] &&
+                              translation.lines[index].includes("@") && {
+                                alignSelf: "center",
+                              }),
                           },
                         }}
                       >

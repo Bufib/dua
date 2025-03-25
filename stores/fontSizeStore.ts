@@ -16,7 +16,7 @@ const LINE_HEIGHT_KEY = "lineHeight";
 export const useFontSizeStore = create<FontSizeState>()(
   persist(
     (set) => ({
-      fontSize: 20, // Default font size
+      fontSize: 18, // Default font size
       lineHeight: 40, // Default line height
 
       // Setter for fontSize

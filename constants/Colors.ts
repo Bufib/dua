@@ -46,6 +46,7 @@ export const Colors = {
     inverseQuestionText: "rgba(0, 0, 0, 1)",
     pickerContainerBorder: "#000000",
     iconDefault: "#000000",
+    renderPrayerNotiz: "#e8f5e9",
     // Prayer viewer colors - Light Mode
     prayerHeaderBackground: "#057958",
     prayerHeaderText: "#FFFFFF",
@@ -114,6 +115,7 @@ export const Colors = {
     inverseQuestionText: "rgba(255, 255, 255, 1)",
     pickerContainerBorder: "#FFFFFF",
     iconDefault: "#FFFFFF",
+    renderPrayerNotiz: "#616C6F",
     // Prayer viewer colors - Dark Mode
     prayerHeaderBackground: "#046347",
     prayerHeaderText: "#e8f5e9",
