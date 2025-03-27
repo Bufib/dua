@@ -35,6 +35,7 @@ const resources: Resource = {
       munajat: "Munajat",
       tasbih: "tasbih",
       special: "Speziell",
+      names: "Asma-ul-Husna",
       // Home screen - Today's prayer
       randomPrayer: "Empfehlung",
       readMore: "Vollständig lesen",
@@ -159,7 +160,7 @@ const resources: Resource = {
       munajat: "مناجاة",
       tasbih: "تسبيح",
       special: "خاصة",
-
+      names: "أسْماءُ الحُسْنَى",
       // Home screen - Today's prayer
       randomPrayer: "توصية",
       readMore: "قراءة المزيد",
@@ -281,6 +282,7 @@ const resources: Resource = {
       munajat: "Munajat",
       tasbih: "tasbih",
       special: "Special",
+      names: "Asma-ul-Husna",
       // Home screen - Today's prayer
       randomPrayer: "Recommendation",
       readMore: "Read more",

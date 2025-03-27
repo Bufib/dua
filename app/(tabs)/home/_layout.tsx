@@ -27,8 +27,12 @@ export default function RootLayout() {
         }}
       />
       <Stack.Screen
-        name="subcategory"
+        name="tasbih"
         options={{ headerShown: true }}
+      />
+       <Stack.Screen
+        name="names"
+        options={{ headerShown: true,  }}
       />
     </Stack>
     </ThemeProvider>

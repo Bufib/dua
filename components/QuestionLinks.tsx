@@ -14,9 +14,7 @@ import { router } from "expo-router";
 import { Image } from "expo-image";
 import { useColorScheme } from "react-native";
 import { CoustomTheme } from "../utils/coustomTheme";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "./ThemedText";
-import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useTranslation } from "react-i18next";
@@ -97,8 +95,8 @@ const HomeScreen = () => {
     },
     {
       id: 6,
-      title: "Al-Asma-ul-Husna",
-      image: require("@/assets/images/tasbih.png"),
+      title: t("names"),
+      image: require("@/assets/images/names.png"),
       value: "Names",
     },
   ];
@@ -389,7 +387,12 @@ const HomeScreen = () => {
                     ? {
                         pathname: "/(tabs)/home/tasbih",
                         params: { category: category.value },
-                      }
+                      } :
+                       category.value === "Names" ? 
+                       {
+                        pathname: "/(tabs)/home/names",
+                        params: { category: category.value },
+                       }
                     : {
                         pathname: "/(tabs)/home/(category)/[category]",
                         params: { category: category.value },
@@ -829,6 +832,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "500",
     textAlign: "center",
+    lineHeight: 15
   },
   // Calendar Section
   calendarSection: {
