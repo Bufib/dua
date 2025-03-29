@@ -790,6 +790,18 @@ const markdownRules = (customFontSize: number): RenderRules => ({
       </Text>
     );
   },
+
+  // Add or modify the code_inline rule to render inline code as normal text
+  code_inline: (
+    node: any,
+    children: any,
+    parent: any,
+    styles: any
+  ): React.ReactNode => (
+    <Text key={node.key} style={{ fontSize: customFontSize, ...styles.text }}>
+      `{node.content}`
+    </Text>
+  ),
 });
 
 const RenderPrayer = () => {
@@ -1192,13 +1204,13 @@ const RenderPrayer = () => {
                     )}
 
                     <Markdown
-                      rules={markdownRules(fontSize * 1.1)}
+                      rules={markdownRules(fontSize * 1.2)}
                       style={{
                         body: {
                           ...styles.arabicText,
                           color: Colors[colorScheme].prayerArabicText,
-                          fontSize: fontSize * 1.1,
-                          lineHeight: lineHeight * 1.1,
+                          fontSize: fontSize * 1.2,
+                          lineHeight: lineHeight * 1.2,
                         },
                       }}
                     >
@@ -1209,19 +1221,16 @@ const RenderPrayer = () => {
                 {/* Transliteration */}
                 {transliterationLine && (
                   <Markdown
-                  
+                    rules={markdownRules(fontSize * 0.8)}
                     style={{
                       body: {
                         ...styles.transliterationText,
-                        borderBottomWidth: 1,
                         borderBottomColor: Colors[colorScheme].border,
                         color: Colors[colorScheme].prayerTransliterationText,
                         fontSize: fontSize * 0.8, // Slightly smaller
                         lineHeight: lineHeight * 0.8,
                       },
-                     code_inline: {
-                      
-                     }
+                      code_inline: {},
                     }}
                   >
                     {transliterationLine.text}
@@ -1230,16 +1239,16 @@ const RenderPrayer = () => {
                 {/* Translations */}
                 {currentTranslations.map((translation, idx) => (
                   <View key={idx} style={styles.translationBlock}>
-                    <Markdown
-                      style={{
-                        body: {
-                          ...styles.translationLabel,
+                    <Text
+                      style={[
+                        styles.translationLabel,
+                        {
                           color: Colors[colorScheme].prayerButtonText,
                         },
-                      }}
+                      ]}
                     >
                       {translation.language}
-                    </Markdown>
+                    </Text>
                     <Markdown
                       style={{
                         body: {
@@ -1427,19 +1436,18 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     marginBottom: 16,
     paddingBottom: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "rgba(0,0,0,0.1)",
   },
   translationBlock: {
     marginBottom: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingTop: 20
   },
   translationLabel: {
     fontSize: 12,
     fontWeight: "700",
-    marginBottom: 4,
   },
   translationText: {
-    fontSize: 15,
     lineHeight: 22,
   },
   bottomSheetContainer: {
