@@ -36,6 +36,7 @@ export const Colors = {
     prayerButtonTextActive: "#FFFFFF",
     prayerIntroductionBackground: "#e8f5e9",
     prayerLoadingIndicator: "#057958",
+    prayerBookmark: "#ccc",
   },
 
   dark: {
@@ -71,6 +72,7 @@ export const Colors = {
     prayerButtonTextActive: "#e8f5e9",
     prayerIntroductionBackground: "#2d374d",
     prayerLoadingIndicator: "#057958",
+    prayerBookmark: "#057958",
   },
 
   universal: {

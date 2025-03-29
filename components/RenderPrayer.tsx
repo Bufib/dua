@@ -763,7 +763,7 @@ import { Storage } from "expo-sqlite/kv-store";
 import { FlashList } from "@shopify/flash-list";
 
 // Custom markdown rule to render text with colored Arabic diacritics
-const markdownRules = (customFontSize: number): RenderRules => ({
+const markdownRules = (customFontSize: number, textColor: string,): RenderRules => ({
   text: (
     node: any,
     children: any,
@@ -777,7 +777,7 @@ const markdownRules = (customFontSize: number): RenderRules => ({
     const diacriticRegex = /[\u064B-\u0652]/;
     const parts = text.split(diacriticRegexGlobal);
     return (
-      <Text key={node.key} style={{ fontSize: customFontSize, ...styles.text }}>
+      <Text key={node.key} style={{ fontSize: customFontSize, ...styles.text, color: textColor}}>
         {parts.map((part: string, index: number) =>
           diacriticRegex.test(part) ? (
             <Text key={index} style={{ color: Colors.universal.primary }}>
@@ -798,7 +798,7 @@ const markdownRules = (customFontSize: number): RenderRules => ({
     parent: any,
     styles: any
   ): React.ReactNode => (
-    <Text key={node.key} style={{ fontSize: customFontSize, ...styles.text }}>
+    <Text key={node.key} style={{ fontSize: customFontSize, ...styles.text, color: textColor }}>
       `{node.content}`
     </Text>
   ),
@@ -1169,7 +1169,7 @@ const RenderPrayer = () => {
                     backgroundColor: Colors[colorScheme].renderPrayerNotiz,
                   },
                   bookmark === index + 1 && {
-                    backgroundColor: Colors.universal.primary,
+                    backgroundColor: Colors[colorScheme].prayerBookmark,
                   },
                 ]}
               >
@@ -1204,7 +1204,7 @@ const RenderPrayer = () => {
                     )}
 
                     <Markdown
-                      rules={markdownRules(fontSize * 1.2)}
+                      rules={markdownRules(fontSize * 1.3,Colors[colorScheme].text, )}
                       style={{
                         body: {
                           ...styles.arabicText,
@@ -1221,7 +1221,7 @@ const RenderPrayer = () => {
                 {/* Transliteration */}
                 {transliterationLine && (
                   <Markdown
-                    rules={markdownRules(fontSize * 0.8)}
+                    rules={markdownRules(fontSize * 0.8, Colors[colorScheme].prayerTransliterationText)}
                     style={{
                       body: {
                         ...styles.transliterationText,
@@ -1392,6 +1392,7 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   prayerSegment: {
+    marginHorizontal: 12,
     marginBottom: 16,
     borderRadius: 12,
     padding: 16,
