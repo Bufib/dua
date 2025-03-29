@@ -135,9 +135,10 @@ const resources: Resource = {
         updateContentError:
           "Beim Aktualisieren der Inhalte ist ein Fehler aufgetreten.",
       },
-      // RenderPrayer bottom information sheet
+      // RenderPrayer 
       bottomInformationRenderPrayer:
         "wird wie der buchstabe ausgesprochen",
+        lines: "Zeilen"
     },
   },
 
@@ -262,8 +263,9 @@ const resources: Resource = {
           "تعذر مزامنة البيانات. يرجى المحاولة مرة أخرى لاحقًا.",
         updateContentError: "حدث خطأ أثناء تحديث المحتوى.",
       },
-      // RenderPrayer bottom information sheet
+      // RenderPrayer 
       bottomInformationRenderPrayer: "يُلفظ مثل الحرف ع",
+      lines: "الخطوط"
     },
   },
 
@@ -390,8 +392,11 @@ const resources: Resource = {
           "Data could not be synchronized. Please try again later.",
         updateContentError: "An error occurred while updating content.",
       },
-      // RenderPrayer bottom information sheet
+
+      // RenderPrayer 
       bottomInformationRenderPrayer: "is pronounced like the letter",
+      lines: "lines"
+
     },
   },
 };
