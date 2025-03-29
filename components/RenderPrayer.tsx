@@ -137,22 +137,50 @@ const RenderPrayer = () => {
   };
 
   // Format the prayer data.
+  // const formattedPrayer = useMemo(() => {
+  //   if (!prayers) return null;
+  //   const arabicLines = prayers.arabic_text
+  //     ? prayers.arabic_text.split("\n").filter((line) => line.trim() !== "")
+  //     : [];
+  //   const transliterationLines = prayers.transliteration_text
+  //     ? prayers.transliteration_text
+  //         .split("\n")
+  //         .filter((line) => line.trim() !== "")
+  //     : [];
+  //   const translations = prayers.translations.map((translation, index) => ({
+  //     language:
+  //       prayers.translated_languages[index] || translation.language_code,
+  //     lines: translation.main_body
+  //       ? translation.main_body.split("\n").filter((line) => line.trim() !== "")
+  //       : [],
+  //   }));
+  //   return { arabicLines, transliterationLines, translations };
+  // }, [prayers]);
+
+  // Format the prayer data.
   const formattedPrayer = useMemo(() => {
     if (!prayers) return null;
-    const arabicLines = prayers.arabic_text
-      ? prayers.arabic_text.split("\n").filter((line) => line.trim() !== "")
-      : [];
-    const transliterationLines = prayers.transliteration_text
-      ? prayers.transliteration_text
-          .split("\n")
+    const processLines = (text: string | undefined) => {
+      return (
+        text
+          ?.split("\n")
           .filter((line) => line.trim() !== "")
-      : [];
+          .map((line) => {
+            const hasAtSymbol = line.includes("@");
+            return {
+              text: line.replace(/@/g, "").trim(),
+              hasAtSymbol,
+            };
+          }) || []
+      );
+    };
+
+    const arabicLines = processLines(prayers.arabic_text);
+    const transliterationLines = processLines(prayers.transliteration_text);
     const translations = prayers.translations.map((translation, index) => ({
       language:
         prayers.translated_languages[index] || translation.language_code,
-      lines: translation.main_body
-        ? translation.main_body.split("\n").filter((line) => line.trim() !== "")
-        : [],
+      lines: processLines(translation.main_body || ""),
     }));
     return { arabicLines, transliterationLines, translations };
   }, [prayers]);
@@ -376,19 +404,25 @@ const RenderPrayer = () => {
           renderItem={({ item: index }) => {
             if (!formattedPrayer) return null;
 
+            const arabicLine = formattedPrayer.arabicLines[index];
+            const transliterationLine =
+              formattedPrayer.transliterationLines[index];
+            const currentTranslations = formattedPrayer.translations.filter(
+              (translation) => selectTranslations[translation.language]
+            );
+
+            const hasAtSymbolInArabic = arabicLine?.hasAtSymbol;
+            const hasAtSymbolInTranslation = currentTranslations.some(
+              (t) => t.lines[index]?.hasAtSymbol
+            );
+
             return (
               <View
                 key={index}
                 style={[
                   styles.prayerSegment,
                   { backgroundColor: Colors[colorScheme].contrast },
-
-                  ((formattedPrayer.arabicLines[index] &&
-                    formattedPrayer.arabicLines[index].includes("@")) ||
-                    (formattedPrayer.translations &&
-                      formattedPrayer.translations.some(
-                        (t) => t.lines[index] && t.lines[index].includes("@")
-                      ))) && {
+                  (hasAtSymbolInArabic || hasAtSymbolInTranslation) && {
                     backgroundColor: Colors[colorScheme].renderPrayerNotiz,
                   },
                   bookmark === index + 1 && {
@@ -401,7 +435,7 @@ const RenderPrayer = () => {
                   <Text style={styles.lineNumber}>{index + 1}</Text>
                 </View>
                 {/* Arabic Text */}
-                {formattedPrayer.arabicLines[index] && (
+                {arabicLine && (
                   <View
                     style={{
                       flexDirection: "column",
@@ -433,21 +467,18 @@ const RenderPrayer = () => {
                           color: Colors[colorScheme].prayerArabicText,
                           fontSize: fontSize * 1.1, // Slightly larger
                           lineHeight: lineHeight * 1.1,
-                          ...(formattedPrayer.arabicLines[index] &&
-                            formattedPrayer.arabicLines[index].includes(
-                              "@"
-                            ) && {
-                              alignSelf: "center",
-                            }),
+                          ...(arabicLine.hasAtSymbol && {
+                            alignSelf: "center",
+                          }),
                         },
                       }}
                     >
-                      {formattedPrayer.arabicLines[index]}
+                      {arabicLine.text}
                     </Markdown>
                   </View>
                 )}
                 {/* Transliteration */}
-                {formattedPrayer.transliterationLines[index] && (
+                {transliterationLine && (
                   <Markdown
                     style={{
                       body: {
@@ -460,44 +491,39 @@ const RenderPrayer = () => {
                       },
                     }}
                   >
-                    {formattedPrayer.transliterationLines[index]}
+                    {transliterationLine.text}
                   </Markdown>
                 )}
                 {/* Translations */}
-                {formattedPrayer.translations
-                  .filter(
-                    (translation) => selectTranslations[translation.language]
-                  )
-                  .map((translation, idx) => (
-                    <View key={idx} style={styles.translationBlock}>
-                      <Markdown
-                        style={{
-                          body: {
-                            ...styles.translationLabel,
-                            color: Colors[colorScheme].prayerButtonText,
-                          },
-                        }}
-                      >
-                        {translation.language}
-                      </Markdown>
-                      <Markdown
-                        style={{
-                          body: {
-                            ...styles.translationText,
-                            color: Colors[colorScheme].text,
-                            fontSize: fontSize,
-                            lineHeight: lineHeight,
-                            ...(translation.lines[index] &&
-                              translation.lines[index].includes("@") && {
-                                alignSelf: "center",
-                              }),
-                          },
-                        }}
-                      >
-                        {translation.lines[index] || ""}
-                      </Markdown>
-                    </View>
-                  ))}
+                {currentTranslations.map((translation, idx) => (
+                  <View key={idx} style={styles.translationBlock}>
+                    <Markdown
+                      style={{
+                        body: {
+                          ...styles.translationLabel,
+                          color: Colors[colorScheme].prayerButtonText,
+                        },
+                      }}
+                    >
+                      {translation.language}
+                    </Markdown>
+                    <Markdown
+                      style={{
+                        body: {
+                          ...styles.translationText,
+                          color: Colors[colorScheme].text,
+                          fontSize: fontSize,
+                          lineHeight: lineHeight,
+                          ...(translation.lines[index]?.hasAtSymbol && {
+                            alignSelf: "center",
+                          }),
+                        },
+                      }}
+                    >
+                      {translation.lines[index]?.text || ""}
+                    </Markdown>
+                  </View>
+                ))}
               </View>
             );
           }}
@@ -511,22 +537,22 @@ const RenderPrayer = () => {
         index={-1} // Initially closed
         snapPoints={snapPoints}
         enablePanDownToClose={true}
-        // You can add an onChange handler if needed
-        // onChange={(index) => console.log('Bottom Sheet Index:', index)}
+        backgroundStyle={{ backgroundColor: Colors.universal.secondary }}
+        style={styles.bottomSheetContainer}
       >
-        <BottomSheetView
-          style={[
-            styles.bottomSheetContainer,
-            { backgroundColor: Colors[colorScheme].contrast },
-          ]}
-        >
-          <ThemedText>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia, ipsam
-            non quibusdam eum delectus voluptas itaque dicta, earum expedita
-            iste at quas. Quibusdam culpa ipsa expedita laborum dicta corporis
-            illo!
-          </ThemedText>
-          {/* You can add more information or components here */}
+        <BottomSheetView style={styles.bottomSheet}>
+          <Text
+            style={[styles.bottomSheetText, { fontSize: 35, color: "#FFFFFF" }]}
+          >
+            `
+          </Text>
+          <Text style={styles.bottomSheetText}>
+            {t("bottomInformationRenderPrayer")}
+          </Text>
+          <Text style={[styles.bottomSheetText, { color: "#FFFFFF" }]}>ع</Text>
+          <Text style={[styles.bottomSheetText, { color: "#FFFFFF" }]}>
+            (ayn)
+          </Text>
         </BottomSheetView>
       </BottomSheet>
 
@@ -683,13 +709,21 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
   },
-  stylesBottomSheet: {
-    flex: 1,
-    padding: 36,
-    alignItems: "center",
-  },
   bottomSheetContainer: {
+    flex: 1,
     flexDirection: "column",
-    gap: 20,
+    alignItems: "center",
+    borderTopWidth: 3,
+    borderRadius: 21,
+  },
+  bottomSheet: {
+    flex: 1,
+    flexDirection: "row",
+    gap: 10
+  },
+  bottomSheetText: {
+    fontSize: 20,
+    fontWeight: 500,
+    textAlign: "center",
   },
 });

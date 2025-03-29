@@ -11,6 +11,7 @@ interface DayNamesType {
 
 // Translations resources
 const resources: Resource = {
+  // German translation
   DE: {
     translation: {
       // Core app translations
@@ -134,8 +135,13 @@ const resources: Resource = {
         updateContentError:
           "Beim Aktualisieren der Inhalte ist ein Fehler aufgetreten.",
       },
+      // RenderPrayer bottom information sheet
+      bottomInformationRenderPrayer:
+        "wird wie der buchstabe ausgesprochen",
     },
   },
+
+  // Arabic translation
   AR: {
     translation: {
       // Core app translations
@@ -256,8 +262,12 @@ const resources: Resource = {
           "تعذر مزامنة البيانات. يرجى المحاولة مرة أخرى لاحقًا.",
         updateContentError: "حدث خطأ أثناء تحديث المحتوى.",
       },
+      // RenderPrayer bottom information sheet
+      bottomInformationRenderPrayer: "يُلفظ مثل الحرف ع",
     },
   },
+
+  // English translation
   EN: {
     translation: {
       // Core app translations
@@ -380,6 +390,8 @@ const resources: Resource = {
           "Data could not be synchronized. Please try again later.",
         updateContentError: "An error occurred while updating content.",
       },
+      // RenderPrayer bottom information sheet
+      bottomInformationRenderPrayer: "is pronounced like the letter",
     },
   },
 };
