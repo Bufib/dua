@@ -472,6 +472,7 @@ export default function App() {
                   styles.progressBar,
                   { width: `${percentage}%` },
                   percentage >= 100 && !isPresetMode && styles.progressComplete,
+                  { width: "100%" },
                   isPresetMode &&
                     sequenceCompleted &&
                     styles.progressSequenceComplete,
