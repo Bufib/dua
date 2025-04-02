@@ -28,7 +28,7 @@ export default function RootLayout() {
       />
       <Stack.Screen
         name="tasbih"
-        options={{ headerShown: true }}
+        options={{ headerShown: false }}
       />
        <Stack.Screen
         name="names"

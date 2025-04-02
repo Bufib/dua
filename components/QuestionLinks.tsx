@@ -342,7 +342,7 @@ const HomeScreen = () => {
             </ThemedText>
             <View style={styles.prayerCategory}>
               <ThemedText style={styles.categoryText}>
-                {t(`dailyPrayer?.category_title`)}
+                {t(`${dailyPrayer?.category_title}`)}
               </ThemedText>
             </View>
           </View>
@@ -362,7 +362,7 @@ const HomeScreen = () => {
               styles.readMoreButton,
               { backgroundColor: colorScheme === "dark" ? "#333" : "#f0f0f0" },
               isRTL ? { alignSelf: "flex-end" } : { alignSelf: "flex-start" },
-            ]}
+            ]} 
             onPress={() =>
               router.push({
                 pathname: "/[prayer]",
