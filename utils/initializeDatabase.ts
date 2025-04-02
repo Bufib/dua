@@ -86,6 +86,7 @@ export const initializeDatabase = async () => {
       const versionFromStorage = await Storage.getItem("version");
       const versionFromSupabase = await fetchVersionFromSupabase();
       if (versionFromSupabase && versionFromStorage !== versionFromSupabase) {
+        await dropTables();
         await createTables();
         await fetchAndSyncAllData();
         await Storage.setItemSync("version", versionFromSupabase);
@@ -110,6 +111,27 @@ export const initializeDatabase = async () => {
 
   await checkVersion();
   setupSubscriptions();
+};
+
+export const dropTables = async () => {
+  try {
+    const db = await getDatabase();
+    await db.execAsync(`
+      DROP TABLE IF EXISTS daily_or_monthly;
+      DROP TABLE IF EXISTS daily_prayers;
+      DROP TABLE IF EXISTS paypal;
+      DROP TABLE IF EXISTS version;
+      DROP TABLE IF EXISTS prayer_translations;
+      DROP TABLE IF EXISTS prayer_categories;
+      DROP TABLE IF EXISTS prayers;
+      DROP TABLE IF EXISTS languages;
+      DROP TABLE IF EXISTS categories;
+    `);
+    console.log("All tables dropped successfully");
+  } catch (error) {
+    console.error("Error dropping tables:", error);
+    throw error;
+  }
 };
 
 export const createTables = async () => {
@@ -236,6 +258,7 @@ const fetchAndSyncAllData = async () => {
     await fetchPayPalLink();
     await fetchDailyPrayersBool();
     await fetchDailyPrayers();
+    await removeStaleFavorites();
 
     console.log("All data synced successfully");
   } catch (error) {
@@ -246,6 +269,19 @@ const fetchAndSyncAllData = async () => {
       text2: i18n.t("toast.syncErrorMessage"),
     });
 
+    throw error;
+  }
+};
+
+export const removeStaleFavorites = async () => {
+  try {
+    const db = await getDatabase();
+    await db.runAsync(
+      "DELETE FROM favorites WHERE prayer_id NOT IN (SELECT id FROM prayers);"
+    );
+    console.log("Stale favorites removed successfully.");
+  } catch (error) {
+    console.error("Error removing stale favorites:", error);
     throw error;
   }
 };
