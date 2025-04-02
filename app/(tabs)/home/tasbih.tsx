@@ -1,882 +1,3 @@
-//! Basis
-// import React, { useState } from 'react';
-// import { StyleSheet, Text, View, TouchableOpacity, ScrollView, SafeAreaView, StatusBar } from 'react-native';
-
-// export default function App() {
-//   // Define different dhikr types with their respective limits
-//   const dhikrTypes = [
-//     { id: 1, name: 'Subhanallah', arabicText: 'سُبْحَانَ ٱللَّٰهِ', limit: 33, count: 0 },
-//     { id: 2, name: 'Alhamdulillah', arabicText: 'ٱلْحَمْدُ لِلَّٰهِ', limit: 33, count: 0 },
-//     { id: 3, name: 'Allahu Akbar', arabicText: 'ٱللَّٰهُ أَكْبَرُ', limit: 34, count: 0 },
-//     { id: 4, name: 'La ilaha illallah', arabicText: 'لَا إِلَٰهَ إِلَّا ٱللَّٰهُ', limit: 100, count: 0 },
-//     { id: 5, name: 'Astaghfirullah', arabicText: 'أَسْتَغْفِرُ ٱللَّٰهَ', limit: 100, count: 0 }
-//   ];
-
-//   const [counters, setCounters] = useState(dhikrTypes);
-//   const [activeTab, setActiveTab] = useState(1);
-//   const [totalDhikr, setTotalDhikr] = useState(0);
-
-//   // Handle increment for the active dhikr
-//   const handleIncrement = (id) => {
-//     setCounters(prevCounters =>
-//       prevCounters.map(counter => {
-//         if (counter.id === id && counter.count < counter.limit) {
-//           setTotalDhikr(prev => prev + 1);
-//           return { ...counter, count: counter.count + 1 };
-//         }
-//         return counter;
-//       })
-//     );
-//   };
-
-//   // Reset the active counter
-//   const handleReset = (id) => {
-//     setCounters(prevCounters =>
-//       prevCounters.map(counter => {
-//         if (counter.id === id) {
-//           setTotalDhikr(prev => prev - counter.count);
-//           return { ...counter, count: 0 };
-//         }
-//         return counter;
-//       })
-//     );
-//   };
-
-//   // Reset all counters
-//   const handleResetAll = () => {
-//     setCounters(counters.map(counter => ({ ...counter, count: 0 })));
-//     setTotalDhikr(0);
-//   };
-
-//   // Get the active counter
-//   const activeCounter = counters.find(counter => counter.id === activeTab);
-
-//   // Calculate percentage for progress indicator
-//   const percentage = activeCounter ? (activeCounter.count / activeCounter.limit) * 100 : 0;
-
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       <StatusBar barStyle="light-content" />
-
-//       {/* Header */}
-//       <View style={styles.header}>
-//         <Text style={styles.headerTitle}>Tasbih</Text>
-//         <Text style={styles.headerSubtitle}>Digital Prayer Counter</Text>
-//       </View>
-
-//       {/* Dhikr Selection Tabs */}
-//       <ScrollView
-//         horizontal
-//         showsHorizontalScrollIndicator={false}
-//         style={styles.tabsContainer}
-//         contentContainerStyle={styles.tabsContent}
-//       >
-//         {counters.map(counter => (
-//           <TouchableOpacity
-//             key={counter.id}
-//             style={[
-//               styles.tab,
-//               activeTab === counter.id && styles.activeTab
-//             ]}
-//             onPress={() => setActiveTab(counter.id)}
-//           >
-//             <Text style={[
-//               styles.tabText,
-//               activeTab === counter.id && styles.activeTabText
-//             ]}>
-//               {counter.name}
-//             </Text>
-//           </TouchableOpacity>
-//         ))}
-//       </ScrollView>
-
-//       {/* Main Counter Card */}
-//       {activeCounter && (
-//         <View style={styles.counterCard}>
-//           {/* Progress Indicator */}
-//           <View style={styles.progressContainer}>
-//             <View
-//               style={[
-//                 styles.progressBar,
-//                 { width: `${percentage}%` },
-//                 percentage >= 100 && styles.progressComplete,
-//               ]}
-//             />
-//           </View>
-
-//           {/* Arabic Text */}
-//           <Text style={styles.arabicText}>{activeCounter.arabicText}</Text>
-
-//           {/* Counter Value */}
-//           <Text style={styles.counterText}>{activeCounter.count}</Text>
-
-//           {/* Limit Indicator */}
-//           <Text style={styles.limitText}>
-//             {activeCounter.count}/{activeCounter.limit}
-//           </Text>
-
-//           {/* Completion Message */}
-//           {activeCounter.count >= activeCounter.limit && (
-//             <Text style={styles.completionText}>
-//               {activeCounter.name} complete ✓
-//             </Text>
-//           )}
-//         </View>
-//       )}
-
-//       {/* Counter Button */}
-//       <TouchableOpacity
-//         style={[
-//           styles.counterButton,
-//           activeCounter && activeCounter.count >= activeCounter.limit && styles.disabledButton
-//         ]}
-//         onPress={() => handleIncrement(activeTab)}
-//         activeOpacity={0.8}
-//         disabled={activeCounter && activeCounter.count >= activeCounter.limit}
-//       >
-//         <View style={styles.counterButtonInner}>
-//           <Text style={styles.counterButtonText}>Tap to Count</Text>
-//         </View>
-//       </TouchableOpacity>
-
-//       {/* Control Buttons */}
-//       <View style={styles.controlsContainer}>
-//         <TouchableOpacity
-//           style={styles.resetButton}
-//           onPress={() => handleReset(activeTab)}
-//         >
-//           <Text style={styles.resetButtonText}>Reset Current</Text>
-//         </TouchableOpacity>
-
-//         <TouchableOpacity
-//           style={[styles.resetButton, styles.resetAllButton]}
-//           onPress={handleResetAll}
-//         >
-//           <Text style={styles.resetButtonText}>Reset All</Text>
-//         </TouchableOpacity>
-//       </View>
-
-//       {/* Total Counter */}
-//       <View style={styles.totalContainer}>
-//         <Text style={styles.totalLabel}>Total Dhikr:</Text>
-//         <Text style={styles.totalCount}>{totalDhikr}</Text>
-//       </View>
-//     </SafeAreaView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#1A3B59',
-//   },
-//   header: {
-//     paddingTop: 20,
-//     paddingBottom: 15,
-//     alignItems: 'center',
-//     borderBottomWidth: 1,
-//     borderBottomColor: 'rgba(255,255,255,0.1)',
-//   },
-//   headerTitle: {
-//     fontSize: 28,
-//     fontWeight: 'bold',
-//     color: '#FFFFFF',
-//     letterSpacing: 1,
-//   },
-//   headerSubtitle: {
-//     fontSize: 14,
-//     color: '#A3CCE6',
-//     marginTop: 5,
-//   },
-//   tabsContainer: {
-//     flexDirection: 'row',
-//     maxHeight: 60,
-//     marginVertical: 15,
-//   },
-//   tabsContent: {
-//     paddingHorizontal: 15,
-//   },
-//   tab: {
-//     paddingHorizontal: 20,
-//     paddingVertical: 10,
-//     marginHorizontal: 5,
-//     borderRadius: 25,
-//     backgroundColor: 'rgba(255,255,255,0.1)',
-//   },
-//   activeTab: {
-//     backgroundColor: '#4A8DB7',
-//   },
-//   tabText: {
-//     color: '#A3CCE6',
-//     fontSize: 14,
-//     fontWeight: '500',
-//   },
-//   activeTabText: {
-//     color: '#FFFFFF',
-//     fontWeight: 'bold',
-//   },
-//   counterCard: {
-//     marginHorizontal: 20,
-//     marginVertical: 20,
-//     padding: 20,
-//     backgroundColor: 'rgba(255,255,255,0.05)',
-//     borderRadius: 20,
-//     alignItems: 'center',
-//     borderWidth: 1,
-//     borderColor: 'rgba(255,255,255,0.1)',
-//   },
-//   progressContainer: {
-//     height: 6,
-//     width: '100%',
-//     backgroundColor: 'rgba(255,255,255,0.1)',
-//     borderRadius: 3,
-//     marginBottom: 20,
-//     overflow: 'hidden',
-//   },
-//   progressBar: {
-//     height: '100%',
-//     backgroundColor: '#66B3CC',
-//     borderRadius: 3,
-//   },
-//   progressComplete: {
-//     backgroundColor: '#66CC8A',
-//   },
-//   arabicText: {
-//     fontSize: 30,
-//     color: '#FFFFFF',
-//     marginBottom: 15,
-//     fontWeight: '300',
-//     textAlign: 'center',
-//   },
-//   counterText: {
-//     fontSize: 70,
-//     fontWeight: 'bold',
-//     color: '#FFFFFF',
-//   },
-//   limitText: {
-//     fontSize: 16,
-//     color: '#A3CCE6',
-//     marginTop: 10,
-//   },
-//   completionText: {
-//     color: '#66CC8A',
-//     fontSize: 16,
-//     fontWeight: 'bold',
-//     marginTop: 15,
-//   },
-//   counterButton: {
-//     alignSelf: 'center',
-//     width: 180,
-//     height: 180,
-//     borderRadius: 90,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: 'rgba(255,255,255,0.1)',
-//     borderWidth: 1,
-//     borderColor: 'rgba(255,255,255,0.2)',
-//     marginVertical: 20,
-//   },
-//   counterButtonInner: {
-//     width: 160,
-//     height: 160,
-//     borderRadius: 80,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: '#66B3CC',
-//   },
-//   counterButtonText: {
-//     color: '#FFFFFF',
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//   },
-//   disabledButton: {
-//     opacity: 0.5,
-//   },
-//   controlsContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     marginTop: 20,
-//   },
-//   resetButton: {
-//     backgroundColor: 'rgba(255,255,255,0.1)',
-//     paddingVertical: 12,
-//     paddingHorizontal: 20,
-//     borderRadius: 10,
-//     marginHorizontal: 10,
-//   },
-//   resetAllButton: {
-//     backgroundColor: 'rgba(239, 83, 80, 0.2)',
-//   },
-//   resetButtonText: {
-//     color: '#FFFFFF',
-//     fontSize: 14,
-//     fontWeight: '500',
-//   },
-//   totalContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginTop: 30,
-//     marginBottom: 20,
-//   },
-//   totalLabel: {
-//     color: '#A3CCE6',
-//     fontSize: 16,
-//     marginRight: 10,
-//   },
-//   totalCount: {
-//     color: '#FFFFFF',
-//     fontSize: 22,
-//     fontWeight: 'bold',
-//   },
-// });
-
-// //! Erweitert
-// import React, { useState, useEffect } from 'react';
-// import { StyleSheet, Text, View, TouchableOpacity, ScrollView, SafeAreaView, StatusBar, Switch } from 'react-native';
-
-// export default function App() {
-//   // Define different dhikr types with their respective limits
-//   const dhikrTypes = [
-//     { id: 1, name: 'Subhanallah', arabicText: 'سُبْحَانَ ٱللَّٰهِ', limit: 33, count: 0 },
-//     { id: 2, name: 'Alhamdulillah', arabicText: 'ٱلْحَمْدُ لِلَّٰهِ', limit: 33, count: 0 },
-//     { id: 3, name: 'Allahu Akbar', arabicText: 'ٱللَّٰهُ أَكْبَرُ', limit: 34, count: 0 },
-//     { id: 4, name: 'La ilaha illallah', arabicText: 'لَا إِلَٰهَ إِلَّا ٱللَّٰهُ', limit: 100, count: 0 },
-//     { id: 5, name: 'Astaghfirullah', arabicText: 'أَسْتَغْفِرُ ٱللَّٰهَ', limit: 100, count: 0 }
-//   ];
-
-//   // Preset sequence definition (34 A, 33 B, 33 C)
-//   const presetSequence = [
-//     { dhikrId: 3, name: 'Allahu Akbar', count: 34 },    // 34 times "A"
-//     { dhikrId: 1, name: 'Subhanallah', count: 33 },     // 33 times "B"
-//     { dhikrId: 2, name: 'Alhamdulillah', count: 33 }    // 33 times "C"
-//   ];
-
-//   const [counters, setCounters] = useState(dhikrTypes);
-//   const [activeTab, setActiveTab] = useState(1);
-//   const [totalDhikr, setTotalDhikr] = useState(0);
-//   const [isPresetMode, setIsPresetMode] = useState(false);
-//   const [currentPresetIndex, setCurrentPresetIndex] = useState(0);
-//   const [sequenceCompleted, setSequenceCompleted] = useState(false);
-
-//   // Handle increment for the active dhikr
-//   const handleIncrement = (id) => {
-//     setCounters(prevCounters =>
-//       prevCounters.map(counter => {
-//         if (counter.id === id && counter.count < counter.limit) {
-//           setTotalDhikr(prev => prev + 1);
-//           return { ...counter, count: counter.count + 1 };
-//         }
-//         return counter;
-//       })
-//     );
-//   };
-
-//   // Handle decrement for the active dhikr
-//   const handleDecrement = (id) => {
-//     setCounters(prevCounters =>
-//       prevCounters.map(counter => {
-//         if (counter.id === id && counter.count > 0) {
-//           setTotalDhikr(prev => prev - 1);
-//           return { ...counter, count: counter.count - 1 };
-//         }
-//         return counter;
-//       })
-//     );
-//   };
-
-//   // Reset the active counter
-//   const handleReset = (id) => {
-//     setCounters(prevCounters =>
-//       prevCounters.map(counter => {
-//         if (counter.id === id) {
-//           setTotalDhikr(prev => prev - counter.count);
-//           return { ...counter, count: 0 };
-//         }
-//         return counter;
-//       })
-//     );
-//   };
-
-//   // Reset all counters
-//   const handleResetAll = () => {
-//     setCounters(counters.map(counter => ({ ...counter, count: 0 })));
-//     setTotalDhikr(0);
-//     setCurrentPresetIndex(0);
-//     setSequenceCompleted(false);
-//   };
-
-//   // Toggle between preset mode and free mode
-//   const toggleMode = () => {
-//     setIsPresetMode(prev => !prev);
-//     // Reset when switching modes
-//     handleResetAll();
-//   };
-
-//   // Get the active counter
-//   const activeCounter = counters.find(counter => counter.id === activeTab);
-
-//   // Calculate percentage for progress indicator
-//   const percentage = activeCounter ? (activeCounter.count / activeCounter.limit) * 100 : 0;
-
-//   // Effect to handle preset sequence progression
-//   useEffect(() => {
-//     if (isPresetMode && !sequenceCompleted) {
-//       const currentPreset = presetSequence[currentPresetIndex];
-//       const currentCounter = counters.find(c => c.id === currentPreset.dhikrId);
-
-//       // Check if current dhikr in sequence is complete
-//       if (currentCounter && currentCounter.count >= currentPreset.count) {
-//         // Move to next dhikr in sequence
-//         if (currentPresetIndex < presetSequence.length - 1) {
-//           setCurrentPresetIndex(prev => prev + 1);
-//           // Set the active tab to the next dhikr in sequence
-//           setActiveTab(presetSequence[currentPresetIndex + 1].dhikrId);
-//         } else {
-//           // Sequence completed
-//           setSequenceCompleted(true);
-//         }
-//       }
-
-//       // Always set active tab to current preset dhikr
-//       if (!sequenceCompleted) {
-//         setActiveTab(currentPreset.dhikrId);
-//       }
-//     }
-//   }, [counters, currentPresetIndex, isPresetMode, sequenceCompleted]);
-
-//   // Function to render preset sequence progress
-//   const renderPresetProgress = () => {
-//     if (!isPresetMode) return null;
-
-//     return (
-//       <View style={styles.presetProgressContainer}>
-//         {presetSequence.map((item, index) => {
-//           const isActive = index === currentPresetIndex;
-//           const isCompleted = index < currentPresetIndex || sequenceCompleted;
-
-//           return (
-//             <View
-//               key={index}
-//               style={[
-//                 styles.presetProgressItem,
-//                 isActive && styles.presetProgressItemActive,
-//                 isCompleted && styles.presetProgressItemCompleted
-//               ]}
-//             >
-//               <Text style={styles.presetProgressText}>
-//                 {item.count}x {item.name.charAt(0)}
-//               </Text>
-//             </View>
-//           );
-//         })}
-//       </View>
-//     );
-//   };
-
-//   return (
-//     <SafeAreaView style={styles.container}>
-//       <StatusBar barStyle="light-content" />
-
-//       {/* Header */}
-//       <View style={styles.header}>
-//         <Text style={styles.headerTitle}>Tasbih</Text>
-//         <Text style={styles.headerSubtitle}>Digital Prayer Counter</Text>
-//       </View>
-
-//       {/* Mode Toggle */}
-//       <View style={styles.modeToggleContainer}>
-//         <Text style={[styles.modeText, !isPresetMode && styles.activeModeText]}>Free Mode</Text>
-//         <Switch
-//           value={isPresetMode}
-//           onValueChange={toggleMode}
-//           thumbColor={isPresetMode ? '#66B3CC' : '#FFFFFF'}
-//           trackColor={{ false: 'rgba(255,255,255,0.3)', true: 'rgba(102,179,204,0.5)' }}
-//         />
-//         <Text style={[styles.modeText, isPresetMode && styles.activeModeText]}>Preset Mode</Text>
-//       </View>
-
-//       {/* Preset Progress Indicator */}
-//       {renderPresetProgress()}
-
-//       {/* Dhikr Selection Tabs - Only show in free mode or if sequence completed */}
-//       {(!isPresetMode || sequenceCompleted) && (
-//         <ScrollView
-//           horizontal
-//           showsHorizontalScrollIndicator={false}
-//           style={styles.tabsContainer}
-//           contentContainerStyle={styles.tabsContent}
-//         >
-//           {counters.map(counter => (
-//             <TouchableOpacity
-//               key={counter.id}
-//               style={[
-//                 styles.tab,
-//                 activeTab === counter.id && styles.activeTab
-//               ]}
-//               onPress={() => setActiveTab(counter.id)}
-//               disabled={isPresetMode && !sequenceCompleted}
-//             >
-//               <Text style={[
-//                 styles.tabText,
-//                 activeTab === counter.id && styles.activeTabText
-//               ]}>
-//                 {counter.name}
-//               </Text>
-//             </TouchableOpacity>
-//           ))}
-//         </ScrollView>
-//       )}
-
-//       {/* Main Counter Card */}
-//       {activeCounter && (
-//         <View style={styles.counterCard}>
-//           {/* Progress Indicator */}
-//           <View style={styles.progressContainer}>
-//             <View
-//               style={[
-//                 styles.progressBar,
-//                 { width: `${percentage}%` },
-//                 percentage >= 100 && styles.progressComplete,
-//               ]}
-//             />
-//           </View>
-
-//           {/* Arabic Text */}
-//           <Text style={styles.arabicText}>{activeCounter.arabicText}</Text>
-
-//           {/* Counter Value */}
-//           <Text style={styles.counterText}>{activeCounter.count}</Text>
-
-//           {/* Limit Indicator */}
-//           <Text style={styles.limitText}>
-//             {isPresetMode && !sequenceCompleted
-//               ? `${activeCounter.count}/${presetSequence[currentPresetIndex].count}`
-//               : `${activeCounter.count}/${activeCounter.limit}`
-//             }
-//           </Text>
-
-//           {/* Completion Message */}
-//           {isPresetMode && sequenceCompleted && (
-//             <Text style={styles.completionText}>
-//               Full sequence completed ✓
-//             </Text>
-//           )}
-//           {!isPresetMode && activeCounter.count >= activeCounter.limit && (
-//             <Text style={styles.completionText}>
-//               {activeCounter.name} complete ✓
-//             </Text>
-//           )}
-//         </View>
-//       )}
-
-//       {/* Counter Buttons */}
-//       <View style={styles.countButtonsContainer}>
-//         {/* Decrement Button - NEW */}
-//         <TouchableOpacity
-//           style={styles.decrementButton}
-//           onPress={() => handleDecrement(activeTab)}
-//           activeOpacity={0.8}
-//           disabled={(activeCounter && activeCounter.count <= 0) || (isPresetMode && sequenceCompleted)}
-//         >
-//           <Text style={styles.decrementButtonText}>-</Text>
-//         </TouchableOpacity>
-
-//         {/* Main Counter Button */}
-//         <TouchableOpacity
-//           style={[
-//             styles.counterButton,
-//             ((activeCounter && activeCounter.count >= activeCounter.limit) ||
-//              (isPresetMode && sequenceCompleted)) && styles.disabledButton
-//           ]}
-//           onPress={() => handleIncrement(activeTab)}
-//           activeOpacity={0.8}
-//           disabled={(activeCounter && activeCounter.count >= activeCounter.limit) ||
-//                    (isPresetMode && sequenceCompleted)}
-//         >
-//           <View style={styles.counterButtonInner}>
-//             <Text style={styles.counterButtonText}>Tap to Count</Text>
-//           </View>
-//         </TouchableOpacity>
-//       </View>
-
-//       {/* Control Buttons */}
-//       <View style={styles.controlsContainer}>
-//         <TouchableOpacity
-//           style={styles.resetButton}
-//           onPress={() => handleReset(activeTab)}
-//           disabled={isPresetMode && !sequenceCompleted}
-//         >
-//           <Text style={styles.resetButtonText}>Reset Current</Text>
-//         </TouchableOpacity>
-
-//         <TouchableOpacity
-//           style={[styles.resetButton, styles.resetAllButton]}
-//           onPress={handleResetAll}
-//         >
-//           <Text style={styles.resetButtonText}>Reset All</Text>
-//         </TouchableOpacity>
-//       </View>
-
-//       {/* Total Counter */}
-//       <View style={styles.totalContainer}>
-//         <Text style={styles.totalLabel}>Total Dhikr:</Text>
-//         <Text style={styles.totalCount}>{totalDhikr}</Text>
-//       </View>
-
-//       {/* Mode Instructions */}
-//       {isPresetMode && !sequenceCompleted && (
-//         <View style={styles.instructionsContainer}>
-//           <Text style={styles.instructionsText}>
-//             Preset Sequence: Complete each dhikr to progress
-//           </Text>
-//         </View>
-//       )}
-//     </SafeAreaView>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#1A3B59',
-//   },
-//   header: {
-//     paddingTop: 20,
-//     paddingBottom: 15,
-//     alignItems: 'center',
-//     borderBottomWidth: 1,
-//     borderBottomColor: 'rgba(255,255,255,0.1)',
-//   },
-//   headerTitle: {
-//     fontSize: 28,
-//     fontWeight: 'bold',
-//     color: '#FFFFFF',
-//     letterSpacing: 1,
-//   },
-//   headerSubtitle: {
-//     fontSize: 14,
-//     color: '#A3CCE6',
-//     marginTop: 5,
-//   },
-//   modeToggleContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     paddingVertical: 10,
-//     marginTop: 5,
-//   },
-//   modeText: {
-//     color: 'rgba(255,255,255,0.6)',
-//     fontSize: 14,
-//     marginHorizontal: 10,
-//   },
-//   activeModeText: {
-//     color: '#FFFFFF',
-//     fontWeight: 'bold',
-//   },
-//   presetProgressContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     marginVertical: 10,
-//     paddingHorizontal: 20,
-//   },
-//   presetProgressItem: {
-//     flex: 1,
-//     padding: 8,
-//     marginHorizontal: 5,
-//     backgroundColor: 'rgba(255,255,255,0.1)',
-//     borderRadius: 8,
-//     alignItems: 'center',
-//   },
-//   presetProgressItemActive: {
-//     backgroundColor: 'rgba(102,179,204,0.5)',
-//     borderWidth: 1,
-//     borderColor: '#66B3CC',
-//   },
-//   presetProgressItemCompleted: {
-//     backgroundColor: 'rgba(102,204,138,0.5)',
-//     borderWidth: 1,
-//     borderColor: '#66CC8A',
-//   },
-//   presetProgressText: {
-//     color: '#FFFFFF',
-//     fontSize: 12,
-//     fontWeight: '500',
-//   },
-//   tabsContainer: {
-//     flexDirection: 'row',
-//     maxHeight: 60,
-//     marginVertical: 15,
-//   },
-//   tabsContent: {
-//     paddingHorizontal: 15,
-//   },
-//   tab: {
-//     paddingHorizontal: 20,
-//     paddingVertical: 10,
-//     marginHorizontal: 5,
-//     borderRadius: 25,
-//     backgroundColor: 'rgba(255,255,255,0.1)',
-//   },
-//   activeTab: {
-//     backgroundColor: '#4A8DB7',
-//   },
-//   tabText: {
-//     color: '#A3CCE6',
-//     fontSize: 14,
-//     fontWeight: '500',
-//   },
-//   activeTabText: {
-//     color: '#FFFFFF',
-//     fontWeight: 'bold',
-//   },
-//   counterCard: {
-//     marginHorizontal: 20,
-//     marginVertical: 15,
-//     padding: 20,
-//     backgroundColor: 'rgba(255,255,255,0.05)',
-//     borderRadius: 20,
-//     alignItems: 'center',
-//     borderWidth: 1,
-//     borderColor: 'rgba(255,255,255,0.1)',
-//   },
-//   progressContainer: {
-//     height: 6,
-//     width: '100%',
-//     backgroundColor: 'rgba(255,255,255,0.1)',
-//     borderRadius: 3,
-//     marginBottom: 20,
-//     overflow: 'hidden',
-//   },
-//   progressBar: {
-//     height: '100%',
-//     backgroundColor: '#66B3CC',
-//     borderRadius: 3,
-//   },
-//   progressComplete: {
-//     backgroundColor: '#66CC8A',
-//   },
-//   arabicText: {
-//     fontSize: 30,
-//     color: '#FFFFFF',
-//     marginBottom: 15,
-//     fontWeight: '300',
-//     textAlign: 'center',
-//   },
-//   counterText: {
-//     fontSize: 70,
-//     fontWeight: 'bold',
-//     color: '#FFFFFF',
-//   },
-//   limitText: {
-//     fontSize: 16,
-//     color: '#A3CCE6',
-//     marginTop: 10,
-//   },
-//   completionText: {
-//     color: '#66CC8A',
-//     fontSize: 16,
-//     fontWeight: 'bold',
-//     marginTop: 15,
-//   },
-//   countButtonsContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     marginVertical: 15,
-//   },
-//   counterButton: {
-//     width: 160,
-//     height: 160,
-//     borderRadius: 80,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: 'rgba(255,255,255,0.1)',
-//     borderWidth: 1,
-//     borderColor: 'rgba(255,255,255,0.2)',
-//   },
-//   counterButtonInner: {
-//     width: 140,
-//     height: 140,
-//     borderRadius: 70,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: '#66B3CC',
-//   },
-//   counterButtonText: {
-//     color: '#FFFFFF',
-//     fontSize: 18,
-//     fontWeight: 'bold',
-//   },
-//   decrementButton: {
-//     width: 60,
-//     height: 60,
-//     borderRadius: 30,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: 'rgba(239, 83, 80, 0.3)',
-//     borderWidth: 1,
-//     borderColor: 'rgba(239, 83, 80, 0.5)',
-//     marginRight: 20,
-//   },
-//   decrementButtonText: {
-//     color: '#FFFFFF',
-//     fontSize: 30,
-//     fontWeight: 'bold',
-//   },
-//   disabledButton: {
-//     opacity: 0.5,
-//   },
-//   controlsContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     marginTop: 15,
-//   },
-//   resetButton: {
-//     backgroundColor: 'rgba(255,255,255,0.1)',
-//     paddingVertical: 12,
-//     paddingHorizontal: 20,
-//     borderRadius: 10,
-//     marginHorizontal: 10,
-//   },
-//   resetAllButton: {
-//     backgroundColor: 'rgba(239, 83, 80, 0.2)',
-//   },
-//   resetButtonText: {
-//     color: '#FFFFFF',
-//     fontSize: 14,
-//     fontWeight: '500',
-//   },
-//   totalContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginTop: 25,
-//     marginBottom: 20,
-//   },
-//   totalLabel: {
-//     color: '#A3CCE6',
-//     fontSize: 16,
-//     marginRight: 10,
-//   },
-//   totalCount: {
-//     color: '#FFFFFF',
-//     fontSize: 22,
-//     fontWeight: 'bold',
-//   },
-//   instructionsContainer: {
-//     alignItems: 'center',
-//     marginBottom: 20,
-//     paddingHorizontal: 20,
-//   },
-//   instructionsText: {
-//     color: 'rgba(255,255,255,0.7)',
-//     fontSize: 14,
-//     textAlign: 'center',
-//   },
-// });
-
 import { Colors } from "@/constants/Colors";
 import { useLanguage } from "@/context/LanguageContext";
 import React, { useState, useEffect, useCallback, useTransition } from "react";
@@ -1198,265 +319,267 @@ export default function App() {
   const { t } = useTranslation();
   return (
     <SafeAreaView
-      style={[styles.container, { backgroundColor: Colors.universal.primary }]}
+      style={{ flex: 1, backgroundColor: Colors.universal.primary }}
       edges={["top"]}
     >
-      {/* Header */}
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerTitle}>{t("tasbih")}</Text>
-      </View>
-
-      {/* Prayer Preset Cards */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.cardsContainer}
-        contentContainerStyle={styles.cardsContent}
-        decelerationRate="fast"
-      >
-        {prayerPresets.map((preset) => {
-          const dhikrInfoMap = Object.fromEntries(
-            initialDhikrTypes.map((d) => [d.id, d])
-          ); // Cache for lookup
-          return (
-            <TouchableOpacity
-              key={preset.id}
-              style={[
-                styles.prayerCard,
-                selectedPresetId === preset.id && styles.selectedPrayerCard,
-              ]}
-              onPress={() => handlePresetChange(preset.id)}
-            >
-              <Text style={styles.prayerCardIcon}>{preset.icon}</Text>
-              <Text style={styles.prayerCardTitle}>{preset.name}</Text>
-              <Text style={styles.prayerCardDescription}>
-                {preset.description}
-              </Text>
-
-              {preset.id !== "free" && (
-                <View style={styles.prayerCardSequence}>
-                  {preset.sequence.map((item, index) => (
-                    <Text key={index} style={styles.prayerCardSequenceItem}>
-                      {item.limit}x {dhikrInfoMap[item.dhikrId]?.name ?? ""}
-                    </Text>
-                  ))}
-                </View>
-              )}
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
-
-      {/* Preset Progress Indicator */}
-      {!isPresetMode || !currentPreset.sequence.length ? null : (
-        <View style={styles.presetProgressContainer}>
-          {currentPreset.sequence.map((item, index) => {
-            const dhikrInfo = initialDhikrTypes.find(
-              (d) => d.id === item.dhikrId
-            );
-            const stepCounter = counters.find((c) => c.id === item.dhikrId);
-            const isStepActive =
-              index === currentPresetIndex && !sequenceCompleted;
-            const isStepCompleted =
-              sequenceCompleted ||
-              index < currentPresetIndex ||
-              (stepCounter && stepCounter.count >= item.limit);
-
-            return (
-              <View
-                key={`${item.dhikrId}-${index}`} // More robust key
-                style={[
-                  styles.presetProgressItem,
-                  isStepActive && styles.presetProgressItemActive,
-                  isStepCompleted && styles.presetProgressItemCompleted,
-                ]}
-              >
-                <Text style={styles.presetProgressText} numberOfLines={1}>
-                  {/* Show current count vs limit for active, else just limit */}
-                  {isStepActive
-                    ? `${stepCounter?.count ?? 0}/${item.limit} `
-                    : `${item.limit}x `}
-                  {dhikrInfo ? dhikrInfo.name.substring(0, 4) : ""}{" "}
-                  {/* Slightly longer abbr */}
-                </Text>
-              </View>
-            );
-          })}
+      <ScrollView style= {styles.container} contentContainerStyle={{flex: 1}}>
+        {/* Header */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerTitle}>{t("tasbih")}</Text>
         </View>
-      )}
 
-      {/* Dhikr Selection Tabs - Only show in free mode */}
-      {showTabs && (
+        {/* Prayer Preset Cards */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={styles.tabsContainer}
-          contentContainerStyle={styles.tabsContent}
+          style={styles.cardsContainer}
+          contentContainerStyle={styles.cardsContent}
+          decelerationRate="fast"
         >
-          {initialDhikrTypes.map((dhikr) => {
-            // Iterate over base types for tabs
-            const counterData = counters.find((c) => c.id === dhikr.id); // Find current count if needed
+          {prayerPresets.map((preset) => {
+            const dhikrInfoMap = Object.fromEntries(
+              initialDhikrTypes.map((d) => [d.id, d])
+            ); // Cache for lookup
             return (
               <TouchableOpacity
-                key={dhikr.id}
+                key={preset.id}
                 style={[
-                  styles.tab,
-                  activeDhikrId === dhikr.id && styles.activeTab,
+                  styles.prayerCard,
+                  selectedPresetId === preset.id && styles.selectedPrayerCard,
                 ]}
-                onPress={() => setActiveDhikrId(dhikr.id)} // Directly set active ID in free mode
+                onPress={() => handlePresetChange(preset.id)}
               >
-                <Text
-                  style={[
-                    styles.tabText,
-                    activeDhikrId === dhikr.id && styles.activeTabText,
-                  ]}
-                >
-                  {dhikr.name}
+                <Text style={styles.prayerCardIcon}>{preset.icon}</Text>
+                <Text style={styles.prayerCardTitle}>{preset.name}</Text>
+                <Text style={styles.prayerCardDescription}>
+                  {preset.description}
                 </Text>
-                {/* Optionally show count on tab: <Text>{counterData?.count}</Text> */}
+
+                {preset.id !== "free" && (
+                  <View style={styles.prayerCardSequence}>
+                    {preset.sequence.map((item, index) => (
+                      <Text key={index} style={styles.prayerCardSequenceItem}>
+                        {item.limit}x {dhikrInfoMap[item.dhikrId]?.name ?? ""}
+                      </Text>
+                    ))}
+                  </View>
+                )}
               </TouchableOpacity>
             );
           })}
         </ScrollView>
-      )}
 
-      {/* Main Counter Card */}
-      {activeCounter && (
-        <View style={styles.counterCard}>
-          {/* Progress Indicator */}
-          <View style={styles.progressContainer}>
-            <View
-              style={[
-                styles.progressBar,
-                { width: `${percentage}%` },
-                percentage >= 100 && !isPresetMode && styles.progressComplete, // Normal complete
-                isPresetMode &&
-                  sequenceCompleted &&
-                  styles.progressSequenceComplete, // Sequence complete
-              ]}
-            />
+        {/* Preset Progress Indicator */}
+        {!isPresetMode || !currentPreset.sequence.length ? null : (
+          <View style={styles.presetProgressContainer}>
+            {currentPreset.sequence.map((item, index) => {
+              const dhikrInfo = initialDhikrTypes.find(
+                (d) => d.id === item.dhikrId
+              );
+              const stepCounter = counters.find((c) => c.id === item.dhikrId);
+              const isStepActive =
+                index === currentPresetIndex && !sequenceCompleted;
+              const isStepCompleted =
+                sequenceCompleted ||
+                index < currentPresetIndex ||
+                (stepCounter && stepCounter.count >= item.limit);
+
+              return (
+                <View
+                  key={`${item.dhikrId}-${index}`} // More robust key
+                  style={[
+                    styles.presetProgressItem,
+                    isStepActive && styles.presetProgressItemActive,
+                    isStepCompleted && styles.presetProgressItemCompleted,
+                  ]}
+                >
+                  <Text style={styles.presetProgressText} numberOfLines={1}>
+                    {/* Show current count vs limit for active, else just limit */}
+                    {isStepActive
+                      ? `${stepCounter?.count ?? 0}/${item.limit} `
+                      : `${item.limit}x `}
+                    {dhikrInfo ? dhikrInfo.name.substring(0, 4) : ""}{" "}
+                    {/* Slightly longer abbr */}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
+        )}
 
-          {/* Arabic Text */}
-          <Text style={styles.arabicText}>{activeCounter.arabicText}</Text>
+        {/* Dhikr Selection Tabs - Only show in free mode */}
+        {showTabs && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.tabsContainer}
+            contentContainerStyle={styles.tabsContent}
+          >
+            {initialDhikrTypes.map((dhikr) => {
+              // Iterate over base types for tabs
+              const counterData = counters.find((c) => c.id === dhikr.id); // Find current count if needed
+              return (
+                <TouchableOpacity
+                  key={dhikr.id}
+                  style={[
+                    styles.tab,
+                    activeDhikrId === dhikr.id && styles.activeTab,
+                  ]}
+                  onPress={() => setActiveDhikrId(dhikr.id)} // Directly set active ID in free mode
+                >
+                  <Text
+                    style={[
+                      styles.tabText,
+                      activeDhikrId === dhikr.id && styles.activeTabText,
+                    ]}
+                  >
+                    {dhikr.name}
+                  </Text>
+                  {/* Optionally show count on tab: <Text>{counterData?.count}</Text> */}
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        )}
 
-          {/* Counter Value */}
-          <Text style={styles.counterText}>{activeCounter.count}</Text>
+        {/* Main Counter Card */}
+        {activeCounter && (
+          <View style={styles.counterCard}>
+            {/* Progress Indicator */}
+            <View style={styles.progressContainer}>
+              <View
+                style={[
+                  styles.progressBar,
+                  { width: `${percentage}%` },
+                  percentage >= 100 && !isPresetMode && styles.progressComplete, // Normal complete
+                  isPresetMode &&
+                    sequenceCompleted &&
+                    styles.progressSequenceComplete, // Sequence complete
+                ]}
+              />
+            </View>
 
-          {/* Limit Indicator */}
-          <Text style={styles.limitText}>
-            {isPresetMode && sequenceCompleted
-              ? "Sequence Complete"
-              : `${activeCounter.count} / ${activeLimit}`}
-          </Text>
+            {/* Arabic Text */}
+            <Text style={styles.arabicText}>{activeCounter.arabicText}</Text>
 
-          {/* Completion Message */}
-          {isPresetMode && sequenceCompleted && (
-            <Text
-              style={[styles.completionText, styles.sequenceCompletionText]}
-            >
-              {currentPreset.name} completed ✓
+            {/* Counter Value */}
+            <Text style={styles.counterText}>{activeCounter.count}</Text>
+
+            {/* Limit Indicator */}
+            <Text style={styles.limitText}>
+              {isPresetMode && sequenceCompleted
+                ? "Sequence Complete"
+                : `${activeCounter.count} / ${activeLimit}`}
             </Text>
-          )}
-          {/* Step completion hint (optional) */}
-          {isPresetMode &&
-            !sequenceCompleted &&
-            isLimitReached &&
-            currentPresetIndex < currentPreset.sequence.length - 1 && (
-              <Text style={styles.stepCompletionText}>
-                Step complete! Next...
+
+            {/* Completion Message */}
+            {isPresetMode && sequenceCompleted && (
+              <Text
+                style={[styles.completionText, styles.sequenceCompletionText]}
+              >
+                {currentPreset.name} completed ✓
               </Text>
             )}
-          {!isPresetMode && isLimitReached && (
-            <Text style={styles.completionText}>
-              {activeCounter.name} complete ✓
-            </Text>
-          )}
-        </View>
-      )}
+            {/* Step completion hint (optional) */}
+            {isPresetMode &&
+              !sequenceCompleted &&
+              isLimitReached &&
+              currentPresetIndex < currentPreset.sequence.length - 1 && (
+                <Text style={styles.stepCompletionText}>
+                  Step complete! Next...
+                </Text>
+              )}
+            {!isPresetMode && isLimitReached && (
+              <Text style={styles.completionText}>
+                {activeCounter.name} complete ✓
+              </Text>
+            )}
+          </View>
+        )}
 
-      {/* Counter Buttons */}
-      <View style={styles.countButtonsContainer}>
-        {/* Decrement Button */}
-        <TouchableOpacity
-          style={[
-            styles.decrementButton,
-            (activeCounter?.count <= 0 ||
-              (isPresetMode && sequenceCompleted)) &&
-              styles.disabledButton, // Disable logic
-          ]}
-          onPress={handleDecrement}
-          activeOpacity={0.7} // Good practice
-          disabled={
-            activeCounter?.count <= 0 || (isPresetMode && sequenceCompleted)
-          }
-        >
-          <Text style={styles.decrementButtonText}>-</Text>
-        </TouchableOpacity>
-
-        {/* Main Counter Button (Increment) */}
-        <TouchableOpacity
-          style={[
-            styles.counterButton,
-            // Disable if limit reached (in free mode OR current step in preset) OR sequence completed
-            ((!isPresetMode && isLimitReached) ||
-              (isPresetMode && !sequenceCompleted && isLimitReached) ||
-              (isPresetMode && sequenceCompleted)) &&
-              styles.disabledButton,
-          ]}
-          onPress={handleIncrement}
-          activeOpacity={0.7} // Good practice
-          disabled={
-            (!isPresetMode && isLimitReached) ||
-            (isPresetMode && !sequenceCompleted && isLimitReached) ||
-            (isPresetMode && sequenceCompleted)
-          }
-        >
-          <View
+        {/* Counter Buttons */}
+        <View style={styles.countButtonsContainer}>
+          {/* Decrement Button */}
+          <TouchableOpacity
             style={[
-              styles.counterButtonInner,
-              // Darken inner button too when disabled
+              styles.decrementButton,
+              (activeCounter?.count <= 0 ||
+                (isPresetMode && sequenceCompleted)) &&
+                styles.disabledButton, // Disable logic
+            ]}
+            onPress={handleDecrement}
+            activeOpacity={0.7} // Good practice
+            disabled={
+              activeCounter?.count <= 0 || (isPresetMode && sequenceCompleted)
+            }
+          >
+            <Text style={styles.decrementButtonText}>-</Text>
+          </TouchableOpacity>
+
+          {/* Main Counter Button (Increment) */}
+          <TouchableOpacity
+            style={[
+              styles.counterButton,
+              // Disable if limit reached (in free mode OR current step in preset) OR sequence completed
               ((!isPresetMode && isLimitReached) ||
                 (isPresetMode && !sequenceCompleted && isLimitReached) ||
-                (isPresetMode && sequenceCompleted)) && {
-                backgroundColor: "#55798C",
-              },
+                (isPresetMode && sequenceCompleted)) &&
+                styles.disabledButton,
             ]}
+            onPress={handleIncrement}
+            activeOpacity={0.7} // Good practice
+            disabled={
+              (!isPresetMode && isLimitReached) ||
+              (isPresetMode && !sequenceCompleted && isLimitReached) ||
+              (isPresetMode && sequenceCompleted)
+            }
           >
-            <Text style={styles.counterButtonText}>Tap</Text>
-          </View>
-        </TouchableOpacity>
-        {/* Placeholder to balance the layout */}
-        <View style={{ width: 60, marginRight: 20 }} />
-      </View>
+            <View
+              style={[
+                styles.counterButtonInner,
+                // Darken inner button too when disabled
+                ((!isPresetMode && isLimitReached) ||
+                  (isPresetMode && !sequenceCompleted && isLimitReached) ||
+                  (isPresetMode && sequenceCompleted)) && {
+                  backgroundColor: "#55798C",
+                },
+              ]}
+            >
+              <Text style={styles.counterButtonText}>Tap</Text>
+            </View>
+          </TouchableOpacity>
+          {/* Placeholder to balance the layout */}
+          <View style={{ width: 60, marginRight: 20 }} />
+        </View>
 
-      {/* Control Buttons */}
-      <View style={styles.controlsContainer}>
-        <TouchableOpacity
-          style={[
-            styles.resetButton,
-            // Disable reset current during active preset
-            isPresetMode && !sequenceCompleted && styles.disabledButton,
-          ]}
-          onPress={handleResetCurrent}
-          disabled={isPresetMode && !sequenceCompleted}
-        >
-          <Text style={styles.resetButtonText}>Reset Current</Text>
-        </TouchableOpacity>
+        {/* Control Buttons */}
+        <View style={styles.controlsContainer}>
+          <TouchableOpacity
+            style={[
+              styles.resetButton,
+              // Disable reset current during active preset
+              isPresetMode && !sequenceCompleted && styles.disabledButton,
+            ]}
+            onPress={handleResetCurrent}
+            disabled={isPresetMode && !sequenceCompleted}
+          >
+            <Text style={styles.resetButtonText}>Reset Current</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.resetButton, styles.resetAllButton]}
-          onPress={handleResetAll} // Reset All always enabled
-        >
-          <Text style={styles.resetButtonText}>Reset All</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={[styles.resetButton, styles.resetAllButton]}
+            onPress={handleResetAll} // Reset All always enabled
+          >
+            <Text style={styles.resetButtonText}>Reset All</Text>
+          </TouchableOpacity>
+        </View>
 
-      {/* Total Counter */}
-      <View style={styles.totalContainer}>
-        <Text style={styles.totalLabel}>Total Dhikr:</Text>
-        <Text style={styles.totalCount}>{totalDhikr}</Text>
-      </View>
+        {/* Total Counter */}
+        <View style={styles.totalContainer}>
+          <Text style={styles.totalLabel}>Total Dhikr:</Text>
+          <Text style={styles.totalCount}>{totalDhikr}</Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -1465,11 +588,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 10,
   },
   headerContainer: {
-    backgroundColor: "red",
     alignItems: "center",
+    marginBottom: 10,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   headerTitle: {
@@ -1479,24 +601,20 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
 
-  cardsContainer: {
-  },
+  cardsContainer: {},
 
   cardsContent: {
-    flex: 1,
-    backgroundColor: "blue"
-
+    paddingVertical: 15,
   },
   prayerCard: {
-    width: 170, 
+    width: 170,
     backgroundColor: "rgba(255,255,255,0.08)",
     borderRadius: 15,
-    padding: 12, 
-    marginHorizontal: 8, 
+    padding: 12,
+    marginHorizontal: 8,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.15)",
-    justifyContent: "space-between", // Distribute content vertically
-    minHeight: 160, 
+    minHeight: 160,
   },
   selectedPrayerCard: {
     backgroundColor: "rgba(102,179,204,0.2)",
@@ -1572,7 +690,6 @@ const styles = StyleSheet.create({
     marginVertical: 5, // Reduced margin
   },
   tabsContent: {
-    flex: 1,
     paddingHorizontal: 15,
     alignItems: "center", // Center tabs vertically
   },
@@ -1606,18 +723,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.1)",
-    minHeight: 200, // Minimum height
   },
   progressContainer: {
     position: "absolute", // Position progress bar at the top
     top: 0,
     left: 0,
     right: 0,
-    height: 8, // Thicker bar
+    height: 2, // Thicker bar
     backgroundColor: "rgba(255,255,255,0.1)",
-    borderTopLeftRadius: 20, // Match card radius
-    borderTopRightRadius: 20,
-    overflow: "hidden",
+    marginHorizontal: 10
   },
   progressBar: {
     height: "100%",
@@ -1668,7 +782,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center", // Center buttons horizontally
-    paddingHorizontal: 20, // Padding on sides
+    paddingHorizontal: 200, // Padding on sides
     marginVertical: 15,
   },
   counterButton: {
