@@ -13,6 +13,7 @@ import {
   FavoritePrayer,
   PrayerTranslation,
   PrayerWithTranslations,
+  DailyPrayer,
 } from "./types";
 import Toast from "react-native-toast-message";
 import i18n from "./i18n";
@@ -184,6 +185,22 @@ export const createTables = async () => {
         paypal_link TEXT NOT NULL,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
+
+      CREATE TABLE IF NOT EXISTS daily_prayers (
+        id INTEGER PRIMARY KEY,
+        title TEXT NOT NULL,
+        transliteration TEXT NOT NULL,
+        arabic_text TEXT,
+        german_text TEXT,
+        english_text TEXT,
+        category_id INTEGER NOT NULL,
+        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+      );
+
+      CREATE TABLE IF NOT EXISTS daily_or_monthly (
+        id INTEGER PRIMARY KEY,  -- primary key added for replace functionality
+        monthly INTEGER NOT NULL
+      );
     `);
     console.log("All tables created successfully");
   } catch (error) {
@@ -217,6 +234,9 @@ const fetchAndSyncAllData = async () => {
     await fetchAndSyncPrayerTranslations();
     await fetchAndSyncLanguages();
     await fetchPayPalLink();
+    await fetchDailyPrayersBool();
+    await fetchDailyPrayers();
+
     console.log("All data synced successfully");
   } catch (error) {
     console.error("Error syncing data:", error);
@@ -469,6 +489,79 @@ const fetchPayPalLink = async () => {
       !error.message.includes("database is locked")
     ) {
       console.error("Error in fetchPayPalLink:", error);
+    }
+    throw error;
+  }
+};
+const fetchDailyPrayersBool = async () => {
+  try {
+    const { data, error } = await supabase
+      .from("daily_or_monthly")
+      .select("monthly")
+      .single();
+
+    if (error) {
+      console.error("Error fetching monthly:", error);
+      return;
+    }
+
+    if (data) {
+      const db = await getDatabase();
+      // Convert boolean to integer (1 for true, 0 for false)
+      const monthlyValue = data.monthly ? 1 : 0;
+      // Assuming id = 1 for a single row; adjust as needed
+      await db.runAsync(
+        "INSERT OR REPLACE INTO daily_or_monthly (id, monthly) VALUES (?, ?);",
+        [1, monthlyValue]
+      );
+    } else {
+      console.warn("No monthly found in Supabase.");
+    }
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      !error.message.includes("database is locked")
+    ) {
+      console.error("Error in fetchDailyPrayersBool:", error);
+    }
+    throw error;
+  }
+};
+const fetchDailyPrayers = async () => {
+  try {
+    const { data, error } = await supabase.from("daily_prayers").select("*");
+
+    if (error) {
+      console.error("Error fetching daily_prayers:", error);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      const db = await getDatabase();
+      // Loop through each prayer and insert it
+      for (const prayer of data) {
+        await db.runAsync(
+          "INSERT OR REPLACE INTO daily_prayers (id, title, transliteration, arabic_text, german_text, english_text, category_id) VALUES (?, ?, ?, ?, ?, ?, ?);",
+          [
+            prayer.id,
+            prayer.title,
+            prayer.transliteration,
+            prayer.arabic_text,
+            prayer.german_text,
+            prayer.english_text,
+            prayer.category_id,
+          ]
+        );
+      }
+    } else {
+      console.warn("No daily_prayers found in Supabase.");
+    }
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      !error.message.includes("database is locked")
+    ) {
+      console.error("Error in fetchDailyPrayers:", error);
     }
     throw error;
   }
@@ -990,7 +1083,9 @@ export const searchPrayers = async (
   language: string
 ): Promise<PrayerWithCategory[]> => {
   try {
-    const normalizedSearchTerm = searchTerm.normalize("NFC").replace(/[\u0300-\u036f]/g, "");;
+    const normalizedSearchTerm = searchTerm
+      .normalize("NFC")
+      .replace(/[\u0300-\u036f]/g, "");
     const db = await getDatabase();
     const query = `
       SELECT 
@@ -1015,7 +1110,7 @@ export const searchPrayers = async (
       `%${searchTerm.normalize()}%`,
       language,
     ]);
-    console.log(searchTerm)
+    console.log(searchTerm);
     return rows;
   } catch (error) {
     console.error("Error searching prayers:", error);
@@ -1104,5 +1199,61 @@ export const getLanguages = async (): Promise<string[]> => {
       text2: i18n.t("toast.languagesLoadError"),
     });
     return [];
+  }
+};
+
+export const isMonthlyTrue = async (): Promise<boolean> => {
+  try {
+    const db = await getDatabase();
+    // Assuming the monthly flag is stored with id = 1.
+    const row = await db.getFirstAsync<{ monthly: number }>(
+      "SELECT monthly FROM daily_or_monthly WHERE id = 1;"
+    );
+    if (row) {
+      // Convert the stored integer (1 for true, 0 for false) to a boolean.
+      return row.monthly === 1;
+    }
+    // Default to false if no row is found.
+    return false;
+  } catch (error) {
+    console.error("Error checking monthly flag:", error);
+    return false;
+  }
+};
+
+export const getDailyPrayerForToday = async (): Promise<DailyPrayer | null> => {
+  try {
+    const day = new Date().getDay();
+    // Convert from Sunday (0) - Saturday (6) to Monday (0) - Sunday (6)
+    let currentDayIndex = day === 0 ? 6 : day - 1;
+
+    // Check whether we are in monthly mode (true) or weekly mode (false)
+    const monthly = await isMonthlyTrue();
+    const db = await getDatabase();
+
+    // Updated query: join daily_prayers (alias dp) with categories (alias c)
+    const prayers: DailyPrayer[] = await db.getAllAsync(
+      `SELECT dp.*, c.title AS category_title
+       FROM daily_prayers dp
+       JOIN categories c ON dp.category_id = c.id
+       ORDER BY dp.id ASC;`
+    );
+    if (!prayers || prayers.length === 0) {
+      console.warn("No daily prayers found in the database.");
+      return null;
+    }
+
+    // Determine the index based on mode:
+    // - Monthly: use the day of the month (getDate returns 1-31; subtract 1 for zero-index)
+    // - Weekly: use the day of week from currentDayIndex (0-6)
+    let index: number = monthly ? new Date().getDate() - 1 : currentDayIndex;
+
+    // Wrap around if index exceeds number of prayers.
+    index = index % prayers.length;
+
+    return prayers[index];
+  } catch (error) {
+    console.error("Error fetching daily prayer for today:", error);
+    return null;
   }
 };

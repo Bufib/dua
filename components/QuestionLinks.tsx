@@ -28,9 +28,14 @@ import {
   PrayerData,
   PrayersByLanguage,
   PrayerWithCategory,
+  DailyPrayer,
 } from "@/utils/types";
 import { ThemedView } from "./ThemedView";
-import { getRandomPrayerWithCategory } from "@/utils/initializeDatabase";
+import {
+  getDailyPrayerForToday,
+  getRandomPrayerWithCategory,
+  isMonthlyTrue,
+} from "@/utils/initializeDatabase";
 
 // Storage key for weekly calendar todos
 const WEEKLY_TODOS_STORAGE_KEY = "prayer_app_weekly_todos";
@@ -44,9 +49,7 @@ const HomeScreen = () => {
   const [newTodo, setNewTodo] = useState<string>("");
   const [addModalVisible, setAddModalVisible] = useState<boolean>(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
-  const [randomPrayer, setRandomPrayer] = useState<PrayerWithCategory | null>(
-    null
-  );
+  const [dailyPrayer, setDailyPrayer] = useState<DailyPrayer | null>(null);
   const [todoToDelete, setTodoToDelete] = useState<TodoToDelete>({
     dayIndex: null,
     todoId: null,
@@ -101,17 +104,17 @@ const HomeScreen = () => {
     },
   ];
 
-  // Fetch a random prayer (with category and language-specific details) when the language changes.
+  // Fetch daily prayer based on monthly vs. weekly mode
   useEffect(() => {
-    const fetchRandomPrayer = async () => {
+    const fetchDailyPrayer = async () => {
       try {
-        const prayer = await getRandomPrayerWithCategory(language);
-        setRandomPrayer(prayer);
+        const prayer = await getDailyPrayerForToday();
+        setDailyPrayer(prayer);
       } catch (error) {
-        console.error("Error fetching random prayer:", error);
+        console.error("Error fetching daily prayer:", error);
       }
     };
-    fetchRandomPrayer();
+    fetchDailyPrayer();
   }, [language]);
 
   // Default prayers for each day in multiple languages
@@ -339,18 +342,21 @@ const HomeScreen = () => {
             </ThemedText>
             <View style={styles.prayerCategory}>
               <ThemedText style={styles.categoryText}>
-                {randomPrayer?.category_title}
+                {t(`dailyPrayer?.category_title`)}
               </ThemedText>
             </View>
           </View>
           <ThemedText style={[styles.prayerTitle]}>
+            {dailyPrayer?.title}
+          </ThemedText>
+          <ThemedText style={[styles.prayerText]} numberOfLines={1}>
             {language === "AR"
-              ? randomPrayer?.arabic_title
-              : randomPrayer?.name}
+              ? dailyPrayer?.arabic_text
+              : language === "EN"
+              ? dailyPrayer?.english_text
+              : dailyPrayer?.german_text}
           </ThemedText>
-          <ThemedText style={[styles.prayerText]}>
-            {randomPrayer?.prayer_text}
-          </ThemedText>
+
           <TouchableOpacity
             style={[
               styles.readMoreButton,
@@ -387,12 +393,12 @@ const HomeScreen = () => {
                     ? {
                         pathname: "/(tabs)/home/tasbih",
                         params: { category: category.value },
-                      } :
-                       category.value === "Names" ? 
-                       {
+                      }
+                    : category.value === "Names"
+                    ? {
                         pathname: "/(tabs)/home/names",
                         params: { category: category.value },
-                       }
+                      }
                     : {
                         pathname: "/(tabs)/home/(category)/[category]",
                         params: { category: category.value },
@@ -832,7 +838,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "500",
     textAlign: "center",
-    lineHeight: 15
+    lineHeight: 15,
   },
   // Calendar Section
   calendarSection: {

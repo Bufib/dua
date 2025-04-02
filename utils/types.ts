@@ -158,7 +158,7 @@ export type CategoryItem = {
   id: number;
   title: string;
   image: any;
-  value: string
+  value: string;
 };
 
 export type PrayerData = {
@@ -173,3 +173,14 @@ export type PrayersByLanguage = {
 export interface PrayerWithTranslations extends PrayerType {
   translations: PrayerTranslation[];
 }
+
+export type DailyPrayer = {
+  id: number;
+  title: string;
+  created_at: string;
+  arabic_text?: string;
+  german_text?: string;
+  english_text?: string;
+  category_id: number;
+  category_title?: string; // new property
+};
