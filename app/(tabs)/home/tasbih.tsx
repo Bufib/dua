@@ -194,10 +194,37 @@ export default function App() {
     sequenceCompleted,
   ]);
 
-  const handleResetCurrent = useCallback(() => {
-    if (isPresetMode && !sequenceCompleted) return;
-    if (!activeCounter) return;
+  // const handleResetCurrent = useCallback(() => {
+  //   if (!activeCounter) return;
 
+  //   setCounters((prevCounters) =>
+  //     prevCounters.map((counter) => {
+  //       if (counter.id === activeDhikrId) {
+  //         setTotalDhikr((prev) => prev - (counter.count || 0));
+  //         return { ...counter, count: 0 };
+  //       }
+  //       return counter;
+  //     })
+  //   );
+  // }, [activeCounter, activeDhikrId]);
+
+
+  const handleResetCurrent = useCallback(() => {
+    if (!activeCounter) return;
+  
+    // If using a preset, adjust the sequence state to maintain progression
+    if (isPresetMode) {
+      // If the sequence is complete, or if you want to allow a mid-sequence reset,
+      // reset the progression. Here we’re resetting the entire sequence back to stage 0.
+      if (sequenceCompleted) {
+        setSequenceCompleted(false);
+        setCurrentPresetIndex(0);
+      }
+      // (Optional) If you want to reset subsequent stages’ counts as well,
+      // you can loop over currentPreset.sequence and reset each corresponding counter.
+    }
+  
+    // Reset the active counter regardless of mode
     setCounters((prevCounters) =>
       prevCounters.map((counter) => {
         if (counter.id === activeDhikrId) {
@@ -209,6 +236,7 @@ export default function App() {
     );
   }, [activeCounter, activeDhikrId, isPresetMode, sequenceCompleted]);
 
+  
   const handleResetAll = useCallback(() => {
     setCounters(getInitialCountersState());
     setTotalDhikr(0);
@@ -345,12 +373,15 @@ export default function App() {
                 {preset.id !== "free" && (
                   <View style={styles.prayerCardSequence}>
                     {preset.sequence.map((item, index) => (
-                      <Text key={index} style={styles.prayerCardSequenceItem}>
+                      <ThemedText
+                        key={index}
+                        style={styles.prayerCardSequenceItem}
+                      >
                         {item.limit}x{" "}
                         {dhikrInfoMap[item.dhikrId]
                           ? dhikrInfoMap[item.dhikrId].name
                           : ""}
-                      </Text>
+                      </ThemedText>
                     ))}
                   </View>
                 )}
@@ -494,7 +525,7 @@ export default function App() {
               <Text
                 style={[styles.completionText, styles.sequenceCompletionText]}
               >
-                {currentPreset.name} completed ✓
+                {currentPreset.name} {t("completedText")}
               </Text>
             )}
             {isPresetMode &&
@@ -567,12 +598,9 @@ export default function App() {
         {/* Control Buttons */}
         <View style={styles.controlsContainer}>
           <TouchableOpacity
-            style={[
-              styles.resetButton,
-              isPresetMode && !sequenceCompleted && styles.disabledButton,
-            ]}
+            style={[styles.resetButton, totalDhikr === 0 && styles.disabledButton]}
             onPress={handleResetCurrent}
-            disabled={isPresetMode && !sequenceCompleted}
+            disabled={totalDhikr === 0} 
           >
             <Text style={styles.resetButtonText}>{t("resetCurrent")}</Text>
           </TouchableOpacity>
