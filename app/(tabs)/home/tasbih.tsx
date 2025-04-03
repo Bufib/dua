@@ -670,7 +670,7 @@ const styles = StyleSheet.create({
   },
   prayerCardDescription: {
     fontSize: 12,
-    marginBottom: 8,
+    marginBottom: 1,
     flexShrink: 1,
   },
   prayerCardSequence: {
@@ -682,6 +682,7 @@ const styles = StyleSheet.create({
   prayerCardSequenceItem: {
     fontSize: 11,
     marginVertical: 1,
+    
   },
   presetProgressContainer: {},
   presetProgressItem: {
