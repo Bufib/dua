@@ -17,38 +17,38 @@ import { ThemedText } from "@/components/ThemedText";
 const initialDhikrTypes = Object.freeze([
   {
     id: 0,
-    name: "Free",
-    arabicText: "سُبْحَانَ ٱللَّٰهِ",
+    name: `${i18n.t("dhikrFree")}`,
+    arabicText: "",
     defaultLimit: 100,
   },
   {
     id: 1,
     name: "Subhanallah",
-    arabicText: "سُبْحَانَ ٱللَّٰهِ",
+    arabicText: `${i18n.t("dhikrSubhanallah")}`,
     defaultLimit: 100,
   },
   {
     id: 2,
     name: "Alhamdulillah",
-    arabicText: "ٱلْحَمْدُ لِلَّٰهِ",
+    arabicText: `${i18n.t("dhikrAlhamdulillah")}`,
     defaultLimit: 100,
   },
   {
     id: 3,
     name: "Allahu Akbar",
-    arabicText: "ٱللَّٰهُ أَكْبَرُ",
+    arabicText: `${i18n.t("dhikrAllahuAkbar")}`,
     defaultLimit: 100,
   },
   {
     id: 4,
     name: "La ilaha illallah",
-    arabicText: "لَا إِلَٰهَ إِلَّا ٱللَّٰهُ",
+    arabicText: `${i18n.t("dhikrLaIlahaIllallah")}`,
     defaultLimit: 100,
   },
   {
     id: 5,
     name: "Astaghfirullah",
-    arabicText: "أَسْتَغْفِرُ ٱللَّٰهَ",
+    arabicText: `${i18n.t("dhikrAstaghfirullah")}`,
     defaultLimit: 100,
   },
 ]);
@@ -208,10 +208,9 @@ export default function App() {
   //   );
   // }, [activeCounter, activeDhikrId]);
 
-
   const handleResetCurrent = useCallback(() => {
     if (!activeCounter) return;
-  
+
     // If using a preset, adjust the sequence state to maintain progression
     if (isPresetMode) {
       // If the sequence is complete, or if you want to allow a mid-sequence reset,
@@ -223,7 +222,7 @@ export default function App() {
       // (Optional) If you want to reset subsequent stages’ counts as well,
       // you can loop over currentPreset.sequence and reset each corresponding counter.
     }
-  
+
     // Reset the active counter regardless of mode
     setCounters((prevCounters) =>
       prevCounters.map((counter) => {
@@ -236,7 +235,6 @@ export default function App() {
     );
   }, [activeCounter, activeDhikrId, isPresetMode, sequenceCompleted]);
 
-  
   const handleResetAll = useCallback(() => {
     setCounters(getInitialCountersState());
     setTotalDhikr(0);
@@ -311,9 +309,10 @@ export default function App() {
   // --- UI Rendering ---
 
   const percentage =
-    activeCounter && activeLimit > 0
-      ? (activeCounter.count / activeLimit) * 100
-      : 0;
+  activeCounter && activeLimit > 0
+    ? Math.min((activeCounter.count / activeLimit) * 100, 100)
+    : 0;
+
 
   const showTabs = selectedPresetId === "free";
 
@@ -356,7 +355,11 @@ export default function App() {
                 style={[
                   styles.prayerCard,
                   selectedPresetId === preset.id && styles.selectedPrayerCard,
-                  { backgroundColor: Colors[colorScheme].contrast },
+                  {
+                    backgroundColor: Colors[colorScheme].contrast,
+                    shadowColor: Colors[colorScheme].shadowColor,
+                    borderColor: Colors[colorScheme].border,
+                  },
                 ]}
                 onPress={() => handlePresetChange(preset.id)}
               >
@@ -494,7 +497,10 @@ export default function App() {
           <View
             style={[
               styles.counterCard,
-              { backgroundColor: Colors[colorScheme].contrast },
+              {
+                backgroundColor: Colors[colorScheme].contrast,
+                borderColor: Colors[colorScheme].border,
+              },
             ]}
           >
             <View style={styles.progressContainer}>
@@ -503,7 +509,6 @@ export default function App() {
                   styles.progressBar,
                   { width: `${percentage}%` },
                   percentage >= 100 && !isPresetMode && styles.progressComplete,
-                  { width: "100%" },
                   isPresetMode &&
                     sequenceCompleted &&
                     styles.progressSequenceComplete,
@@ -598,9 +603,12 @@ export default function App() {
         {/* Control Buttons */}
         <View style={styles.controlsContainer}>
           <TouchableOpacity
-            style={[styles.resetButton, totalDhikr === 0 && styles.disabledButton]}
+            style={[
+              styles.resetButton,
+              totalDhikr === 0 && styles.disabledButton,
+            ]}
             onPress={handleResetCurrent}
-            disabled={totalDhikr === 0} 
+            disabled={totalDhikr === 0}
           >
             <Text style={styles.resetButtonText}>{t("resetCurrent")}</Text>
           </TouchableOpacity>
@@ -642,12 +650,11 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 12,
     marginHorizontal: 8,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255, 0.5)",
+    borderWidth: 0.2,
   },
   selectedPrayerCard: {
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.5,
     shadowRadius: 4,
     elevation: 5,
   },
@@ -755,20 +762,19 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.1)",
   },
   progressContainer: {
     position: "absolute",
-    top: 0,
+    top: -5,
     left: 0,
     right: 0,
-    height: 2,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    marginHorizontal: 10,
+    height: 5,
+    marginHorizontal: 12,
   },
   progressBar: {
     height: "100%",
     backgroundColor: Colors.universal.primary,
+    borderRadius: 99,
   },
   progressComplete: {
     backgroundColor: "#66CC8A",
@@ -778,6 +784,7 @@ const styles = StyleSheet.create({
   },
   arabicText: {
     fontSize: 32,
+    lineHeight: 30,
     marginBottom: 10,
     fontWeight: "300",
     textAlign: "center",
