@@ -190,7 +190,7 @@ export default function CategoryScreen() {
             <Ionicons
               name={getCategoryIcon(category)}
               size={24}
-              color={colorScheme === "dark" ? "#90cdf4" : "#3b82f6"}
+              color={Colors.universal.primary}
             />
           </View>
           <ThemedText style={[styles.header, isRTL && { textAlign: "right" }]}>
@@ -242,8 +242,7 @@ export default function CategoryScreen() {
                       borderColor: Colors[colorScheme].border,
                     },
                     selectedSubcategory?.id === cat.id && {
-                      backgroundColor:
-                        colorScheme === "dark" ? "#3b82f6" : "#dbeafe",
+                      backgroundColor: Colors.universal.primary,
                       borderWidth: 1,
                       borderColor: Colors[colorScheme].border,
                     },
@@ -255,12 +254,12 @@ export default function CategoryScreen() {
                       styles.chipText,
                       selectedSubcategory?.id === cat.id
                         ? {
-                            color: colorScheme === "dark" ? "#fff" : "#3b82f6",
+                            color: "#fff",
                             fontWeight: "600",
                           }
                         : {
                             color:
-                              colorScheme === "dark" ? "#e2e8f0" : "#334155",
+                              colorScheme === "dark" ? "#fff" : "#000",
                           },
                     ]}
                   >
@@ -354,7 +353,7 @@ export default function CategoryScreen() {
                     <Ionicons
                       name={isRTL ? "chevron-back" : "chevron-forward"}
                       size={16}
-                      color={colorScheme === "dark" ? "#90cdf4" : "#3b82f6"}
+                      color={Colors.universal.secondary}
                     />
                   </View>
                 </TouchableOpacity>

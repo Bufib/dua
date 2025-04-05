@@ -89,20 +89,9 @@ export type PrayerWithTranslations = PrayerType & {
 };
 
 // Other types that build on PrayerType (often from join queries)
-export type PrayerWithCategory = {
-  id: number;
-  category_id: number;
+export type PrayerWithCategory = PrayerType & PrayerTranslation & {
   category_title: string;
-  name?: string | null;
-  arabic_title?: string | null;
-  created_at?: string;
-  updated_at?: string;
-  translated_languages: string[];
-  arabic_text?: string | null;
-  arabic_notes?: string | null;
-  transliteration_text?: string | null;
-  source?: string | null;
-  arabic_introduction?: string | null;
+  prayer_text: string
 };
 
 export type FavoritePrayer = PrayerType & {

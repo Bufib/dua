@@ -78,7 +78,7 @@ export default function PrayerSearch() {
       try {
         const results = await searchPrayers(term, language);
         setSearchResults(results);
-
+        console.log(results);
         // Add to search history if there are results
         if (results.length > 0) {
           addToSearchHistory(term);
@@ -235,7 +235,6 @@ export default function PrayerSearch() {
             pathname: "/[prayer]",
             params: {
               prayerId: item.id.toString(),
-              prayerTitle: item.name,
             },
           })
         }
@@ -243,13 +242,28 @@ export default function PrayerSearch() {
           { transform: [{ scale: pressed ? 0.98 : 1 }] },
         ]}
       >
-        <ThemedView style={styles.resultCard}>
+        <View
+          style={[
+            styles.resultCard,
+            { backgroundColor: Colors[colorScheme].contrast },
+          ]}
+        >
           <View style={styles.cardHeader}>
-            <View style={styles.categoryTag}>
+            <View
+              style={[
+                styles.categoryTag,
+                {
+                  backgroundColor:
+                    colorScheme === "dark"
+                      ? "rgba(5, 121, 88, 0.8)"
+                      : "rgba(5, 121, 88, 0.3)",
+                },
+              ]}
+            >
               <Ionicons
                 name="folder-outline"
                 size={14}
-                color={Colors[colorScheme].prayerHeaderBackground}
+                color={Colors[colorScheme].iconDefault}
               />
               <ThemedText style={styles.categoryText}>
                 {item.category_title}
@@ -258,12 +272,13 @@ export default function PrayerSearch() {
           </View>
 
           <View style={styles.cardContent}>
+            <ThemedText style={styles.prayerTitle}>{item.name}</ThemedText>
             {item.arabic_title && (
               <ThemedText style={styles.arabicTitle}>
                 {item.arabic_title}
               </ThemedText>
             )}
-            <ThemedText style={styles.prayerTitle}>{item.name}</ThemedText>
+
             {item.prayer_text && (
               <ThemedText
                 style={styles.previewText}
@@ -283,7 +298,7 @@ export default function PrayerSearch() {
               color={Colors[colorScheme].prayerHeaderBackground}
             />
           </View>
-        </ThemedView>
+        </View>
       </Pressable>
     </Animated.View>
   );
@@ -359,7 +374,7 @@ export default function PrayerSearch() {
           <Ionicons
             name="alert-circle-outline"
             size={48}
-            color={Colors[colorScheme].error}
+            color={Colors.universal.error}
           />
           <ThemedText style={styles.errorText}>{error}</ThemedText>
         </View>
@@ -503,12 +518,10 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 12,
-    backgroundColor: "rgba(5, 121, 88, 0.1)",
   },
   categoryText: {
     fontSize: 12,
     marginLeft: 4,
-    color: "rgba(5, 121, 88, 1)",
     fontWeight: "500",
   },
   cardContent: {
@@ -544,7 +557,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginRight: 4,
-    color: "rgba(5, 121, 88, 1)",
+    color: Colors.universal.secondary,
   },
   emptyResultsContainer: {
     flex: 1,

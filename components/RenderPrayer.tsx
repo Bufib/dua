@@ -302,13 +302,13 @@ const RenderPrayer = () => {
         <View style={styles.headerContent}>
           <View style={styles.titleContainer}>
             <Text
-              style={[styles.title, { fontSize: fontSize * 0.7 }]}
+              style={[styles.title, { fontSize: fontSize * 0.9 }]}
               numberOfLines={1}
             >
               {prayers?.name} ({indices.length} {t("lines")})
             </Text>
             <Text
-              style={[styles.arabicTitle, { fontSize: fontSize * 0.7 }]}
+              style={[styles.arabicTitle, { fontSize: fontSize * 0.9 }]}
               numberOfLines={1}
             >
               {prayers?.arabic_title}
@@ -380,8 +380,8 @@ const RenderPrayer = () => {
                       body: {
                         ...styles.introText,
                         color: Colors[colorScheme].text,
-                        fontSize: fontSize * 0.75,
-                        lineHeight: lineHeight * 0.75,
+                        fontSize: fontSize * 0.9,
+                        lineHeight: lineHeight * 0.9,
                       },
                     }}
                   >
@@ -631,6 +631,7 @@ const styles = StyleSheet.create({
   titleContainer: {
     flex: 1,
     marginRight: 16,
+    gap: 10
   },
   title: {
     fontSize: 20,
