@@ -2664,14 +2664,9 @@ export const createTables = async () => {
     
       CREATE TABLE IF NOT EXISTS daily_prayers (
         id INTEGER PRIMARY KEY,
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP,  -- added to match Supabase
-        title TEXT NOT NULL,
-        transliteration TEXT NOT NULL,
-        arabic_text TEXT NOT NULL,
-        german_text TEXT NOT NULL,
-        english_text TEXT NOT NULL,
-        category_id INTEGER NOT NULL,
-        FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,  
+        prayer_id INTEGER NOT NULL,
+        FOREIGN KEY (prayer_id) REFERENCES prayers(id) ON DELETE CASCADE
       );
     
       CREATE TABLE IF NOT EXISTS daily_or_monthly (
@@ -2997,20 +2992,11 @@ const fetchDailyPrayers = async () => {
 
     if (data && data.length > 0) {
       const db = await getDatabase();
-      // Loop through each daily prayer and insert it
-      for (const prayer of data) {
+      // Loop through each daily prayer record and insert the reference (prayer_id)
+      for (const dailyPrayer of data) {
         await db.runAsync(
-          "INSERT OR REPLACE INTO daily_prayers (id, created_at, title, transliteration, arabic_text, german_text, english_text, category_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
-          [
-            prayer.id,
-            prayer.created_at,
-            prayer.title,
-            prayer.transliteration,
-            prayer.arabic_text,
-            prayer.german_text,
-            prayer.english_text,
-            prayer.category_id,
-          ]
+          "INSERT OR REPLACE INTO daily_prayers (id, created_at, prayer_id) VALUES (?, ?, ?);",
+          [dailyPrayer.id, dailyPrayer.created_at, dailyPrayer.prayer_id]
         );
       }
     } else {
@@ -3260,7 +3246,10 @@ export const getChildCategories = async (
     return allCategories.filter((cat) => {
       if (!cat.parent_id) return false;
       try {
-        const parentIds: number[] = JSON.parse(cat.parent_id);
+        const parentIds: number[] =
+          typeof cat.parent_id === "string"
+            ? JSON.parse(cat.parent_id)
+            : cat.parent_id;
         return Array.isArray(parentIds) && parentIds.includes(parentId);
       } catch (error) {
         console.error(`Error parsing parent_id for category ${cat.id}`, error);
@@ -3651,29 +3640,38 @@ export const isMonthlyTrue = async (): Promise<boolean> => {
 export const getDailyPrayerForToday = async (): Promise<DailyPrayer | null> => {
   try {
     const day = new Date().getDay();
-    // Convert from Sunday (0) - Saturday (6) to Monday (0) - Sunday (6)
+    // Convert Sunday (0) to Saturday (6) and others (Monday becomes 0, etc.)
     let currentDayIndex = day === 0 ? 6 : day - 1;
-    // Check whether we are in monthly mode (true) or weekly mode (false)
+    // Check if we are in monthly mode or weekly mode
     const monthly = await isMonthlyTrue();
     const db = await getDatabase();
-    // Join daily_prayers (alias dp) with categories (alias c)
-    const prayers: DailyPrayer[] = await db.getAllAsync(
-      `SELECT dp.*, c.title AS category_title
+
+    // Join daily_prayers with prayers (and categories for extra details)
+    const dailyPrayers: DailyPrayer[] = await db.getAllAsync(
+      `SELECT dp.*, 
+              p.name, 
+              p.arabic_title, 
+              p.category_id, 
+              c.title AS category_title, 
+              p.created_at AS prayer_created_at, 
+              p.updated_at AS prayer_updated_at
        FROM daily_prayers dp
-       JOIN categories c ON dp.category_id = c.id
+       JOIN prayers p ON dp.prayer_id = p.id
+       JOIN categories c ON p.category_id = c.id
        ORDER BY dp.id ASC;`
     );
-    if (!prayers || prayers.length === 0) {
+
+    if (!dailyPrayers || dailyPrayers.length === 0) {
       console.warn("No daily prayers found in the database.");
       return null;
     }
-    // Determine the index based on mode:
-    // - Monthly: use the day of the month (getDate returns 1-31; subtract 1 for zero-index)
-    // - Weekly: use the day of week from currentDayIndex (0-6)
+
+    // Choose the prayer based on mode:
+    // - Monthly: use the day of the month (1-31, subtract 1 for zero-based index)
+    // - Weekly: use the day of week (0-6)
     let index: number = monthly ? new Date().getDate() - 1 : currentDayIndex;
-    // Wrap around if index exceeds number of prayers.
-    index = index % prayers.length;
-    return prayers[index];
+    index = index % dailyPrayers.length;
+    return dailyPrayers[index];
   } catch (error) {
     console.error("Error fetching daily prayer for today:", error);
     return null;

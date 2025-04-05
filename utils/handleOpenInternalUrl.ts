@@ -18,7 +18,7 @@ const handleOpenInternallUrl = async (title: string) => {
         questionId: question.id.toString(),
         questionTitle: question.title,
       },
-    });
+    }); 
   } catch (error) {
     console.error("Error fetching question:", error);
   }

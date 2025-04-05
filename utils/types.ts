@@ -38,13 +38,7 @@ export type DailyOrMonthly = {
 // Matches the "daily_prayers" table
 export type DailyPrayer = {
   id: number;
-  created_at: string;
-  title: string;
-  transliteration: string;
-  arabic_text: string;
-  german_text: string;
-  english_text: string;
-  category_id: number;
+  prayer_id: number;
 };
 
 // Matches the "languages" table
@@ -89,10 +83,11 @@ export type PrayerWithTranslations = PrayerType & {
 };
 
 // Other types that build on PrayerType (often from join queries)
-export type PrayerWithCategory = PrayerType & PrayerTranslation & {
-  category_title: string;
-  prayer_text: string
-};
+export type PrayerWithCategory = PrayerType &
+  PrayerTranslation & {
+    category_title: string;
+    prayer_text: string;
+  };
 
 export type FavoritePrayer = PrayerType & {
   category_title: string;

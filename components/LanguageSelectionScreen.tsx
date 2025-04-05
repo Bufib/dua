@@ -26,17 +26,17 @@ const LanguageSelectionScreen: React.FC = () => {
       <View style={styles.container}>
         <View style={styles.header}>
           <ThemedText type="subtitle">
-            {t("selectLanguage", { lng: "de" })}
+            {t("selectLanguage", { lng: "DE" })}
           </ThemedText>
           <ThemedText type="subtitle">
-            {t("selectLanguage", { lng: "ar" })}
+            {t("selectLanguage", { lng: "AR" })}
           </ThemedText>
         </View>
 
         <View style={styles.languageOptions}>
           <TouchableOpacity
             style={styles.languageButton}
-            onPress={() => handleLanguageSelect("de")}
+            onPress={() => handleLanguageSelect("DE")}
           >
             <View style={styles.languageContent}>
               <Text style={styles.languageText}>{t("german")}</Text>
@@ -46,12 +46,26 @@ const LanguageSelectionScreen: React.FC = () => {
 
           <TouchableOpacity
             style={styles.languageButton}
-            onPress={() => handleLanguageSelect("ar")}
+            onPress={() => handleLanguageSelect("AR")}
           >
             <View style={styles.languageContent}>
               <Text style={styles.languageText}>{t("arabic")}</Text>
               <Text style={styles.nativeText}>العربية</Text>
             </View>
+
+          
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.languageButton}
+            onPress={() => handleLanguageSelect("EN")}
+          >
+            <View style={styles.languageContent}>
+              <Text style={styles.languageText}>{t("english")}</Text>
+              <Text style={styles.nativeText}>العربية</Text>
+            </View>
+
+          
           </TouchableOpacity>
         </View>
       </View>
