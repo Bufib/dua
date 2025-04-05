@@ -131,6 +131,7 @@ export type PrayerWithCategory = {
   prayer_text: string;
   notes?: string;
   source?: string;
+  title: string
 };
 
 export interface FavoritePrayer extends PrayerType {

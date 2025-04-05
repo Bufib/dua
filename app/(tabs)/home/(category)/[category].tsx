@@ -17,6 +17,8 @@ import {
   getChildCategories,
   getPrayersForCategory, // <-- New function: queries via prayer_categories join table
   getCategoryByTitle,
+  getPrayer,
+  getPrayerCount,
 } from "@/utils/initializeDatabase";
 import { CoustomTheme } from "@/utils/coustomTheme";
 import { useColorScheme } from "react-native";
@@ -85,7 +87,6 @@ console.log(category)
 
         // Fetch subcategories using the parent category ID
         const categoryRows = await getChildCategories(categoryData.id);
-        console.log(categoryRows);
         setChildCategories(categoryRows);
 
         // IMPORTANT: Fetch prayers via the new function that uses the join table.
@@ -149,7 +150,7 @@ console.log(category)
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push({
       pathname: "/[prayer]",
-      params: { prayerId: prayer.id, prayerTitle: prayer.name },
+      params: { prayerId: prayer.id, prayerTitle: prayer.title },
     });
   };
 
@@ -347,7 +348,7 @@ console.log(category)
                         ]}
                         numberOfLines={1}
                       >
-                        {prayer.name}
+                        {prayer.title}
                       </Text>
                     </View>
                   </View>
