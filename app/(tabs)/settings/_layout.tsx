@@ -6,6 +6,7 @@ import {
 import { Stack } from "expo-router";
 import "react-native-reanimated";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import i18n from "@/utils/i18n";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -20,7 +21,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen
           name="impressum"
-          options={{ headerShown: true, headerBackTitle: "Einstellungen" }}
+          options={{ headerShown: true, headerBackTitle: i18n.t("back") }}
         />
         <Stack.Screen
           name="about"

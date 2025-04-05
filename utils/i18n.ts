@@ -423,7 +423,6 @@
 
 // export default i18n;
 
-
 // src/i18n/index.ts
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
@@ -564,8 +563,7 @@ const resources: Resource = {
           "Beim Aktualisieren der Inhalte ist ein Fehler aufgetreten.",
       },
       // RenderPrayer
-      bottomInformationRenderPrayer:
-        "wird wie der buchstabe ausgesprochen",
+      bottomInformationRenderPrayer: "wird wie der buchstabe ausgesprochen",
       lines: "Zeilen",
 
       // Tasbih
@@ -592,9 +590,14 @@ const resources: Resource = {
 
       // Navigation
       back: "Zurück",
+
+       // FontSize
+       fontsize:{
+        small: "small",
+        medium: "medium",
+        large: "large"
+      },
     },
-
-
   },
 
   // Arabic translation
@@ -746,8 +749,15 @@ const resources: Resource = {
       dhikrLaIlahaIllallah: "La ilaha illallah",
       dhikrAstaghfirullah: "Astaghfirullah",
 
-        // Navigation
-        back: "رجوع",
+      // Navigation
+      back: "رجوع",
+
+       // FontSize
+       fontsizes:{
+        small: "",
+        medium: "medium",
+        large: "large"
+      },
     },
   },
 
@@ -777,7 +787,7 @@ const resources: Resource = {
       tasbih: "tasbih",
       special: "Special",
       names: "Asma-ul-Husna",
-      
+
       // Home screen - Today's prayer
       randomPrayer: "Recommendation",
       readMore: "Read more",
@@ -903,11 +913,16 @@ const resources: Resource = {
       dhikrLaIlahaIllallah: "La ilaha illallah",
       dhikrAstaghfirullah: "Astaghfirullah",
 
-        // Navigation
-        back: "back",
+      // Navigation
+      back: "Back",
 
-
+      // FontSize
+      fontsizes:{
+      small: "صغير",
+      medium: "واسطة",
+      large: "كبير"
     },
+  }
   },
 };
 

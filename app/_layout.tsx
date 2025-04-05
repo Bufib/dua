@@ -195,7 +195,7 @@ export default function RootLayout() {
                         name="(search)"
                         options={{
                           headerShown: true,
-                          headerBackTitle: "Zurück",
+                          headerBackTitle: i18n.t("back"),
                           headerTitle: "Suche",
                         }}
                       />
@@ -203,8 +203,7 @@ export default function RootLayout() {
                         name="[prayer]"
                         options={{
                           headerShown: true,
-                          headerBackTitle: "Zurück",
-                          headerTitle: "Suche",
+                          headerBackTitle: i18n.t("back"),
                         }}
                       />
 

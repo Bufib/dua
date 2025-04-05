@@ -46,7 +46,7 @@ import { useFontSizeStore } from "@/stores/fontSizeStore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Storage } from "expo-sqlite/kv-store";
 import { FlashList } from "@shopify/flash-list";
-
+import { Stack } from "expo-router";
 // Custom markdown rule to render text with colored Arabic diacritics
 const markdownRules = (
   customFontSize: number,
@@ -291,6 +291,7 @@ const RenderPrayer = () => {
         { backgroundColor: Colors[colorScheme].background },
       ]}
     >
+      <Stack.Screen options={{ headerTitle: prayers?.name,}} />
       {/* Header */}
       <View
         style={[
@@ -696,11 +697,12 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 80,
   },
+  //!
   prayerSegment: {
-    marginHorizontal: 12,
+    marginHorizontal: 10,
     marginBottom: 16,
     borderRadius: 12,
-    padding: 16,
+    padding: 15,
     ...Platform.select({
       ios: {
         shadowColor: "#000",

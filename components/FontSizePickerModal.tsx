@@ -5,6 +5,7 @@ import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "react-native";
 import { CoustomTheme } from "../utils/coustomTheme";
 import { useFontSizeStore } from "@/stores/fontSizeStore";
+import i18n from "@/utils/i18n";
 
 interface FontSizePickerModalProps {
   visible: boolean;
@@ -12,9 +13,9 @@ interface FontSizePickerModalProps {
 }
 
 const fontSizeOptions = [
-  { label: "Klein", fontSize: 20, lineHeight: 38 },
-  { label: "Mittel", fontSize: 25, lineHeight: 43 },
-  { label: "Groß", fontSize: 30, lineHeight: 53 },
+  { label: i18n.t("fontsize.small"), fontSize: 20, lineHeight: 28 },
+  { label: i18n.t("fontsize.medium"), fontSize: 24, lineHeight: 33 },
+  { label: i18n.t("fontsize.large"), fontSize: 28, lineHeight: 40 },
 ];
 
 const FontSizePickerModal: React.FC<FontSizePickerModalProps> = ({
