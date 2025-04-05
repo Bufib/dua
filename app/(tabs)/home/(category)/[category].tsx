@@ -12,13 +12,10 @@ import {
 } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { CategoryType, PrayerWithCategory } from "@/utils/types";
-// Note: Instead of getAllPrayersForCategory, import the new function that uses the join table:
 import {
   getChildCategories,
-  getPrayersForCategory, // <-- New function: queries via prayer_categories join table
+  getPrayersForCategory,
   getCategoryByTitle,
-  getPrayer,
-  getPrayerCount,
 } from "@/utils/initializeDatabase";
 import { CoustomTheme } from "@/utils/coustomTheme";
 import { useColorScheme } from "react-native";
@@ -26,6 +23,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/context/LanguageContext";
 import * as Haptics from "expo-haptics";
+import { Stack } from "expo-router";
+import { ThemedText } from "@/components/ThemedText";
+import { Colors } from "@/constants/Colors";
 
 // Icons for different categories
 const categoryIcons: { [key: string]: string } = {
@@ -39,12 +39,12 @@ const categoryIcons: { [key: string]: string } = {
 
 export default function CategoryScreen() {
   const { category } = useLocalSearchParams<{ category: string }>();
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() || "light";
   const themeStyles = CoustomTheme();
   const { t } = useTranslation();
   const { language } = useLanguage();
   const isRTL = language === "AR";
-console.log(category)
+  console.log(category);
   const [childCategories, setChildCategories] = useState<CategoryType[]>([]);
   const [allPrayers, setAllPrayers] = useState<PrayerWithCategory[]>([]);
   const [filteredPrayers, setFilteredPrayers] = useState<PrayerWithCategory[]>(
@@ -57,7 +57,6 @@ console.log(category)
   );
   const [selectedSubcategory, setSelectedSubcategory] =
     useState<CategoryType | null>(null);
-
   // Helper function to get icon for category
   const getCategoryIcon = (name: string): string => {
     const lowercaseName = name.toLowerCase();
@@ -147,10 +146,9 @@ console.log(category)
   };
 
   const handlePrayerPress = (prayer: PrayerWithCategory) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push({
       pathname: "/[prayer]",
-      params: { prayerId: prayer.id, prayerTitle: prayer.title },
+      params: { prayerId: prayer.id.toString() },
     });
   };
 
@@ -161,7 +159,7 @@ console.log(category)
       >
         <ActivityIndicator
           size="large"
-          color={colorScheme === "dark" ? "#fff" : "#666"}
+          color={colorScheme === "dark" ? "#fff" : "#000"}
         />
       </View>
     );
@@ -171,6 +169,8 @@ console.log(category)
     <SafeAreaView
       style={[styles.container, themeStyles.defaultBackgorundColor]}
     >
+      <Stack.Screen options={{ title: category, headerBackTitle: t("back") }} />
+
       <Animated.ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -181,7 +181,10 @@ console.log(category)
           <View
             style={[
               styles.headerIcon,
-              { backgroundColor: colorScheme === "dark" ? "#444" : "#e8edf4" },
+              {
+                borderColor: Colors[colorScheme].border,
+                backgroundColor: Colors[colorScheme].contrast,
+              },
             ]}
           >
             <Ionicons
@@ -190,15 +193,9 @@ console.log(category)
               color={colorScheme === "dark" ? "#90cdf4" : "#3b82f6"}
             />
           </View>
-          <Text
-            style={[
-              styles.header,
-              { color: colorScheme === "dark" ? "#fff" : "#1e293b" },
-              isRTL && { textAlign: "right" },
-            ]}
-          >
-            {category}
-          </Text>
+          <ThemedText style={[styles.header, isRTL && { textAlign: "right" }]}>
+            {category} ({allPrayers.length})
+          </ThemedText>
         </View>
 
         {/* Subcategories Section - Simple chips */}
@@ -210,37 +207,22 @@ console.log(category)
                 isRTL && { flexDirection: "row-reverse" },
               ]}
             >
-              <Text
-                style={[
-                  styles.sectionTitle,
-                  { color: colorScheme === "dark" ? "#e2e8f0" : "#334155" },
-                  isRTL && { textAlign: "right" },
-                ]}
+              <ThemedText
+                style={[styles.sectionTitle, isRTL && { textAlign: "right" }]}
               >
                 {t("categories")}
-              </Text>
+              </ThemedText>
               {selectedSubcategory && (
                 <TouchableOpacity
                   onPress={() => {
                     setSelectedSubcategory(null);
                     setFilteredPrayers(allPrayers);
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   }}
                   style={styles.showAllButton}
                 >
-                  <Text
-                    style={{
-                      color: colorScheme === "dark" ? "#90cdf4" : "#3b82f6",
-                      fontSize: 14,
-                      fontWeight: "500",
-                    }}
-                  >
-                    {language === "AR"
-                      ? "عرض الكل"
-                      : language === "DE"
-                      ? "Alle anzeigen"
-                      : "Show All"}
-                  </Text>
+                  <ThemedText style={{ fontWeight: 500 }}>
+                    {t("showAll")}
+                  </ThemedText>
                 </TouchableOpacity>
               )}
             </View>
@@ -256,19 +238,17 @@ console.log(category)
                   style={[
                     styles.chip,
                     {
-                      backgroundColor:
-                        colorScheme === "dark" ? "#2d3748" : "#f1f5f9",
+                      backgroundColor: Colors[colorScheme].contrast,
+                      borderColor: Colors[colorScheme].border,
                     },
                     selectedSubcategory?.id === cat.id && {
                       backgroundColor:
                         colorScheme === "dark" ? "#3b82f6" : "#dbeafe",
                       borderWidth: 1,
-                      borderColor:
-                        colorScheme === "dark" ? "#90cdf4" : "#3b82f6",
+                      borderColor: Colors[colorScheme].border,
                     },
                   ]}
                   onPress={() => handleSubcategoryPress(cat)}
-                  activeOpacity={0.7}
                 >
                   <Text
                     style={[
@@ -300,24 +280,19 @@ console.log(category)
               isRTL && { flexDirection: "row-reverse" },
             ]}
           >
-            <Text
-              style={[
-                styles.sectionTitle,
-                { color: colorScheme === "dark" ? "#e2e8f0" : "#334155" },
-                isRTL && { textAlign: "right" },
-              ]}
+            <ThemedText
+              style={[styles.sectionTitle, isRTL && { textAlign: "right" }]}
             >
               {t("prayers")}
               {selectedSubcategory && ` • ${selectedSubcategory.title}`}
-            </Text>
-            <Text
+            </ThemedText>
+            <ThemedText
               style={{
-                color: colorScheme === "dark" ? "#94a3b8" : "#94a3b8",
                 fontSize: 14,
               }}
             >
-              {filteredPrayers.length}
-            </Text>
+              {allPrayers.length}
+            </ThemedText>
           </View>
 
           {filteredPrayers.length > 0 ? (
@@ -328,28 +303,22 @@ console.log(category)
                   style={[
                     styles.prayerCard,
                     {
-                      backgroundColor:
-                        colorScheme === "dark" ? "#1e293b" : "#ffffff",
+                      backgroundColor: Colors[colorScheme].contrast,
                     },
                   ]}
                   onPress={() => handlePrayerPress(prayer)}
-                  activeOpacity={0.8}
                 >
                   <View style={styles.prayerHeader}>
                     <View style={styles.prayerTitleContainer}>
-                      <Text
+                      <ThemedText
                         style={[
                           styles.prayerTitle,
-                          {
-                            color:
-                              colorScheme === "dark" ? "#f8fafc" : "#1e293b",
-                          },
                           isRTL && { textAlign: "right" },
                         ]}
                         numberOfLines={1}
                       >
-                        {prayer.title}
-                      </Text>
+                        {prayer.name}
+                      </ThemedText>
                     </View>
                   </View>
                   {prayer.prayer_text && (
@@ -357,13 +326,13 @@ console.log(category)
                       style={[
                         styles.prayerText,
                         {
-                          color: colorScheme === "dark" ? "#cbd5e0" : "#64748b",
+                          color: Colors[colorScheme].grayedOut,
                         },
                         isRTL && { textAlign: "right" },
                       ]}
-                      numberOfLines={3}
+                      numberOfLines={2}
                     >
-                      {prayer.prayer_text.replace(/<[^>]*>/g, "").trim()}
+                      {prayer.prayer_text.trim()}
                     </Text>
                   )}
                   <View
@@ -376,7 +345,7 @@ console.log(category)
                       style={[
                         styles.readMore,
                         {
-                          color: colorScheme === "dark" ? "#90cdf4" : "#3b82f6",
+                          color: Colors.universal.secondary,
                         },
                       ]}
                     >
@@ -406,17 +375,12 @@ console.log(category)
                   isRTL && { textAlign: "right" },
                 ]}
               >
-                {language === "ar"
-                  ? "لا توجد صلوات في هذه الفئة"
-                  : language === "de"
-                  ? "Keine Gebete in dieser Kategorie"
-                  : "No prayers in this category"}
+                {t("noPrayer")}
               </Text>
               <TouchableOpacity
                 onPress={() => {
                   setSelectedSubcategory(null);
                   setFilteredPrayers(allPrayers);
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 }}
                 style={[
                   styles.resetButton,
@@ -432,11 +396,7 @@ console.log(category)
                     fontWeight: "500",
                   }}
                 >
-                  {language === "ar"
-                    ? "عرض كل الصلوات"
-                    : language === "de"
-                    ? "Alle Gebete anzeigen"
-                    : "Show all prayers"}
+                  {t("showAll")}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -474,6 +434,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginRight: 14,
+    borderWidth: 1,
   },
   header: {
     fontSize: 24,
@@ -487,7 +448,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
@@ -511,6 +472,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginRight: 10,
     marginBottom: 8,
+    borderWidth: 1,
     ...Platform.select({
       ios: {
         shadowColor: "#000",
@@ -552,7 +514,7 @@ const styles = StyleSheet.create({
   prayerHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   prayerTitleContainer: {
     flex: 1,
@@ -563,8 +525,7 @@ const styles = StyleSheet.create({
   },
   prayerText: {
     fontSize: 15,
-    lineHeight: 22,
-    marginBottom: 14,
+    marginBottom: 18,
   },
   prayerFooter: {
     flexDirection: "row",
@@ -572,7 +533,7 @@ const styles = StyleSheet.create({
   },
   readMore: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
     marginRight: 4,
   },
   // Empty state

@@ -37,6 +37,7 @@ export const Colors = {
     prayerIntroductionBackground: "#e8f5e9",
     prayerLoadingIndicator: "#057958",
     prayerBookmark: "#ccc",
+    grayedOut: "#666"
   },
 
   dark: {
@@ -73,6 +74,8 @@ export const Colors = {
     prayerIntroductionBackground: "#2d374d",
     prayerLoadingIndicator: "#057958",
     prayerBookmark: "#057958",
+    grayedOut: "#ccc"
+
   },
 
   universal: {

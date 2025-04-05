@@ -2,8 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import React, { useState } from "react";
 import RenderPrayer from "@/components/RenderPrayer";
 
-const Test = () => {
-  // Define the required props for RenderPrayer
+const Prayer = () => {
   const [selectedLanguages, setSelectedLanguages] = useState({
     arabic: true,
     german: true,
@@ -17,7 +16,7 @@ const Test = () => {
   );
 };
 
-export default Test;
+export default Prayer;
 
 const styles = StyleSheet.create({
   container: {

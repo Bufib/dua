@@ -467,6 +467,8 @@ const resources: Resource = {
       randomPrayer: "Empfehlung",
       readMore: "Vollständig lesen",
       categories: "Kategorien",
+      showAll: "Alle anzeigen",
+      noPrayer: "Keine Gebete vorhanen",
 
       // Weekly calendar
       weeklyToDo: "Plan für die Woche",
@@ -587,7 +589,12 @@ const resources: Resource = {
       dhikrAllahuAkbar: "Allahu Akbar",
       dhikrLaIlahaIllallah: "La ilaha illallah",
       dhikrAstaghfirullah: "Astaghfirullah",
+
+      // Navigation
+      back: "Zurück",
     },
+
+
   },
 
   // Arabic translation
@@ -620,6 +627,8 @@ const resources: Resource = {
       randomPrayer: "توصية",
       readMore: "قراءة المزيد",
       categories: "الفئات",
+      showAll: "عرض الكل",
+      noPrayer: "لا توجد صلوات",
 
       // Weekly calendar
       weeklyToDo: "خطة الأسبوع",
@@ -736,6 +745,9 @@ const resources: Resource = {
       dhikrAllahuAkbar: "Allahu Akbar",
       dhikrLaIlahaIllallah: "La ilaha illallah",
       dhikrAstaghfirullah: "Astaghfirullah",
+
+        // Navigation
+        back: "رجوع",
     },
   },
 
@@ -765,10 +777,13 @@ const resources: Resource = {
       tasbih: "tasbih",
       special: "Special",
       names: "Asma-ul-Husna",
+      
       // Home screen - Today's prayer
       randomPrayer: "Recommendation",
       readMore: "Read more",
       categories: "Categories",
+      showAll: "Show All",
+      noPrayer: "No prayers available",
 
       // Weekly calendar
       weeklyToDo: "Weekly Schedule",
@@ -887,6 +902,11 @@ const resources: Resource = {
       dhikrAllahuAkbar: "Allahu Akbar",
       dhikrLaIlahaIllallah: "La ilaha illallah",
       dhikrAstaghfirullah: "Astaghfirullah",
+
+        // Navigation
+        back: "back",
+
+
     },
   },
 };
