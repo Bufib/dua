@@ -1,5 +1,6 @@
 import i18n from "./i18n";
 import { CategoryItem } from "./types";
+
 // Prayer categories using translations
 export const categories: CategoryItem[] = [
   {

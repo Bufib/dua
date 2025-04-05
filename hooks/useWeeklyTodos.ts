@@ -8,7 +8,7 @@ const WEEKLY_TODOS_STORAGE_KEY = "prayer_app_weekly_todos";
 
 interface UseWeeklyTodosResult {
   weeklyTodos: WeeklyTodos;
-  isLoading: boolean; // Optional: Add loading state if async operations take time
+  isLoadingTodos: boolean; // Optional: Add loading state if async operations take time
   toggleTodo: (dayIndex: number, todoId: number) => void;
   addTodo: (dayIndex: number, text: string) => void;
   deleteTodo: (dayIndex: number, todoId: number) => void;
@@ -18,11 +18,11 @@ interface UseWeeklyTodosResult {
 
 export const useWeeklyTodos = (language: string): UseWeeklyTodosResult => {
   const [weeklyTodos, setWeeklyTodos] = useState<WeeklyTodos>({});
-  const [isLoading, setIsLoading] = useState<boolean>(true); // Optional loading state
+  const [isLoadingTodos, setIsLoadingTodos] = useState<boolean>(true); // Optional loading state
 
   // --- Load Todos ---
   const loadTodos = useCallback(async (): Promise<void> => {
-    setIsLoading(true);
+    setIsLoadingTodos(true);
     try {
       const storedTodos = await AsyncStorage.getItem(WEEKLY_TODOS_STORAGE_KEY);
       if (storedTodos !== null) {
@@ -47,7 +47,7 @@ export const useWeeklyTodos = (language: string): UseWeeklyTodosResult => {
         defaultWeeklyTodos.en;
       setWeeklyTodos(defaultTodos);
     } finally {
-      setIsLoading(false);
+      setIsLoadingTodos(false);
     }
   }, [language]); // Reload if language changes
 
@@ -59,7 +59,7 @@ export const useWeeklyTodos = (language: string): UseWeeklyTodosResult => {
   useEffect(() => {
     const saveTodos = async (): Promise<void> => {
       // Don't save during initial load or if weeklyTodos is empty after initialization
-      if (!isLoading && Object.keys(weeklyTodos).length > 0) {
+      if (!isLoadingTodos && Object.keys(weeklyTodos).length > 0) {
         try {
           await AsyncStorage.setItem(
             WEEKLY_TODOS_STORAGE_KEY,
@@ -72,7 +72,7 @@ export const useWeeklyTodos = (language: string): UseWeeklyTodosResult => {
     };
 
     saveTodos();
-  }, [weeklyTodos, isLoading]); // Save whenever weeklyTodos changes (and not loading)
+  }, [weeklyTodos, isLoadingTodos]); // Save whenever weeklyTodos changes (and not loading)
 
   // --- Modify Todos ---
 
@@ -149,7 +149,7 @@ export const useWeeklyTodos = (language: string): UseWeeklyTodosResult => {
 
   return {
     weeklyTodos,
-    isLoading,
+    isLoadingTodos,
     toggleTodo,
     addTodo,
     deleteTodo,
