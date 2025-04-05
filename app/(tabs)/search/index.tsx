@@ -78,7 +78,6 @@ export default function PrayerSearch() {
       try {
         const results = await searchPrayers(term, language);
         setSearchResults(results);
-        console.log(results);
         // Add to search history if there are results
         if (results.length > 0) {
           addToSearchHistory(term);

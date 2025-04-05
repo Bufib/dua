@@ -33,6 +33,7 @@ import Octicons from "@expo/vector-icons/Octicons";
 import Markdown, { RenderRules } from "react-native-markdown-display";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import { mapLanguage } from "@/utils/mapLanguage";
 import {
   addPrayerToFavorite,
   removePrayerFromFavorite,
@@ -112,6 +113,25 @@ const RenderPrayer = () => {
   const colorScheme = useColorScheme() || "light";
   const { t } = i18n;
   const flashListRef = useRef(null);
+  const scrollToTop = useCallback(() => {
+    flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }, []);
+  const [showScrollButtons, setShowScrollButtons] = useState(false);
+  const scrollTimeoutRef = useRef<any>(null);
+  // Scroll to the bottom of the FlashList
+  const scrollToBottom = useCallback(() => {
+    flashListRef.current?.scrollToEnd({ animated: true });
+  }, []);
+
+   // Show the buttons when scrolling, then hide them after 2 seconds of inactivity.
+   const handleScroll = useCallback(() => {
+    setShowScrollButtons(true);
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      setShowScrollButtons(false);
+    }, 2000);
+  }, []);
+
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const handleSheetChanges = useCallback((index: number) => {
@@ -142,7 +162,6 @@ const RenderPrayer = () => {
         const prayer = await getPrayerWithTranslations(
           parseInt(prayerId[0], 10)
         );
-        console.log(prayer);
         setPrayers(prayer);
         // Optionally check if this prayer is in favorites initially:
         const inFavorite = await isPrayerInFavorite(parseInt(prayerId[0], 10));
@@ -187,22 +206,22 @@ const RenderPrayer = () => {
     }
   };
 
+  const processLines = (text: string | undefined) => {
+    return (
+      text
+        ?.split("\n")
+        .filter((line) => line.trim() !== "")
+        .map((line) => {
+          const hasAtSymbol = line.includes("@");
+          return {
+            text: line.replace(/@/g, "").trim(),
+            hasAtSymbol,
+          };
+        }) || []
+    );
+  };
   const formattedPrayer = useMemo(() => {
     if (!prayers) return null;
-    const processLines = (text: string | undefined) => {
-      return (
-        text
-          ?.split("\n")
-          .filter((line) => line.trim() !== "")
-          .map((line) => {
-            const hasAtSymbol = line.includes("@");
-            return {
-              text: line.replace(/@/g, "").trim(),
-              hasAtSymbol,
-            };
-          }) || []
-      );
-    };
 
     const arabicLines = processLines(prayers?.arabic_text);
     const transliterationLines = processLines(prayers.transliteration_text);
@@ -284,6 +303,19 @@ const RenderPrayer = () => {
     getCurrentBookmark();
   }, [prayerId]);
 
+  // Use useMemo to select the notes for the current language
+  const notesForCurrentLanguage = useMemo(() => {
+    if (!prayers) return "";
+    if (language.toUpperCase() === "AR") {
+      return prayers?.arabic_notes || "";
+    } else {
+      const currentTranslation = prayers.translations.find(
+        (t) => t.language_code.toUpperCase() === language.toUpperCase()
+      );
+      return currentTranslation?.translated_notes || "";
+    }
+  }, [prayers, language]);
+
   return (
     <GestureHandlerRootView
       style={[
@@ -291,7 +323,7 @@ const RenderPrayer = () => {
         { backgroundColor: Colors[colorScheme].background },
       ]}
     >
-      <Stack.Screen options={{ headerTitle: prayers?.name,}} />
+      <Stack.Screen options={{ headerTitle: prayers?.name }} />
       {/* Header */}
       <View
         style={[
@@ -358,227 +390,277 @@ const RenderPrayer = () => {
           />
         </View>
       ) : (
-        <FlashList
-          data={indices}
-          ListHeaderComponent={
-            <>
-              {prayers?.translations.find((t) => t.language_code === language)
-                ?.translated_introduction && (
+        <>
+          <FlashList
+            ref={flashListRef}
+            data={indices}
+            ListHeaderComponent={
+              <>
+                {prayers?.translations.find((t) => t.language_code === language)
+                  ?.translated_introduction && (
+                  <View
+                    style={[
+                      styles.introContainer,
+                      {
+                        backgroundColor:
+                          colorScheme === "dark"
+                            ? Colors.dark.prayerIntroductionBackground
+                            : Colors.light.prayerIntroductionBackground,
+                      },
+                    ]}
+                  >
+                    <Markdown
+                      style={{
+                        body: {
+                          ...styles.introText,
+                          color: Colors[colorScheme].text,
+                          fontSize: fontSize * 0.9,
+                          lineHeight: lineHeight * 0.9,
+                        },
+                      }}
+                    >
+                      {
+                        prayers.translations.find(
+                          (t) => t.language_code === language
+                        )?.translated_introduction
+                      }
+                    </Markdown>
+                  </View>
+                )}
+
+                {/* Language Selection */}
+                <View style={styles.languageSelectContainer}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={styles.languageButtons}
+                  >
+                    {prayers?.translated_languages.map((lang) => (
+                      <TouchableOpacity
+                        key={lang}
+                        style={[
+                          styles.languageButton,
+                          selectTranslations[lang]
+                            ? {
+                                backgroundColor:
+                                  Colors[colorScheme]
+                                    .prayerButtonBackgroundActive,
+                              }
+                            : {
+                                backgroundColor:
+                                  colorScheme === "dark"
+                                    ? "rgba(96, 96, 96, 0.2)"
+                                    : "rgba(0, 0, 0, 0.05)",
+                              },
+                        ]}
+                        onPress={() =>
+                          setSelectTranslations((prev) => ({
+                            ...prev,
+                            [lang]: !prev[lang],
+                          }))
+                        }
+                      >
+                        <Text
+                          style={[
+                            styles.languageButtonText,
+                            selectTranslations[lang]
+                              ? {
+                                  color:
+                                    Colors[colorScheme].prayerButtonTextActive,
+                                }
+                              : { color: Colors[colorScheme].text },
+                          ]}
+                        >
+                          {lang}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              </>
+            }
+            renderItem={({ item: index }) => {
+              if (!formattedPrayer) return null;
+
+              const arabicLine = formattedPrayer.arabicLines[index];
+              const transliterationLine =
+                formattedPrayer.transliterationLines[index];
+              const currentTranslations = formattedPrayer.translations.filter(
+                (translation) => selectTranslations[translation.language]
+              );
+
+              const hasAtSymbolInArabic = arabicLine?.hasAtSymbol;
+              const hasAtSymbolInTranslation = currentTranslations.some(
+                (t) => t.lines[index]?.hasAtSymbol
+              );
+
+              return (
                 <View
+                  key={index}
                   style={[
-                    styles.introContainer,
-                    {
-                      backgroundColor:
-                        colorScheme === "dark"
-                          ? Colors.dark.prayerIntroductionBackground
-                          : Colors.light.prayerIntroductionBackground,
+                    styles.prayerSegment,
+                    { backgroundColor: Colors[colorScheme].contrast },
+                    (hasAtSymbolInArabic || hasAtSymbolInTranslation) && {
+                      backgroundColor: Colors[colorScheme].renderPrayerNotiz,
+                    },
+                    bookmark === index + 1 && {
+                      backgroundColor: Colors[colorScheme].prayerBookmark,
                     },
                   ]}
                 >
+                  {/* Line Number Badge */}
+                  <View style={styles.lineNumberBadge}>
+                    <Text style={styles.lineNumber}>{index + 1}</Text>
+                  </View>
+                  {/* Arabic Text */}
+                  {arabicLine && (
+                    <View
+                      style={{
+                        flexDirection: "column",
+                        alignItems: "flex-end",
+                      }}
+                    >
+                      {bookmark === index + 1 ? (
+                        <Octicons
+                          name="bookmark-slash"
+                          style={{ alignSelf: "flex-start" }}
+                          size={20}
+                          color={Colors[colorScheme].iconDefault}
+                          onPress={() => handleBookmark(index + 1)}
+                        />
+                      ) : (
+                        <Octicons
+                          name="bookmark"
+                          style={{ alignSelf: "flex-start" }}
+                          size={20}
+                          color={Colors[colorScheme].iconDefault}
+                          onPress={() => handleBookmark(index + 1)}
+                        />
+                      )}
+
+                      <Markdown
+                        rules={markdownRules(
+                          fontSize * 1.3,
+                          Colors[colorScheme].text
+                        )}
+                        style={{
+                          body: {
+                            ...styles.arabicText,
+                            color: Colors[colorScheme].prayerArabicText,
+                            fontSize: fontSize * 1.2,
+                            lineHeight: lineHeight * 1.2,
+                          },
+                        }}
+                      >
+                        {arabicLine.text}
+                      </Markdown>
+                    </View>
+                  )}
+                  {/* Transliteration */}
+                  {transliterationLine && (
+                    <Markdown
+                      rules={markdownRules(
+                        fontSize * 0.8,
+                        Colors[colorScheme].prayerTransliterationText
+                      )}
+                      style={{
+                        body: {
+                          ...styles.transliterationText,
+                          borderBottomColor: Colors[colorScheme].border,
+                          color: Colors[colorScheme].prayerTransliterationText,
+                          fontSize: fontSize * 0.8, // Slightly smaller
+                          lineHeight: lineHeight * 0.8,
+                        },
+                        code_inline: {},
+                      }}
+                    >
+                      {transliterationLine.text}
+                    </Markdown>
+                  )}
+                  {/* Translations */}
+                  {currentTranslations.map((translation, idx) => (
+                    <View key={idx} style={styles.translationBlock}>
+                      <Text
+                        style={[
+                          styles.translationLabel,
+                          {
+                            color: Colors[colorScheme].prayerButtonText,
+                          },
+                        ]}
+                      >
+                        {translation.language}
+                      </Text>
+                      <Markdown
+                        rules={markdownRules(
+                          fontSize,
+                          Colors[colorScheme].text
+                        )}
+                        style={{
+                          body: {
+                            ...styles.translationText,
+                            color: Colors[colorScheme].text,
+                            fontSize: fontSize,
+                            lineHeight: lineHeight,
+                            ...(translation.lines[index]?.hasAtSymbol && {
+                              alignSelf: "center",
+                            }),
+                          },
+                        }}
+                      >
+                        {translation.lines[index]?.text || ""}
+                      </Markdown>
+                    </View>
+                  ))}
+                </View>
+              );
+            }}
+            estimatedItemSize={200}
+            extraData={[bookmark, selectTranslations]}
+            ListFooterComponentStyle={{ paddingBottom: 20 }}
+            ListFooterComponent={
+              // Directly use the conditional rendering expression
+              notesForCurrentLanguage && (
+                <View
+                  style={[
+                    styles.notesContainer,
+                    styles.prayerSegment,
+                    { backgroundColor: Colors.universal.secondary },
+                  ]}
+                >
+                  <ThemedText style={styles.notesTitle} type="subtitle">
+                    {t("notes")}
+                  </ThemedText>
                   <Markdown
+                    rules={markdownRules(
+                      fontSize * 0.9,
+                      Colors[colorScheme].text
+                    )}
                     style={{
                       body: {
-                        ...styles.introText,
+                        ...styles.notesText, // Make sure styles.notesText is defined
                         color: Colors[colorScheme].text,
                         fontSize: fontSize * 0.9,
                         lineHeight: lineHeight * 0.9,
                       },
                     }}
                   >
-                    {
-                      prayers.translations.find(
-                        (t) => t.language_code === language
-                      )?.translated_introduction
-                    }
+                    {notesForCurrentLanguage}
                   </Markdown>
                 </View>
-              )}
-
-              {/* Language Selection */}
-              <View style={styles.languageSelectContainer}>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={styles.languageButtons}
-                >
-                  {prayers?.translated_languages.map((lang) => (
-                    <TouchableOpacity
-                      key={lang}
-                      style={[
-                        styles.languageButton,
-                        selectTranslations[lang]
-                          ? {
-                              backgroundColor:
-                                Colors[colorScheme]
-                                  .prayerButtonBackgroundActive,
-                            }
-                          : {
-                              backgroundColor:
-                                colorScheme === "dark"
-                                  ? "rgba(96, 96, 96, 0.2)"
-                                  : "rgba(0, 0, 0, 0.05)",
-                            },
-                      ]}
-                      onPress={() =>
-                        setSelectTranslations((prev) => ({
-                          ...prev,
-                          [lang]: !prev[lang],
-                        }))
-                      }
-                    >
-                      <Text
-                        style={[
-                          styles.languageButtonText,
-                          selectTranslations[lang]
-                            ? {
-                                color:
-                                  Colors[colorScheme].prayerButtonTextActive,
-                              }
-                            : { color: Colors[colorScheme].text },
-                        ]}
-                      >
-                        {lang}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            </>
-          }
-          renderItem={({ item: index }) => {
-            if (!formattedPrayer) return null;
-
-            const arabicLine = formattedPrayer.arabicLines[index];
-            const transliterationLine =
-              formattedPrayer.transliterationLines[index];
-            const currentTranslations = formattedPrayer.translations.filter(
-              (translation) => selectTranslations[translation.language]
-            );
-
-            const hasAtSymbolInArabic = arabicLine?.hasAtSymbol;
-            const hasAtSymbolInTranslation = currentTranslations.some(
-              (t) => t.lines[index]?.hasAtSymbol
-            );
-
-            return (
-              <View
-                key={index}
-                style={[
-                  styles.prayerSegment,
-                  { backgroundColor: Colors[colorScheme].contrast },
-                  (hasAtSymbolInArabic || hasAtSymbolInTranslation) && {
-                    backgroundColor: Colors[colorScheme].renderPrayerNotiz,
-                  },
-                  bookmark === index + 1 && {
-                    backgroundColor: Colors[colorScheme].prayerBookmark,
-                  },
-                ]}
-              >
-                {/* Line Number Badge */}
-                <View style={styles.lineNumberBadge}>
-                  <Text style={styles.lineNumber}>{index + 1}</Text>
-                </View>
-                {/* Arabic Text */}
-                {arabicLine && (
-                  <View
-                    style={{
-                      flexDirection: "column",
-                      alignItems: "flex-end",
-                    }}
-                  >
-                    {bookmark === index + 1 ? (
-                      <Octicons
-                        name="bookmark-slash"
-                        style={{ alignSelf: "flex-start" }}
-                        size={20}
-                        color={Colors[colorScheme].iconDefault}
-                        onPress={() => handleBookmark(index + 1)}
-                      />
-                    ) : (
-                      <Octicons
-                        name="bookmark"
-                        style={{ alignSelf: "flex-start" }}
-                        size={20}
-                        color={Colors[colorScheme].iconDefault}
-                        onPress={() => handleBookmark(index + 1)}
-                      />
-                    )}
-
-                    <Markdown
-                      rules={markdownRules(
-                        fontSize * 1.3,
-                        Colors[colorScheme].text
-                      )}
-                      style={{
-                        body: {
-                          ...styles.arabicText,
-                          color: Colors[colorScheme].prayerArabicText,
-                          fontSize: fontSize * 1.2,
-                          lineHeight: lineHeight * 1.2,
-                        },
-                      }}
-                    >
-                      {arabicLine.text}
-                    </Markdown>
-                  </View>
-                )}
-                {/* Transliteration */}
-                {transliterationLine && (
-                  <Markdown
-                    rules={markdownRules(
-                      fontSize * 0.8,
-                      Colors[colorScheme].prayerTransliterationText
-                    )}
-                    style={{
-                      body: {
-                        ...styles.transliterationText,
-                        borderBottomColor: Colors[colorScheme].border,
-                        color: Colors[colorScheme].prayerTransliterationText,
-                        fontSize: fontSize * 0.8, // Slightly smaller
-                        lineHeight: lineHeight * 0.8,
-                      },
-                      code_inline: {},
-                    }}
-                  >
-                    {transliterationLine.text}
-                  </Markdown>
-                )}
-                {/* Translations */}
-                {currentTranslations.map((translation, idx) => (
-                  <View key={idx} style={styles.translationBlock}>
-                    <Text
-                      style={[
-                        styles.translationLabel,
-                        {
-                          color: Colors[colorScheme].prayerButtonText,
-                        },
-                      ]}
-                    >
-                      {translation.language}
-                    </Text>
-                    <Markdown
-                      style={{
-                        body: {
-                          ...styles.translationText,
-                          color: Colors[colorScheme].text,
-                          fontSize: fontSize,
-                          lineHeight: lineHeight,
-                          ...(translation.lines[index]?.hasAtSymbol && {
-                            alignSelf: "center",
-                          }),
-                        },
-                      }}
-                    >
-                      {translation.lines[index]?.text || ""}
-                    </Markdown>
-                  </View>
-                ))}
-              </View>
-            );
-          }}
-          estimatedItemSize={200}
-          extraData={[bookmark, selectTranslations]}
-        />
+              )
+            }
+          />
+          {showScrollButtons && (
+        <View style={styles.scrollButtonsContainer}>
+          <TouchableOpacity style={styles.scrollButton} onPress={scrollToTop}>
+            <AntDesign name="up" size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.scrollButton} onPress={scrollToBottom}>
+            <AntDesign name="down" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+      )}
+    </>
       )}
 
       <BottomSheet
@@ -631,7 +713,7 @@ const styles = StyleSheet.create({
   titleContainer: {
     flex: 1,
     marginRight: 16,
-    gap: 10
+    gap: 10,
   },
   title: {
     fontSize: 20,
@@ -698,7 +780,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 80,
   },
-  //!
   prayerSegment: {
     marginHorizontal: 10,
     marginBottom: 16,
@@ -775,5 +856,20 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 500,
     textAlign: "center",
+  },
+  notesContainer: {},
+  notesTitle: {},
+  notesText: {},
+  scrollButtonsContainer: {
+    position: "absolute",
+    bottom: 30,
+    right: 20,
+    flexDirection: "row",
+  },
+  scrollButton: {
+    backgroundColor: "#3498db", // Adjust to your theme or Colors object
+    padding: 10,
+    borderRadius: 25,
+    marginLeft: 10,
   },
 });

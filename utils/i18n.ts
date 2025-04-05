@@ -660,6 +660,7 @@ const resources: Resource = {
       bookmarkReplaceQuestion:
         "لديك بالفعل جزء محدد بإشارة مرجعية. هل تريد استبداله؟",
       replace: "استبدال",
+     
 
       // Favorites
       loadingFavorites: "جاري تحميل المفضلة...",

@@ -2696,7 +2696,6 @@ const fetchVersionFromSupabase = async (): Promise<string | null> => {
       console.error("Error fetching version:", error);
       return null;
     }
-    console.log(data)
     return data?.version || null;
   } catch (error) {
     console.error("Unexpected error in fetchVersionFromSupabase:", error);
