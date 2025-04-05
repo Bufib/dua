@@ -112,26 +112,22 @@ const RenderPrayer = () => {
   const [bookmark, setBookmark] = useState<number | null>(null);
   const colorScheme = useColorScheme() || "light";
   const { t } = i18n;
-  const flashListRef = useRef(null);
+  const [contentHeight, setContentHeight] = useState(0);
+  const [listHeight, setListHeight] = useState(0);
+  const flashListRef = useRef<any>(null);
+  const [scrollOffset, setScrollOffset] = useState(0);
+  const threshold = 50;
+
+  // Show the scroll-up button only if scrolled down more than the threshold.
+  const showScrollUp = scrollOffset > threshold;
+
   const scrollToTop = useCallback(() => {
     flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
   }, []);
-  const [showScrollButtons, setShowScrollButtons] = useState(false);
-  const scrollTimeoutRef = useRef<any>(null);
-  // Scroll to the bottom of the FlashList
-  const scrollToBottom = useCallback(() => {
-    flashListRef.current?.scrollToEnd({ animated: true });
-  }, []);
 
-   // Show the buttons when scrolling, then hide them after 2 seconds of inactivity.
-   const handleScroll = useCallback(() => {
-    setShowScrollButtons(true);
-    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-    scrollTimeoutRef.current = setTimeout(() => {
-      setShowScrollButtons(false);
-    }, 2000);
+  const handleScroll = useCallback((event) => {
+    setScrollOffset(event.nativeEvent.contentOffset.y);
   }, []);
-
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const handleSheetChanges = useCallback((index: number) => {
@@ -393,6 +389,8 @@ const RenderPrayer = () => {
         <>
           <FlashList
             ref={flashListRef}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
             data={indices}
             ListHeaderComponent={
               <>
@@ -650,17 +648,12 @@ const RenderPrayer = () => {
               )
             }
           />
-          {showScrollButtons && (
-        <View style={styles.scrollButtonsContainer}>
-          <TouchableOpacity style={styles.scrollButton} onPress={scrollToTop}>
-            <AntDesign name="up" size={24} color="white" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.scrollButton} onPress={scrollToBottom}>
-            <AntDesign name="down" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
-      )}
-    </>
+          {showScrollUp && (
+            <TouchableOpacity style={styles.scrollButton} onPress={scrollToTop}>
+              <AntDesign name="up" size={24} color="white" />
+            </TouchableOpacity>
+          )}
+        </>
       )}
 
       <BottomSheet
@@ -867,9 +860,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   scrollButton: {
-    backgroundColor: "#3498db", // Adjust to your theme or Colors object
+    position: "absolute",
+    bottom: 30,
+    right: 20,
+    backgroundColor: "#3498db",
     padding: 10,
     borderRadius: 25,
-    marginLeft: 10,
   },
 });
