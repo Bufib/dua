@@ -94,11 +94,14 @@ export const WeeklyCalendarSection: React.FC<WeeklyCalendarSectionProps> = ({
             {/* Assuming getFullDayName takes t */}
           </ThemedText>
           <TouchableOpacity onPress={handleUndo}>
-            <EvilIcons
-              name="undo"
-              size={30}
-              color={colorScheme === "dark" ? "#ffffff" : "#000000"}
-            />
+            <View style={{ flexDirection: "row", gap: 5 }}>
+              <ThemedText style={{ fontSize: 12 }}>{t("undo")}</ThemedText>
+              <EvilIcons
+                name="undo"
+                size={30}
+                color={colorScheme === "dark" ? "#ffffff" : "#000000"}
+              />
+            </View>
           </TouchableOpacity>
         </ThemedView>
       )}
@@ -168,12 +171,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   weekPlanerContainer: {
-    flexDirection: "row", 
+    flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 10, 
-    marginTop: 16, 
-    marginBottom: 12, 
+    paddingHorizontal: 10,
+    marginTop: 16,
+    marginBottom: 12,
   },
   selectedDayTitle: {
     fontSize: 16,

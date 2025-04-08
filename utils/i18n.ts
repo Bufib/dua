@@ -57,7 +57,7 @@ const resources: Resource = {
       add: "Hinzufügen",
       cancel: "Abbrechen",
       noPrayersForDay: "Keine Gebete für diesen Tag",
-      unDo: "Neustart",
+      undo: "Alle zurücksetzen",
 
       // Delete confirmation
       confirmDelete: "Löschen bestätigen",
@@ -226,7 +226,7 @@ const resources: Resource = {
       add: "إضافة",
       cancel: "إلغاء",
       noPrayersForDay: "لا توجد صلوات لهذا اليوم",
-      unDo: "الغاء الكل",
+      undo: "الغاء الكل",
       // Delete confirmation
       confirmDelete: "تأكيد الحذف",
       deleteQuestion: "هل أنت متأكد أنك تريد حذف هذه الصلاة؟",
@@ -393,7 +393,7 @@ const resources: Resource = {
       add: "Add",
       cancel: "Cancel",
       noPrayersForDay: "No prayers for this day",
-      unDo: "Un-do all",
+      undo: "Undo all",
 
       // Delete confirmation
       confirmDelete: "Confirm Deletion",

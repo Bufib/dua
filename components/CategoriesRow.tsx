@@ -5,7 +5,7 @@ import { ThemedText } from "./ThemedText"; // Adjust path
 import { CategoryItem } from "@/utils/types"; // Adjust path
 import { CoustomTheme } from "@/utils/coustomTheme"; // Adjust path
 import type { TFunction } from "i18next";
-import { categories } from "@/utils/categories";
+import { getCategories } from "@/utils/categories";
 
 type CategoriesRowProps = {
   onPressCategory: (category: CategoryItem) => void;
@@ -13,11 +13,13 @@ type CategoriesRowProps = {
   themeStyles: ReturnType<typeof CoustomTheme>;
 }
 
+
 export const CategoriesRow: React.FC<CategoriesRowProps> = ({
   onPressCategory,
   t,
   themeStyles,
 }) => {
+  const categories = getCategories();
   return (
     <View>
       <ThemedText style={[styles.sectionTitle]}>{t("categories")}</ThemedText>

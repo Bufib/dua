@@ -84,7 +84,7 @@ export const DailyPrayerCard: React.FC<DailyPrayerCardType> = ({
       </View>
       {/* Use prayer.name or prayer.title as appropriate */}
       <ThemedText style={styles.prayerTitle}>{prayer.name}</ThemedText>
-      <ThemedText style={styles.prayerText} numberOfLines={1}>
+      <ThemedText style={styles.prayerText} numberOfLines={2}>
         {displayText}
       </ThemedText>
       <TouchableOpacity
