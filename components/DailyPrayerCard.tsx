@@ -1,4 +1,3 @@
-// src/components/RandomPrayerCard.tsx
 import React from "react";
 import {
   View,
@@ -13,7 +12,7 @@ import type { ColorSchemeName } from "react-native";
 import type { TFunction } from "i18next";
 import { router } from "expo-router";
 
-interface RandomPrayerCardProps {
+type DailyPrayerCardType = {
   // The prayer object could be either the basic DailyPrayer or PrayerWithTranslations.
   prayer: DailyPrayer | PrayerWithTranslations | null;
   isLoading: boolean;
@@ -26,7 +25,7 @@ interface RandomPrayerCardProps {
   flexDirection: object;
 }
 
-export const RandomPrayerCard: React.FC<RandomPrayerCardProps> = ({
+export const DailyPrayerCard: React.FC<DailyPrayerCardType> = ({
   prayer,
   isLoading,
   language,
@@ -56,7 +55,7 @@ export const RandomPrayerCard: React.FC<RandomPrayerCardProps> = ({
   const handleReadMore = () => {
    router.push({
         pathname: "/[prayer]",
-        params: { prayerID: prayer.id.toString() },
+        params: { prayer: prayer.id.toString() },
       });
   };
 

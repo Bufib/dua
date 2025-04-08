@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Dua", // von klein zu groß
+    "name": "Dua",
     "slug": "dua",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,7 +14,9 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select images.",
         "CFBundleAllowMixedLocalizations": true,
-        "CFBundleLocalizations": ["de"],
+        "CFBundleLocalizations": [
+          "de"
+        ],
         "CFBundleDevelopmentRegion": "de"
       }
     },
@@ -23,10 +25,10 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-
       "package": "com.bufib.dua",
-      //"googleServicesFile": "./android/app/google-services.json",
-      "permissions": ["android.permission.RECORD_AUDIO"],
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
       "versionCode": 8
     },
     "web": {
@@ -70,7 +72,6 @@
           }
         }
       ],
-
       "expo-font",
       [
         "expo-notifications",
@@ -90,7 +91,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "c4fc8fe1-37b5-48f0-8717-a7403159a30f"
+        "projectId": "a97b5182-b273-43ca-b1d9-8bae64ebd1e2"
       }
     },
     "owner": "hadi_ea"

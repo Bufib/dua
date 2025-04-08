@@ -309,10 +309,9 @@ export default function App() {
   // --- UI Rendering ---
 
   const percentage =
-  activeCounter && activeLimit > 0
-    ? Math.min((activeCounter.count / activeLimit) * 100, 100)
-    : 0;
-
+    activeCounter && activeLimit > 0
+      ? Math.min((activeCounter.count / activeLimit) * 100, 100)
+      : 0;
 
   const showTabs = selectedPresetId === "free";
 
@@ -682,7 +681,6 @@ const styles = StyleSheet.create({
   prayerCardSequenceItem: {
     fontSize: 11,
     marginVertical: 1,
-    
   },
   presetProgressContainer: {},
   presetProgressItem: {

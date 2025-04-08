@@ -78,6 +78,7 @@ export default function PrayerSearch() {
       try {
         const results = await searchPrayers(term, language);
         setSearchResults(results);
+        console.log(results[0])
         // Add to search history if there are results
         if (results.length > 0) {
           addToSearchHistory(term);
@@ -233,7 +234,7 @@ export default function PrayerSearch() {
           router.push({
             pathname: "/[prayer]",
             params: {
-              prayerId: item.id.toString(),
+              prayer: item.id.toString(),
             },
           })
         }

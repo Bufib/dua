@@ -159,7 +159,7 @@ export default function CategoryScreen() {
   const handlePrayerPress = (prayer: PrayerWithCategory) => {
     router.push({
       pathname: "/[prayer]",
-      params: { prayerID: prayer.id.toString() },
+      params: { prayer: prayer.id.toString() },
     });
   };
 

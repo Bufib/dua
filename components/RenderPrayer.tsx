@@ -21,7 +21,6 @@ import React, {
 } from "react";
 import { getPrayerWithTranslations } from "@/utils/initializeDatabase";
 import { PrayerWithTranslations } from "@/utils/types";
-import { useLocalSearchParams } from "expo-router";
 import { useLanguage } from "@/context/LanguageContext";
 import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
@@ -53,35 +52,35 @@ const markdownRules = (
   customFontSize: number,
   textColor: string
 ): RenderRules => ({
-  text: (
-    node: any,
-    children: any,
-    parent: any,
-    styles: any
-  ): React.ReactNode => {
-    if (!node || !node.content) return children || null;
-    const text = node.content;
-    // Regex to split Arabic diacritics globally and test them non-globally
-    const diacriticRegexGlobal = /([\u064B-\u0652])/g;
-    const diacriticRegex = /[\u064B-\u0652]/;
-    const parts = text.split(diacriticRegexGlobal);
-    return (
-      <Text
-        key={node.key}
-        style={{ fontSize: customFontSize, ...styles.text, color: textColor }}
-      >
-        {parts.map((part: string, index: number) =>
-          diacriticRegex.test(part) ? (
-            <Text key={index} style={{ color: Colors.universal.primary }}>
-              {part}
-            </Text>
-          ) : (
-            part
-          )
-        )}
-      </Text>
-    );
-  },
+  // text: (
+  //   node: any,
+  //   children: any,
+  //   parent: any,
+  //   styles: any
+  // ): React.ReactNode => {
+  //   if (!node || !node.content) return children || null;
+  //   const text = node.content;
+  //   // Regex to split Arabic diacritics globally and test them non-globally
+  //   const diacriticRegexGlobal = /([\u064B-\u0652])/g;
+  //   const diacriticRegex = /[\u064B-\u0652]/;
+  //   const parts = text.split(diacriticRegexGlobal);
+  //   return (
+  //     <Text
+  //       key={node.key}
+  //       style={{ fontSize: customFontSize, ...styles.text, color: textColor }}
+  //     >
+  //       {parts.map((part: string, index: number) =>
+  //         diacriticRegex.test(part) ? (
+  //           <Text key={index} style={{ color: Colors.universal.primary }}>
+  //             {part}
+  //           </Text>
+  //         ) : (
+  //           part
+  //         )
+  //       )}
+  //     </Text>
+  //   );
+  // },
 
   // Add or modify the code_inline rule to render inline code as normal text
   code_inline: (
@@ -112,8 +111,6 @@ const RenderPrayer = ({ prayerID }: { prayerID: string }) => {
   const [bookmark, setBookmark] = useState<number | null>(null);
   const colorScheme = useColorScheme() || "light";
   const { t } = i18n;
-  const [contentHeight, setContentHeight] = useState(0);
-  const [listHeight, setListHeight] = useState(0);
   const flashListRef = useRef<any>(null);
   const [scrollOffset, setScrollOffset] = useState(0);
   const threshold = 50;
@@ -124,7 +121,6 @@ const RenderPrayer = ({ prayerID }: { prayerID: string }) => {
   const scrollToTop = useCallback(() => {
     flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
   }, []);
-
 
   const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -153,10 +149,8 @@ const RenderPrayer = ({ prayerID }: { prayerID: string }) => {
     const fetchPrayerData = async () => {
       try {
         setIsLoading(true);
-        const prayer = await getPrayerWithTranslations(
-          parseInt(prayerID, 10)
-        );
-        console.log(prayerID)
+        const prayer = await getPrayerWithTranslations(parseInt(prayerID, 10));
+        console.log(prayerID);
         setPrayers(prayer);
         // Optionally check if this prayer is in favorites initially:
         const inFavorite = await isPrayerInFavorite(parseInt(prayerID, 10));
@@ -368,9 +362,17 @@ const RenderPrayer = ({ prayerID }: { prayerID: string }) => {
             onPress={handleFavoriteToggle}
           >
             {isFavorite ? (
-              <AntDesign name="heart" size={25} color={Colors.universal.favoriteIcon} />
+              <AntDesign
+                name="heart"
+                size={25}
+                color={Colors.universal.favoriteIcon}
+              />
             ) : (
-              <AntDesign name="hearto" size={25} color={Colors.universal.favoriteIcon} />
+              <AntDesign
+                name="hearto"
+                size={25}
+                color={Colors.universal.favoriteIcon}
+              />
             )}
           </TouchableOpacity>
         </View>
@@ -646,9 +648,9 @@ const RenderPrayer = ({ prayerID }: { prayerID: string }) => {
               )
             }
           />
-            <TouchableOpacity style={styles.scrollButton} onPress={scrollToTop}>
-              <AntDesign name="up" size={24} color="white" />
-            </TouchableOpacity>
+          <TouchableOpacity style={styles.scrollButton} onPress={scrollToTop}>
+            <AntDesign name="up" size={24} color="white" />
+          </TouchableOpacity>
         </>
       )}
 
