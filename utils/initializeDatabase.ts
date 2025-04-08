@@ -3352,6 +3352,48 @@ export const getPrayersForCategory = async (
   }
 };
 
+export const getAllPrayersForArabic = async (
+  categoryId: number
+): Promise<PrayerWithCategory[]> => {
+  try {
+    const db = await getDatabase();
+
+    // Get the category and all its descendant category IDs.
+    const descendantIds = await getCategoryAndDescendantIds(categoryId, db);
+
+    // Build the required placeholders for SQL query.
+    const placeholders = descendantIds.map(() => "?").join(",");
+
+    // Query the prayers table filtering by the category ids.
+    const query = `
+      SELECT
+        id,
+        name,
+        arabic_title,
+        category_id,
+        created_at,
+        updated_at,
+        translated_languages,
+        arabic_introduction,
+        arabic_text,
+        arabic_notes,
+        transliteration_text,
+        source
+      FROM prayers
+      WHERE category_id IN (${placeholders})
+      ORDER BY datetime(created_at) DESC;
+    `;
+    const prayers = await db.getAllAsync<PrayerWithCategory>(
+      query,
+      descendantIds
+    );
+    return prayers;
+  } catch (error) {
+    console.error("Error fetching Arabic prayers for category:", error);
+    throw error;
+  }
+};
+
 export const getCategoryAndDescendantIds = async (
   categoryId: number,
   db: SQLite.SQLiteDatabase
@@ -3636,23 +3678,28 @@ export const isMonthlyTrue = async (): Promise<boolean> => {
     return false;
   }
 };
-
-export const getDailyPrayerForToday = async (): Promise<DailyPrayer | null> => {
+export const getDailyPrayerWithLanguage = async (
+  language: string
+): Promise<DailyPrayer | PrayerWithTranslations | null> => {
   try {
     const day = new Date().getDay();
-    // Convert Sunday (0) to Saturday (6) and others (Monday becomes 0, etc.)
+    // Convert Sunday (0) to Saturday (6) and adjust the day index (Monday becomes 0, …, Sunday=6)
     let currentDayIndex = day === 0 ? 6 : day - 1;
-    // Check if we are in monthly mode or weekly mode
     const monthly = await isMonthlyTrue();
     const db = await getDatabase();
 
-    // Join daily_prayers with prayers (and categories for extra details)
+    // Query the daily_prayers table joined with prayers and categories.
     const dailyPrayers: DailyPrayer[] = await db.getAllAsync(
       `SELECT dp.*, 
+              p.id AS prayer_id,
               p.name, 
               p.arabic_title, 
-              p.category_id, 
-              c.title AS category_title, 
+              p.arabic_text,
+              p.arabic_introduction,
+              p.arabic_notes,
+              p.transliteration_text,
+              p.source,
+              c.title AS category_title,
               p.created_at AS prayer_created_at, 
               p.updated_at AS prayer_updated_at
        FROM daily_prayers dp
@@ -3660,18 +3707,31 @@ export const getDailyPrayerForToday = async (): Promise<DailyPrayer | null> => {
        JOIN categories c ON p.category_id = c.id
        ORDER BY dp.id ASC;`
     );
-
     if (!dailyPrayers || dailyPrayers.length === 0) {
       console.warn("No daily prayers found in the database.");
       return null;
     }
 
-    // Choose the prayer based on mode:
-    // - Monthly: use the day of the month (1-31, subtract 1 for zero-based index)
-    // - Weekly: use the day of week (0-6)
+    // Select a daily prayer based on monthly mode or weekly mode.
     let index: number = monthly ? new Date().getDate() - 1 : currentDayIndex;
     index = index % dailyPrayers.length;
-    return dailyPrayers[index];
+    const dailyRecord = dailyPrayers[index];
+
+    // For Arabic language, return the basic record.
+    if (language.toUpperCase() === "AR") {
+      return dailyRecord;
+    } else {
+      // For non-Arabic languages, fetch the full prayer with translations.
+      const prayer = await getPrayerWithTranslations(dailyRecord.prayer_id);
+      if (prayer) {
+        // Filter translations to keep only those matching the app’s language.
+        prayer.translations = prayer.translations.filter(
+          (t) => t.language_code.toUpperCase() === language.toUpperCase()
+        );
+        return prayer;
+      }
+      return dailyRecord;
+    }
   } catch (error) {
     console.error("Error fetching daily prayer for today:", error);
     return null;

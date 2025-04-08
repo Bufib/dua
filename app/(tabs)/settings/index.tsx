@@ -157,9 +157,11 @@ const Settings = () => {
                 />
               </View>
               <View>
-                <ThemedText style={styles.settingTitle}>Dunkelmodus</ThemedText>
+                <ThemedText style={styles.settingTitle}>
+                  {t("darkmode")}
+                </ThemedText>
                 <ThemedText style={styles.settingSubtitle}>
-                  Dunkles Erscheinungsbild aktivieren
+                 {t("darkmodeExplanation")}
                 </ThemedText>
               </View>
             </View>
@@ -224,10 +226,10 @@ const Settings = () => {
               </View>
               <View>
                 <ThemedText style={styles.settingTitle}>
-                  Benachrichtigungen
+                  {t("notifications")}
                 </ThemedText>
                 <ThemedText style={styles.settingSubtitle}>
-                  Push-Benachrichtigungen erhalten
+                  {t("notificationExplanation")}
                 </ThemedText>
               </View>
             </View>
@@ -285,7 +287,7 @@ const Settings = () => {
                   color={colorScheme === "dark" ? "#FFFFFF" : "#007AFF"}
                 />
               </View>
-              <ThemedText style={styles.linkText}>Datenschutz</ThemedText>
+              <ThemedText style={styles.linkText}>{t("privacy")}</ThemedText>
             </View>
             <Ionicons
               name="chevron-forward"
@@ -333,7 +335,7 @@ const Settings = () => {
                   color={colorScheme === "dark" ? "#FFFFFF" : "#007AFF"}
                 />
               </View>
-              <ThemedText style={styles.linkText}>Impressum</ThemedText>
+              <ThemedText style={styles.linkText}>{t("imprint")}</ThemedText>
             </View>
             <Ionicons
               name="chevron-forward"

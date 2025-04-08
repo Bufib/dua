@@ -16,6 +16,7 @@ import {
   getChildCategories,
   getPrayersForCategory,
   getCategoryByTitle,
+  getAllPrayersForArabic,
 } from "@/utils/initializeDatabase";
 import { CoustomTheme } from "@/utils/coustomTheme";
 import { useColorScheme } from "react-native";
@@ -90,12 +91,22 @@ export default function CategoryScreen() {
 
         // IMPORTANT: Fetch prayers via the new function that uses the join table.
         // Use the main category's id to get both prayers from the main and extra associations.
-        const prayerRows = await getPrayersForCategory(
-          categoryData.id,
-          language.toUpperCase()
-        );
-        setAllPrayers(prayerRows);
-        setFilteredPrayers(prayerRows); // Initially show all prayers
+
+        if (language.toUpperCase() === "AR") {
+          const prayerRows = await getAllPrayersForArabic(
+            categoryData.id
+          );
+          console.log(prayerRows);
+          setAllPrayers(prayerRows);
+          setFilteredPrayers(prayerRows); // Initially show all prayers
+        } else {
+          const prayerRows = await getPrayersForCategory(
+            categoryData.id,
+            language.toUpperCase()
+          );
+          setAllPrayers(prayerRows);
+          setFilteredPrayers(prayerRows); // Initially show all prayers
+        }
 
         // Fade in animation
         Animated.timing(fadeAnim, {
@@ -148,7 +159,7 @@ export default function CategoryScreen() {
   const handlePrayerPress = (prayer: PrayerWithCategory) => {
     router.push({
       pathname: "/[prayer]",
-      params: { prayerId: prayer.id.toString() },
+      params: { prayerID: prayer.id.toString() },
     });
   };
 
@@ -258,8 +269,7 @@ export default function CategoryScreen() {
                             fontWeight: "600",
                           }
                         : {
-                            color:
-                              colorScheme === "dark" ? "#fff" : "#000",
+                            color: colorScheme === "dark" ? "#fff" : "#000",
                           },
                     ]}
                   >

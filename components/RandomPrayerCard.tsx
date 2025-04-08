@@ -6,22 +6,24 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { ThemedText } from "./ThemedText"; // Adjust path
-import { DailyPrayer } from "@/utils/types"; // Adjust path
-import { CoustomTheme } from "@/utils/coustomTheme"; // Adjust path
+import { ThemedText } from "./ThemedText";
+import { DailyPrayer, PrayerWithTranslations } from "@/utils/types";
+import { CoustomTheme } from "@/utils/coustomTheme";
 import type { ColorSchemeName } from "react-native";
-import type { TFunction } from "i18next"; // Import TFunction type
+import type { TFunction } from "i18next";
+import { router } from "expo-router";
 
 interface RandomPrayerCardProps {
-  prayer: DailyPrayer | null;
+  // The prayer object could be either the basic DailyPrayer or PrayerWithTranslations.
+  prayer: DailyPrayer | PrayerWithTranslations | null;
   isLoading: boolean;
   language: string;
   onPressReadMore: (prayer: DailyPrayer) => void;
-  t: TFunction; // Use TFunction type for t prop
+  t: TFunction;
   themeStyles: ReturnType<typeof CoustomTheme>;
   colorScheme: ColorSchemeName;
   isRTL: boolean;
-  flexDirection: object; // Pass calculated style object
+  flexDirection: object;
 }
 
 export const RandomPrayerCard: React.FC<RandomPrayerCardProps> = ({
@@ -36,25 +38,14 @@ export const RandomPrayerCard: React.FC<RandomPrayerCardProps> = ({
   flexDirection,
 }) => {
   if (isLoading) {
-    // Optional: Show a loading indicator specifically for this card
     return (
-      <View
-        style={[
-          styles.randomPrayerCard,
-          themeStyles.contrast,
-          styles.loadingContainer,
-        ]}
-      >
-        <ActivityIndicator
-          size="small"
-          color={colorScheme === "dark" ? "#fff" : "#000"}
-        />
+      <View style={[styles.randomPrayerCard, themeStyles.contrast, styles.loadingContainer]}>
+        <ActivityIndicator size="small" color={colorScheme === "dark" ? "#fff" : "#000"} />
       </View>
     );
   }
 
   if (!prayer) {
-    // Optional: Show a message if no prayer is available
     return (
       <View style={[styles.randomPrayerCard, themeStyles.contrast]}>
         <ThemedText>{t("noPrayerAvailable")}</ThemedText>
@@ -63,8 +54,24 @@ export const RandomPrayerCard: React.FC<RandomPrayerCardProps> = ({
   }
 
   const handleReadMore = () => {
-    onPressReadMore(prayer); // Pass the prayer object back
+   router.push({
+        pathname: "/[prayer]",
+        params: { prayerID: prayer.id.toString() },
+      });
   };
+
+  // Determine which text to display:
+  // If language is "AR", use prayer.arabic_text; otherwise, check if translations exist.
+  let displayText = "";
+  if (language.toUpperCase() === "AR") {
+    displayText = prayer.arabic_text;
+  } else if ("translations" in prayer && prayer.translations.length > 0) {
+    // For non-Arabic, show the first matching translation's text.
+    displayText = prayer.translations[0].translated_text;
+  } else {
+    // Fallback if translations aren't available.
+    displayText = prayer.arabic_text;
+  }
 
   return (
     <View style={[styles.randomPrayerCard, themeStyles.contrast]}>
@@ -72,17 +79,14 @@ export const RandomPrayerCard: React.FC<RandomPrayerCardProps> = ({
         <ThemedText style={styles.todayTitle}>{t("randomPrayer")}</ThemedText>
         <View style={styles.prayerCategory}>
           <ThemedText style={styles.categoryText}>
-            {t(`${prayer.category_title}`)}
+            {t(prayer.category_title)}
           </ThemedText>
         </View>
       </View>
-      <ThemedText style={[styles.prayerTitle]}>{prayer.title}</ThemedText>
-      <ThemedText style={[styles.prayerText]} numberOfLines={1}>
-        {language === "AR"
-          ? prayer.arabic_text
-          : language === "EN"
-          ? prayer.english_text
-          : prayer.german_text}
+      {/* Use prayer.name or prayer.title as appropriate */}
+      <ThemedText style={styles.prayerTitle}>{prayer.name}</ThemedText>
+      <ThemedText style={styles.prayerText} numberOfLines={1}>
+        {displayText}
       </ThemedText>
       <TouchableOpacity
         style={[
@@ -98,9 +102,7 @@ export const RandomPrayerCard: React.FC<RandomPrayerCardProps> = ({
   );
 };
 
-// Add relevant styles from HomeScreen or create new ones
 const styles = StyleSheet.create({
-  // Today's Prayer Section
   randomPrayerCard: {
     borderRadius: 16,
     padding: 16,
@@ -152,7 +154,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   loadingContainer: {
-    height: 150, // Example height
+    height: 150,
     justifyContent: "center",
     alignItems: "center",
   },

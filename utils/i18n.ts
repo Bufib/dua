@@ -453,7 +453,11 @@ const resources: Resource = {
       home: "Start",
       prayers: "Gebete",
       homeSubtitle: "Finde Frieden und Verbindung durch Gebet",
-
+      darkmode: "Dunkelmodus",
+      notifications: "Benachrichtigungen",
+      notificationExplanation: "Push-Benachrichtigungen erhalten",
+      darkmodeExplanation: "Dunkelmodus aktivieren",
+      imprint: "Impressum",
       // Prayer categories
       dua: "Dua",
       ziyarat: "Ziyarat",
@@ -468,6 +472,7 @@ const resources: Resource = {
       categories: "Kategorien",
       showAll: "Alle anzeigen",
       noPrayer: "Keine Gebete vorhanen",
+      privacy: "Datenschutz",
 
       // Weekly calendar
       weeklyToDo: "Plan für die Woche",
@@ -617,7 +622,12 @@ const resources: Resource = {
       home: "الرئيسية",
       prayers: "الصلوات",
       homeSubtitle: "ابحث عن السلام والتواصل من خلال الصلاة",
-
+      darkmode: "الوضع المظلم",
+      notifications: "الإشعارات",
+      notificationExplanation: "استلام إشعارات الدفع",
+      darkmodeExplanation: "تفعيل الوضع المظلم",
+      privacy: "الخصوصية",
+      imprint: "إمبراطورية",
       // Prayer categories
       dua: "دعاء",
       ziyarat: "زيارة",
@@ -779,7 +789,12 @@ const resources: Resource = {
       home: "Home",
       prayers: "Prayers",
       homeSubtitle: "Find peace and connection through prayer",
-
+      darkmode: "Dark Mode",
+      darkmodeExplanation: "Activiated darkmode",
+      notifications: "Notifications",
+      notificationExplanation: "Receive push notifications",
+      privacy: "Privacy",
+      imprint: "Imprint",
       // Prayer categories
       dua: "Dua",
       ziyarat: "Ziyarat",

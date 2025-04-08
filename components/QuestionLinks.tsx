@@ -23,7 +23,7 @@
 // import { ThemedView } from "./ThemedView";
 // import { getDailyPrayerForToday } from "@/utils/initializeDatabase";
 // import { categories } from "@/utils/categories";
-// import { useWeeklyTodos } from "@/hooks/useWeeklyTodos";  
+// import { useWeeklyTodos } from "@/hooks/useWeeklyTodos";
 // import { getDayNames, getFullDayName } from "@/utils/dayNames";
 // import { RandomPrayerCard } from "./RandomPrayerCard";
 
@@ -856,22 +856,17 @@
 // export default HomeScreen;
 
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  ColorSchemeName,
-} from "react-native";
+import { View, StyleSheet, ScrollView, ColorSchemeName } from "react-native";
 import { router } from "expo-router";
 import { useColorScheme } from "react-native";
 import { CoustomTheme } from "../utils/coustomTheme";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/context/LanguageContext";
 import { TodoToDelete, DailyPrayer, CategoryItem } from "@/utils/types"; // Adjust path
-import { categories } from "@/utils/categories"; 
-import { useWeeklyTodos } from "@/hooks/useWeeklyTodos"; 
-import { useDailyPrayer } from "@/hooks/useDailyPrayer"; 
-import { getFullDayName } from "@/utils/dayNames"; 
+import { categories } from "@/utils/categories";
+import { useWeeklyTodos } from "@/hooks/useWeeklyTodos";
+import { useDailyPrayer } from "@/hooks/useDailyPrayer";
+import { getFullDayName } from "@/utils/dayNames";
 
 // Import the new components
 import { RandomPrayerCard } from "@/components/RandomPrayerCard";
@@ -1030,7 +1025,6 @@ const QuestionLinks = () => {
         />
 
         <CategoriesRow
-          categories={categories}
           onPressCategory={handleCategoryPress}
           t={t}
           themeStyles={themeStyles}
@@ -1083,7 +1077,6 @@ const QuestionLinks = () => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {

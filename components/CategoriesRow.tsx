@@ -5,16 +5,15 @@ import { ThemedText } from "./ThemedText"; // Adjust path
 import { CategoryItem } from "@/utils/types"; // Adjust path
 import { CoustomTheme } from "@/utils/coustomTheme"; // Adjust path
 import type { TFunction } from "i18next";
+import { categories } from "@/utils/categories";
 
-interface CategoriesRowProps {
-  categories: CategoryItem[];
+type CategoriesRowProps = {
   onPressCategory: (category: CategoryItem) => void;
   t: TFunction;
   themeStyles: ReturnType<typeof CoustomTheme>;
 }
 
 export const CategoriesRow: React.FC<CategoriesRowProps> = ({
-  categories,
   onPressCategory,
   t,
   themeStyles,

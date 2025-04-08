@@ -99,8 +99,8 @@ const markdownRules = (
   ),
 });
 
-const RenderPrayer = () => {
-  const { prayerId } = useLocalSearchParams();
+const RenderPrayer = ({ prayerID }: { prayerID: string }) => {
+  // const { prayerID } = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [prayers, setPrayers] = useState<PrayerWithTranslations | null>(null);
   const { language } = useLanguage();
@@ -125,9 +125,7 @@ const RenderPrayer = () => {
     flashListRef.current?.scrollToOffset({ offset: 0, animated: true });
   }, []);
 
-  const handleScroll = useCallback((event) => {
-    setScrollOffset(event.nativeEvent.contentOffset.y);
-  }, []);
+
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   const handleSheetChanges = useCallback((index: number) => {
@@ -156,11 +154,12 @@ const RenderPrayer = () => {
       try {
         setIsLoading(true);
         const prayer = await getPrayerWithTranslations(
-          parseInt(prayerId[0], 10)
+          parseInt(prayerID, 10)
         );
+        console.log(prayerID)
         setPrayers(prayer);
         // Optionally check if this prayer is in favorites initially:
-        const inFavorite = await isPrayerInFavorite(parseInt(prayerId[0], 10));
+        const inFavorite = await isPrayerInFavorite(parseInt(prayerID, 10));
         setIsFavorite(inFavorite);
       } catch (error: any) {
         console.log("RenderPrayer fetchPrayerData " + error);
@@ -169,7 +168,7 @@ const RenderPrayer = () => {
       }
     };
     fetchPrayerData();
-  }, [prayerId]);
+  }, [prayerID]);
 
   // Initialize default selected translations using first two letters uppercased.
   useEffect(() => {
@@ -187,7 +186,7 @@ const RenderPrayer = () => {
   // Handle favorite toggle using heart icon.
   const handleFavoriteToggle = async () => {
     try {
-      const pId = parseInt(prayerId[0], 10);
+      const pId = parseInt(prayerID, 10);
       if (isFavorite) {
         await removePrayerFromFavorite(pId);
         setIsFavorite(false);
@@ -269,7 +268,7 @@ const RenderPrayer = () => {
 
   const addBookmark = (index: number) => {
     try {
-      Storage.setItemSync(`Bookmark-${prayerId}`, index.toString());
+      Storage.setItemSync(`Bookmark-${prayerID}`, index.toString());
       setBookmark(index);
       console.log(bookmark);
     } catch (error: any) {
@@ -279,7 +278,7 @@ const RenderPrayer = () => {
 
   const removeBookmark = () => {
     try {
-      Storage.removeItemSync(`Bookmark-${prayerId}`);
+      Storage.removeItemSync(`Bookmark-${prayerID}`);
       setBookmark(null);
     } catch (error: any) {
       Alert.alert(error);
@@ -289,7 +288,7 @@ const RenderPrayer = () => {
   useEffect(() => {
     const getCurrentBookmark = () => {
       try {
-        const storedBookmark = Storage.getItemSync(`Bookmark-${prayerId}`);
+        const storedBookmark = Storage.getItemSync(`Bookmark-${prayerID}`);
         setBookmark(storedBookmark ? parseInt(storedBookmark) : null);
       } catch (error) {
         console.error("Error loading bookmark:", error);
@@ -297,7 +296,7 @@ const RenderPrayer = () => {
       }
     };
     getCurrentBookmark();
-  }, [prayerId]);
+  }, [prayerID]);
 
   // Use useMemo to select the notes for the current language
   const notesForCurrentLanguage = useMemo(() => {
@@ -389,7 +388,6 @@ const RenderPrayer = () => {
         <>
           <FlashList
             ref={flashListRef}
-            onScroll={handleScroll}
             scrollEventThrottle={16}
             data={indices}
             ListHeaderComponent={
@@ -648,11 +646,9 @@ const RenderPrayer = () => {
               )
             }
           />
-          {showScrollUp && (
             <TouchableOpacity style={styles.scrollButton} onPress={scrollToTop}>
               <AntDesign name="up" size={24} color="white" />
             </TouchableOpacity>
-          )}
         </>
       )}
 
