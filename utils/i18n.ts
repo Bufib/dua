@@ -79,6 +79,7 @@ const resources: Resource = {
       replace: "Ersetzen",
 
       // Favorites
+      favorites: "Favoriten",
       loadingFavorites: "Favoriten werden geladen...",
       errorLoadingFavorites: "Fehler beim Laden der Favoriten",
       noFavoritesYet: "Du hast noch keine Lieblingsgebete!",
@@ -115,6 +116,8 @@ const resources: Resource = {
         newContentAvailable: "Neue Inhalte sind jetzt verfügbar.",
         favoriteAdded: "Gebet zu Favoriten hinzugefügt.",
         dataLoaded: "Alle Inhalte wurden erfolgreich synchronisiert.",
+        categoriesLoadError: "Kategorien konnten nicht geladen werden.",
+        createCategoryError: "Kategorie konnte nicht erstellt werden.",
 
         // Error messages
         error: "Fehler",
@@ -124,7 +127,6 @@ const resources: Resource = {
         favoriteRemoved: "Gebet aus Favoriten entfernt.",
         favoriteRemoveError: "Gebet konnte nicht aus Favoriten entfernt werden",
         favoritesLoadError: "Favoriten konnten nicht geladen werden.",
-        categoriesLoadError: "Kategorien konnten nicht geladen werden.",
         prayersLoadError: "Gebete konnten nicht geladen werden.",
         searchError: "Suche konnte nicht durchgeführt werden.",
         latestPrayersError: "Aktuelle Gebete konnten nicht geladen werden.",
@@ -172,10 +174,22 @@ const resources: Resource = {
       back: "Zurück",
 
       // FontSize
-      fontsize: {
-        small: "small",
-        medium: "medium",
-        large: "large",
+      fontsizes: {
+        small: "Klein",
+        medium: "Mittle",
+        large: "Groß",
+      },
+
+      // Add to Categories-Favorites
+      FavoriteCategories: {
+        selectCategory: "Kategorie auswählen",
+        newCategory: "Neue Kategorie",
+        pickColor: "Farbe wählen",
+        namePlaceholder: "Name",
+        createButton: "Kategorie erstellen",
+        creating: "Erstelle...",
+        createFailed: "Kategorie konnte nicht erstellt werden.",
+        nameRequired: "Bitte einen Namen eingeben",
       },
     },
   },
@@ -247,6 +261,7 @@ const resources: Resource = {
       replace: "استبدال",
 
       // Favorites
+      favorites: "المفضلة",
       loadingFavorites: "جاري تحميل المفضلة...",
       errorLoadingFavorites: "خطأ في تحميل المفضلة",
       noFavoritesYet: "ليس لديك أي صلوات مفضلة بعد!",
@@ -283,6 +298,8 @@ const resources: Resource = {
         newContentAvailable: "المحتوى الجديد متاح الآن.",
         favoriteAdded: "تمت إضافة الصلاة إلى المفضلة.",
         dataLoaded: "تمت مزامنة جميع المحتويات بنجاح.",
+        categoriesLoadError: "تعذر تحميل الفئات.",
+        createCategoryError: "تعذّر إنشاء الفئة.",
 
         // Error messages
         error: "خطأ",
@@ -292,7 +309,6 @@ const resources: Resource = {
         favoriteRemoved: "تمت إزالة الصلاة من المفضلة.",
         favoriteRemoveError: "تعذر إزالة الصلاة من المفضلة.",
         favoritesLoadError: "تعذر تحميل المفضلة.",
-        categoriesLoadError: "تعذر تحميل الفئات.",
         prayersLoadError: "تعذر تحميل الصلوات.",
         searchError: "تعذر إجراء البحث.",
         latestPrayersError: "تعذر تحميل أحدث الصلوات.",
@@ -339,9 +355,21 @@ const resources: Resource = {
 
       // FontSize
       fontsizes: {
-        small: "",
-        medium: "medium",
-        large: "large",
+        small: "صغير",
+        medium: "واسطة",
+        large: "كبير",
+      },
+
+      // Add to Categories-Favorites
+      FavoriteCategories: {
+        selectCategory: "اختر الفئة",
+        newCategory: "فئة جديدة",
+        pickColor: "اختر اللون",
+        namePlaceholder: "الاسم",
+        createButton: "إنشاء فئة",
+        creating: "جاري الإنشاء...",
+        createFailed: "تعذّر إنشاء الفئة.",
+        nameRequired: "يرجى إدخال اسم",
       },
     },
   },
@@ -415,6 +443,7 @@ const resources: Resource = {
       replace: "Replace",
 
       // Favorites
+      favorites: "Favorites",
       loadingFavorites: "Loading favorites...",
       errorLoadingFavorites: "Error loading favorites",
       noFavoritesYet: "You don't have any favorite prayers yet!",
@@ -451,7 +480,8 @@ const resources: Resource = {
         newContentAvailable: "New content is now available.",
         favoriteAdded: "Prayer added to favorites.",
         dataLoaded: "All content successfully synchronized.",
-
+        categoriesLoadError: "Could not load categories.",
+        createCategoryError: "Could not create category.",
         // Error messages
         error: "Error",
         updateError: "Update Error",
@@ -460,7 +490,6 @@ const resources: Resource = {
         favoriteRemoved: "Prayer removed from favorites.",
         favoriteRemoveError: "Could not remove prayer from favorites.",
         favoritesLoadError: "Could not load favorites.",
-        categoriesLoadError: "Could not load categories.",
         prayersLoadError: "Could not load prayers.",
         searchError: "Could not perform search.",
         latestPrayersError: "Could not load latest prayers.",
@@ -508,9 +537,21 @@ const resources: Resource = {
 
       // FontSize
       fontsizes: {
-        small: "صغير",
-        medium: "واسطة",
-        large: "كبير",
+        small: "Small",
+        medium: "Medium",
+        large: "Large",
+      },
+
+      // Add to Categories-Favorites
+      FavoriteCategories: {
+        selectCategory: "Select a category",
+        newCategory: "New category",
+        pickColor: "Pick color",
+        namePlaceholder: "Name",
+        createButton: "Create category",
+        creating: "Creating...",
+        createFailed: "Could not create category.",
+        nameRequired: "Please enter a name",
       },
     },
   },

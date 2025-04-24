@@ -2479,6 +2479,7 @@ import {
   PrayerTranslation,
   PrayerWithTranslations,
   DailyPrayer,
+  UserCategory,
 } from "./types";
 import Toast from "react-native-toast-message";
 import i18n from "./i18n";
@@ -2643,12 +2644,6 @@ export const createTables = async () => {
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
       
-      CREATE TABLE IF NOT EXISTS favorites (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        prayer_id INTEGER NOT NULL UNIQUE,
-        added_at TEXT DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (prayer_id) REFERENCES prayers(id) ON DELETE CASCADE
-      );
       
       CREATE TABLE IF NOT EXISTS version (
         id INTEGER PRIMARY KEY,
@@ -2673,6 +2668,23 @@ export const createTables = async () => {
         id INTEGER PRIMARY KEY,
         monthly INTEGER NOT NULL  -- boolean stored as integer
       );
+
+      CREATE TABLE IF NOT EXISTS user_categories (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        title       TEXT    NOT NULL,
+        color       TEXT    NOT NULL,
+        created_at  TEXT    DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS favorites (
+        prayer_id           INTEGER NOT NULL,
+        user_category_id    INTEGER NOT NULL,
+        added_at            TEXT    DEFAULT (datetime('now')),
+        PRIMARY KEY (prayer_id, user_category_id),
+        FOREIGN KEY (prayer_id)        REFERENCES prayers(id)         ON DELETE CASCADE,
+        FOREIGN KEY (user_category_id) REFERENCES user_categories(id) ON DELETE CASCADE
+      );
+
     `);
     console.log("All tables created successfully");
   } catch (error) {
@@ -3041,7 +3053,6 @@ const setupSubscriptions = () => {
     )
     .subscribe();
 
-  // Updated subscription: listening on table "paypal" (all lowercase)
   supabase
     .channel("paypal")
     .on(
@@ -3736,4 +3747,98 @@ export const getDailyPrayerWithLanguage = async (
     console.error("Error fetching daily prayer for today:", error);
     return null;
   }
+};
+
+/**
+ * Add a prayer to favorites under a specific category.
+ */
+export const addPrayerToFavoriteWithCategory = async (
+  prayerId: number,
+  categoryId: number
+): Promise<void> => {
+  try {
+    console.log(categoryId);
+    const db = await getDatabase();
+    await db.runAsync(
+      `INSERT OR REPLACE INTO favorites (prayer_id, user_category_id) VALUES (?, ?);`,
+      [prayerId, categoryId]
+    );
+
+    Toast.show({
+      type: "success",
+      text1: i18n.t("favorites"),
+      text2: i18n.t("toast.favoriteAdded"),
+    });
+  } catch (error) {
+    console.error("Error adding to favorites with category:", error);
+    Toast.show({
+      type: "error",
+      text1: i18n.t("toast.error"),
+      text2: i18n.t("toast.favoriteAddError"),
+    });
+    throw error;
+  }
+};
+export const getFavoritesByCategory = async (
+  userCategoryId: number
+): Promise<PrayerWithTranslations[]> => {
+  const db = await getDatabase();
+
+  // 1️⃣ Fetch just the prayer IDs in this category, ordered by when they were added
+  const favRows = await db.getAllAsync<{ prayer_id: number }>(
+    `SELECT prayer_id
+       FROM favorites
+      WHERE user_category_id = ?
+      ORDER BY datetime(added_at) DESC;`,
+    [userCategoryId]
+  );
+
+  // 2️⃣ For each ID, load the full prayer with all translations
+  const prayers: PrayerWithTranslations[] = [];
+  for (const { prayer_id } of favRows) {
+    const prayer = await getPrayerWithTranslations(prayer_id);
+    if (prayer) {
+      prayers.push(prayer);
+    }
+  }
+
+  return prayers;
+};
+/**
+ * Fetch all user‐created categories from SQLite.
+ */
+export const getUserCategories = async (): Promise<UserCategory[]> => {
+  const db = await getDatabase();
+  return db.getAllAsync<UserCategory>(`
+    SELECT id, title, color, created_at
+      FROM user_categories
+     ORDER BY created_at DESC
+  `);
+};
+
+export const createUserCategory = async (
+  title: string,
+  color: string
+): Promise<UserCategory> => {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  // 1) Run the INSERT
+  await db.runAsync(
+    `INSERT INTO user_categories (title, color, created_at)
+     VALUES (?, ?, ?);`,
+    [title, color, now]
+  );
+
+  // 2) Immediately query the last insert id
+  const row = await db.getFirstAsync<{ last_id: number }>(
+    `SELECT last_insert_rowid() AS last_id;`
+  );
+
+  return {
+    id: row?.last_id,
+    title,
+    color,
+    created_at: now,
+  };
 };

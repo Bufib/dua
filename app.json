@@ -14,22 +14,18 @@
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "This app needs access to your photo library to select images.",
         "CFBundleAllowMixedLocalizations": true,
-        "CFBundleLocalizations": [
-          "de"
-        ],
+        "CFBundleLocalizations": ["de"],
         "CFBundleDevelopmentRegion": "de"
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#1F6E8C"
       },
       "package": "com.bufib.dua",
-      "permissions": [
-        "android.permission.RECORD_AUDIO"
-      ],
-      "versionCode": 8
+      "permissions": ["android.permission.RECORD_AUDIO"],
+      "versionCode": 1
     },
     "web": {
       "bundler": "metro",
@@ -41,12 +37,8 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#e8f5e9",
+          "backgroundColor": "#1F6E8C",
           "image": "./assets/images/splash-icon.png",
-          "dark": {
-            "image": "./assets/images/splash-icon-dark.png",
-            "backgroundColor": "#242c40"
-          },
           "imageWidth": 200
         }
       ],
@@ -82,7 +74,7 @@
           "enableBackgroundRemoteNotifications": false
         }
       ]
-    ],
+    ],  
     "experiments": {
       "typedRoutes": true
     },

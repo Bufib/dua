@@ -13,9 +13,9 @@ interface FontSizePickerModalProps {
 }
 
 const fontSizeOptions = [
-  { label: i18n.t("fontsize.small"), fontSize: 20, lineHeight: 28 },
-  { label: i18n.t("fontsize.medium"), fontSize: 24, lineHeight: 33 },
-  { label: i18n.t("fontsize.large"), fontSize: 28, lineHeight: 40 },
+  { label: i18n.t("fontsizes.small"), fontSize: 20, lineHeight: 28 },
+  { label: i18n.t("fontsizes.medium"), fontSize: 24, lineHeight: 33 },
+  { label: i18n.t("fontsizes.large"), fontSize: 28, lineHeight: 40 },
 ];
 
 const FontSizePickerModal: React.FC<FontSizePickerModalProps> = ({

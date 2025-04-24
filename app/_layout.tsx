@@ -1,3 +1,7 @@
+import 'react-native-gesture-handler';
+import 'react-native-reanimated';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
 import {
   DarkTheme,
   DefaultTheme,
@@ -30,6 +34,7 @@ import { I18nextProvider } from "react-i18next";
 import i18n from "@/utils/i18n";
 import { LanguageProvider } from "@/context/LanguageContext";
 import LanguageGate from "@/components/LanguageGate";
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
@@ -168,56 +173,58 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <I18nextProvider i18n={i18n}>
-        <LanguageProvider>
-          <LanguageGate>
-            <ReMountManager>
-              <NoInternet showUI={false} showToast={true} />
-              <QueryClientProvider client={queryClient}>
-                <SupabaseRealtimeProvider>
-                  <SQLiteProvider databaseName="islam-fragen.db">
-                    <Stack
-                      screenOptions={{
-                        headerTintColor:
-                          colorScheme === "dark" ? "#d0d0c0" : "#000",
-                      }}
-                    >
-                      <Stack.Screen
-                        name="index"
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="(tabs)"
-                        options={{ headerShown: false }}
-                      />
-                      <Stack.Screen
-                        name="(search)"
-                        options={{
-                          headerShown: true,
-                          headerBackTitle: i18n.t("back"),
-                          headerTitle: "Suche",
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <I18nextProvider i18n={i18n}>
+          <LanguageProvider>
+            <LanguageGate>
+              <ReMountManager>
+                <NoInternet showUI={false} showToast={true} />
+                <QueryClientProvider client={queryClient}>
+                  <SupabaseRealtimeProvider>
+                    <SQLiteProvider databaseName="islam-fragen.db">
+                      <Stack
+                        screenOptions={{
+                          headerTintColor:
+                            colorScheme === "dark" ? "#d0d0c0" : "#000",
                         }}
-                      />
-                      <Stack.Screen
-                        name="[prayer]"
-                        options={{
-                          headerShown: true,
-                          headerBackTitle: i18n.t("back"),
-                        }}
-                      />
+                      >
+                        <Stack.Screen
+                          name="index"
+                          options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                          name="(tabs)"
+                          options={{ headerShown: false }}
+                        />
+                        <Stack.Screen
+                          name="(search)"
+                          options={{
+                            headerShown: true,
+                            headerBackTitle: i18n.t("back"),
+                            headerTitle: "Suche",
+                          }}
+                        />
+                        <Stack.Screen
+                          name="[prayer]"
+                          options={{
+                            headerShown: true,
+                            headerBackTitle: i18n.t("back"),
+                          }}
+                        />
 
-                      <Stack.Screen name="+not-found" />
-                    </Stack>
-                    <StatusBar style="auto" />
-                  </SQLiteProvider>
-                </SupabaseRealtimeProvider>
-              </QueryClientProvider>
-              <Toast />
-            </ReMountManager>
-          </LanguageGate>
-        </LanguageProvider>
-      </I18nextProvider>
-    </ThemeProvider>
+                        <Stack.Screen name="+not-found" />
+                      </Stack>
+                      <StatusBar style="auto" />
+                    </SQLiteProvider>
+                  </SupabaseRealtimeProvider>
+                </QueryClientProvider>
+                <Toast />
+              </ReMountManager>
+            </LanguageGate>
+          </LanguageProvider>
+        </I18nextProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

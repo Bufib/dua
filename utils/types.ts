@@ -128,3 +128,10 @@ export type PrayerData = {
 export type PrayersByLanguage = {
   [key: string]: PrayerData;
 };
+
+export type  UserCategory ={
+  id: number;
+  title: string;
+  color: string;
+  created_at: string;
+}
