@@ -353,19 +353,11 @@ const RenderPrayer = ({ prayerID }: { prayerID: string }) => {
               style={styles.iconButton}
               onPress={handleFavoriteToggle}
             >
-              {isFavorite ? (
-                <AntDesign
-                  name="heart"
-                  size={25}
-                  color={Colors.universal.favoriteIcon}
-                />
-              ) : (
-                <AntDesign
-                  name="hearto"
-                  size={25}
-                  color={Colors.universal.favoriteIcon}
-                />
-              )}
+              <AntDesign
+                name="addfolder"
+                size={25}
+                color={Colors.universal.white}
+              />
             </TouchableOpacity>
           </View>
         </View>

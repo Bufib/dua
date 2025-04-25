@@ -79,6 +79,10 @@ const resources: Resource = {
       replace: "Ersetzen",
 
       // Favorites
+      yesRemove: "Ja",
+      confirmRemovalTitle: "Entfernen",
+      confirmRemovalMessage:
+        "Möchtest du dieses Gebet aus den Favoriten entfernen?",
       favorites: "Favoriten",
       loadingFavorites: "Favoriten werden geladen...",
       errorLoadingFavorites: "Fehler beim Laden der Favoriten",
@@ -261,6 +265,9 @@ const resources: Resource = {
       replace: "استبدال",
 
       // Favorites
+      yesRemove: "نعم",
+      confirmRemovalTitle: "إزالة",
+      confirmRemovalMessage: "هل تريد إزالة هذه الصلاة من المفضلة؟",
       favorites: "المفضلة",
       loadingFavorites: "جاري تحميل المفضلة...",
       errorLoadingFavorites: "خطأ في تحميل المفضلة",
@@ -443,6 +450,10 @@ const resources: Resource = {
       replace: "Replace",
 
       // Favorites
+      yesRemove: "Yes",
+      confirmRemovalTitle: "Remove",
+      confirmRemovalMessage:
+        "Do you want to remove this prayer from favorites?",
       favorites: "Favorites",
       loadingFavorites: "Loading favorites...",
       errorLoadingFavorites: "Error loading favorites",
