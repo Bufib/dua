@@ -17,7 +17,8 @@ const MAPPING = {
   'magnifyingglass': "search",
   'star.fill': "star",
   'newspaper':"newspaper",
-  "questionmark.circle":"question-mark"
+  "questionmark.circle":"question-mark",
+  "folder": "folder"
 } as Partial<
   Record<
     import("expo-symbols").SymbolViewProps["name"],

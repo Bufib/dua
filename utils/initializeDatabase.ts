@@ -3999,8 +3999,6 @@ export const dropTables = async () => {
     DROP TABLE IF EXISTS prayers;
     DROP TABLE IF EXISTS languages;
     DROP TABLE IF EXISTS categories;
-    DROP TABLE IF EXISTS favorites;
-    DROP TABLE IF EXISTS user_categories;
   `);
   console.log("All tables dropped successfully");
 };
@@ -4169,7 +4167,7 @@ export const setupSubscriptions = () => {
  * Unsubscribe from all real-time channels (e.g., on logout or component unmount)
  */
 export const unsubscribeAll = () => {
-  subscriptions.forEach((sub) => sub.unsubscribe());
+  subscriptions.forEach((sub: any) => sub.unsubscribe());
   subscriptions.length = 0;
 };
 
@@ -4286,46 +4284,105 @@ const fetchAndSyncCategories = async () => {
   }
 };
 
+// const fetchAndSyncPrayers = async () => {
+//   try {
+//     const { data: prayers, error } = await supabase.from("prayers").select("*");
+//     if (error) throw error;
+//     if (!prayers?.length) return;
+//     const db = await getDatabase();
+//     await db.withExclusiveTransactionAsync(async (txn) => {
+//       const statement = await txn.prepareAsync(`
+//        INSERT OR REPLACE INTO prayers
+//       (id, name, arabic_title, category_id, created_at, updated_at, translated_languages, arabic_introduction, arabic_text, arabic_notes, transliteration_text, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+//       `);
+//       try {
+//         for (const prayer of prayers) {
+//           await statement.executeAsync([
+//             prayer.id,
+//             prayer.name,
+//             prayer.arabic_title,
+//             prayer.category_id,
+//             prayer.created_at,
+//             prayer.updated_at,
+//             JSON.stringify(prayer.translated_languages || []),
+//             prayer.arabic_introduction,
+//             prayer.arabic_text,
+//             prayer.arabic_notes,
+//             prayer.transliteration_text,
+//             prayer.source,
+//           ]);
+//         }
+//       } finally {
+//         await statement.finalizeAsync();
+//       }
+//     });
+//     console.log("Prayers successfully synced to SQLite.");
+//   } catch (error) {
+//     if (
+//       error instanceof Error &&
+//       !error.message.includes("database is locked")
+//     ) {
+//       console.error("Unexpected error in fetchAndSyncPrayers:", error);
+//     }
+//     throw error;
+//   }
+// };
+
 const fetchAndSyncPrayers = async () => {
   try {
+    // 1️⃣ Pull down all prayers from Supabase
     const { data: prayers, error } = await supabase.from("prayers").select("*");
     if (error) throw error;
-    if (!prayers?.length) return;
+
     const db = await getDatabase();
+
+    // 2️⃣ Bulk upsert within a single exclusive transaction
     await db.withExclusiveTransactionAsync(async (txn) => {
-      const statement = await txn.prepareAsync(`
-       INSERT OR REPLACE INTO prayers
-      (id, name, arabic_title, category_id, created_at, updated_at, translated_languages, arabic_introduction, arabic_text, arabic_notes, transliteration_text, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+      const insertStmt = await txn.prepareAsync(`
+        INSERT OR REPLACE INTO prayers
+          (id, name, arabic_title, category_id, created_at, updated_at,
+           translated_languages, arabic_introduction, arabic_text,
+           arabic_notes, transliteration_text, source)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       `);
+
       try {
-        for (const prayer of prayers) {
-          await statement.executeAsync([
-            prayer.id,
-            prayer.name,
-            prayer.arabic_title,
-            prayer.category_id,
-            prayer.created_at,
-            prayer.updated_at,
-            JSON.stringify(prayer.translated_languages || []),
-            prayer.arabic_introduction,
-            prayer.arabic_text,
-            prayer.arabic_notes,
-            prayer.transliteration_text,
-            prayer.source,
+        for (const p of prayers!) {
+          await insertStmt.executeAsync([
+            p.id,
+            p.name,
+            p.arabic_title,
+            p.category_id,
+            p.created_at,
+            p.updated_at,
+            JSON.stringify(p.translated_languages || []),
+            p.arabic_introduction,
+            p.arabic_text,
+            p.arabic_notes,
+            p.transliteration_text,
+            p.source,
           ]);
         }
       } finally {
-        await statement.finalizeAsync();
+        await insertStmt.finalizeAsync();
       }
     });
-    console.log("Prayers successfully synced to SQLite.");
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      !error.message.includes("database is locked")
-    ) {
-      console.error("Unexpected error in fetchAndSyncPrayers:", error);
+
+    // 3️⃣ Delete any local prayer not in the remote list
+    const remoteIds = prayers!.map((p) => p.id);
+    if (remoteIds.length > 0) {
+      // Build a parameterized NOT IN clause: (?, ?, …)
+      const placeholders = remoteIds.map(() => "?").join(",");
+      await db.runAsync(
+        `DELETE FROM prayers WHERE id NOT IN (${placeholders});`,
+        remoteIds
+      );
     }
+
+    console.log("Prayers synced successfully (including deletions).");
+  } catch (error) {
+    console.error("Error in fetchAndSyncPrayers:", error);
+    // Optionally: Toast.show your sync-error toast here
     throw error;
   }
 };

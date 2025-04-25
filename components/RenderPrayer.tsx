@@ -169,21 +169,8 @@ const RenderPrayer = ({ prayerID }: { prayerID: string }) => {
   const handleFavoriteToggle = () => {
     const pId = parseInt(prayerID, 10);
 
-    if (isFavorite) {
-      // Removing a favorite still happens immediately...
-      removePrayerFromFavorite(pId)
-        .then(() => {
-          setIsFavorite(false);
-          triggerRefreshFavorites();
-        })
-        .catch((err) => {
-          console.error(err);
-          Alert.alert(t("toast.error"), t("toast.favoriteRemoveError"));
-        });
-    } else {
-      // But adding opens the category picker instead of writing:
-      setPickerVisible(true);
-    }
+    // But adding opens the category picker instead of writing:
+    setPickerVisible(true);
   };
 
   const processLines = (text: string | undefined) => {
