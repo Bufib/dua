@@ -16,6 +16,7 @@ import { getFullDayName } from "@/utils/dayNames";
 import { CoustomTheme } from "@/utils/coustomTheme";
 import type { ColorSchemeName } from "react-native";
 import type { TFunction } from "i18next";
+import { Colors } from "@/constants/Colors";
 
 interface WeeklyCalendarSectionProps {
   weeklyTodos: WeeklyTodos;
@@ -66,7 +67,12 @@ export const WeeklyCalendarSection: React.FC<WeeklyCalendarSectionProps> = ({
         <TouchableOpacity
           style={[
             styles.addButton,
-            { backgroundColor: colorScheme === "dark" ? "#333" : "#f0f0f0" },
+            {
+              backgroundColor:
+                colorScheme === "dark"
+                  ? Colors.universal.primary
+                  : Colors.universal.secondary,
+            },
             selectedDay === null && { opacity: 0.5 }, // Dim if no day selected
           ]}
           onPress={onShowAddModal}
@@ -91,7 +97,6 @@ export const WeeklyCalendarSection: React.FC<WeeklyCalendarSectionProps> = ({
         <ThemedView style={[styles.weekPlanerContainer, flexDirection]}>
           <ThemedText style={styles.selectedDayTitle}>
             {getFullDayName(selectedDay)}
-            {/* Assuming getFullDayName takes t */}
           </ThemedText>
           <TouchableOpacity onPress={handleUndo}>
             <View style={{ flexDirection: "row", gap: 5 }}>

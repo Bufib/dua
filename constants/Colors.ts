@@ -129,7 +129,8 @@ export const Colors = {
     modalQuestion: "#FFFFFF",
     modalQuestionBlurredBackground: "rgba(45, 45, 45, 0.5)",
     iconDefault: "#2D2D2D",
-    renderPrayerNotiz: "#E2F0F9",
+    renderPrayerNotiz: "#84CEEB",
+
     // Prayer viewer colors - Light Mode
     prayerHeaderBackground: "#1F6E8C",
     prayerArabicText: "#0D4D6C",
@@ -138,7 +139,7 @@ export const Colors = {
     prayerButtonBackgroundActive: "#1F6E8C",
     prayerButtonText: "#1F6E8C",
     prayerButtonTextActive: "#FFFFFF",
-    prayerIntroductionBackground: "#E2F0F9",
+    prayerIntroductionBackground: "#84CEEB",
     prayerLoadingIndicator: "#1F6E8C",
     prayerBookmark: "#E2F0F9",
     grayedOut: "#84A7A1"

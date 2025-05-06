@@ -122,7 +122,7 @@ const resources: Resource = {
         dataLoaded: "Alle Inhalte wurden erfolgreich synchronisiert.",
         categoriesLoadError: "Kategorien konnten nicht geladen werden.",
         createCategoryError: "Kategorie konnte nicht erstellt werden.",
-
+        categoryDeleted: "Kategorie gelöscht",
         // Error messages
         error: "Fehler",
         updateError: "Fehler bei der Aktualisierung",
@@ -194,6 +194,9 @@ const resources: Resource = {
         creating: "Erstelle...",
         createFailed: "Kategorie konnte nicht erstellt werden.",
         nameRequired: "Bitte einen Namen eingeben",
+        confirmCategoryDeletionCategory: "Kategorie löschen",
+        confirmCategoryDeletionMessage:
+          "Möchtest du diese Kategorie wirklich löschen? Alle Gebete in dieser Kategorie werden entfernt.",
       },
     },
   },
@@ -307,7 +310,7 @@ const resources: Resource = {
         dataLoaded: "تمت مزامنة جميع المحتويات بنجاح.",
         categoriesLoadError: "تعذر تحميل الفئات.",
         createCategoryError: "تعذّر إنشاء الفئة.",
-
+        categoryDeleted: "تم حذف الفئة",
         // Error messages
         error: "خطأ",
         updateError: "خطأ في التحديث",
@@ -377,6 +380,9 @@ const resources: Resource = {
         creating: "جاري الإنشاء...",
         createFailed: "تعذّر إنشاء الفئة.",
         nameRequired: "يرجى إدخال اسم",
+        confirmCategoryDeletionCategory: "حذف الفئة",
+        confirmCategoryDeletionMessage:
+          "هل أنت متأكد أنك تريد حذف هذه الفئة؟ سيتم إزالة جميع الصلوات في هذه الفئة.",
       },
     },
   },
@@ -493,6 +499,8 @@ const resources: Resource = {
         dataLoaded: "All content successfully synchronized.",
         categoriesLoadError: "Could not load categories.",
         createCategoryError: "Could not create category.",
+        categoryDeleted: "Category deleted",
+
         // Error messages
         error: "Error",
         updateError: "Update Error",
@@ -563,6 +571,9 @@ const resources: Resource = {
         creating: "Creating...",
         createFailed: "Could not create category.",
         nameRequired: "Please enter a name",
+        confirmCategoryDeletionCategory: "Delete category",
+        confirmCategoryDeletionMessage:
+          "Are you sure you want to delete this category? All prayers in this category will be removed.",
       },
     },
   },

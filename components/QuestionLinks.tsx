@@ -1,7 +1,12 @@
-
-
 import React, { useState, useEffect, useCallback } from "react";
-import { View, StyleSheet, ScrollView, ColorSchemeName } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  ColorSchemeName,
+  Keyboard,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { router } from "expo-router";
 import { useColorScheme } from "react-native";
 import { CoustomTheme } from "../utils/coustomTheme";
@@ -150,75 +155,77 @@ const QuestionLinks = () => {
 
   // --- Render ---
   return (
-    <View style={[styles.container, themeStyles.defaultBackgorundColor]}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.contentContainer}
-      >
-        {/* Render Components */}
-        <DailyPrayerCard
-          prayer={dailyPrayer}
-          isLoading={isLoadingPrayer}
-          language={language}
-          onPressReadMore={handleReadMorePress}
+   
+      <View style={[styles.container, themeStyles.defaultBackgorundColor]}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.contentContainer}
+        >
+          {/* Render Components */}
+          <DailyPrayerCard
+            prayer={dailyPrayer}
+            isLoading={isLoadingPrayer}
+            language={language}
+            onPressReadMore={handleReadMorePress}
+            t={t}
+            themeStyles={themeStyles}
+            colorScheme={colorScheme}
+            isRTL={isRTL}
+            flexDirection={flexDirection}
+          />
+
+          <CategoriesRow
+            onPressCategory={handleCategoryPress}
+            t={t}
+            themeStyles={themeStyles}
+          />
+
+          <WeeklyCalendarSection
+            weeklyTodos={weeklyTodos}
+            isLoadingTodos={isLoadingTodos}
+            selectedDay={selectedDay}
+            currentDayIndex={getCurrentDayIndex()} // Pass current day index
+            onSelectDay={handleSelectDay}
+            onToggleTodo={toggleTodo} // Pass directly from hook
+            onShowAddModal={handleShowAddModal}
+            onShowDeleteModal={showDeleteConfirmation} // Pass handler
+            onUndoAll={handleUndoAll} // Pass handler
+            language={language}
+            t={t}
+            themeStyles={themeStyles}
+            colorScheme={colorScheme}
+            isRTL={isRTL}
+            flexDirection={flexDirection}
+          />
+        </ScrollView>
+
+        {/* Render Modals */}
+        {selectedDay !== null && ( // Only render Add modal if a day is potentially selected
+          <AddTodoModal
+            visible={addModalVisible}
+            onClose={() => setAddModalVisible(false)}
+            onAdd={handleAddTodoConfirmed}
+            selectedDayName={getFullDayName(selectedDay)}
+            language={language}
+            t={t}
+            themeStyles={themeStyles}
+            colorScheme={colorScheme}
+            isRTL={isRTL}
+            flexDirection={flexDirection}
+          />
+        )}
+
+        <DeleteTodoModal
+          visible={deleteModalVisible}
+          onClose={cancelDelete}
+          onConfirmDelete={handleConfirmDelete}
           t={t}
           themeStyles={themeStyles}
           colorScheme={colorScheme}
-          isRTL={isRTL}
           flexDirection={flexDirection}
         />
-
-        <CategoriesRow
-          onPressCategory={handleCategoryPress}
-          t={t}
-          themeStyles={themeStyles}
-        />
-
-        <WeeklyCalendarSection
-          weeklyTodos={weeklyTodos}
-          isLoadingTodos={isLoadingTodos}
-          selectedDay={selectedDay}
-          currentDayIndex={getCurrentDayIndex()} // Pass current day index
-          onSelectDay={handleSelectDay}
-          onToggleTodo={toggleTodo} // Pass directly from hook
-          onShowAddModal={handleShowAddModal}
-          onShowDeleteModal={showDeleteConfirmation} // Pass handler
-          onUndoAll={handleUndoAll} // Pass handler
-          language={language}
-          t={t}
-          themeStyles={themeStyles}
-          colorScheme={colorScheme}
-          isRTL={isRTL}
-          flexDirection={flexDirection}
-        />
-      </ScrollView>
-
-      {/* Render Modals */}
-      {selectedDay !== null && ( // Only render Add modal if a day is potentially selected
-        <AddTodoModal
-          visible={addModalVisible}
-          onClose={() => setAddModalVisible(false)}
-          onAdd={handleAddTodoConfirmed}
-          selectedDayName={getFullDayName(selectedDay)}
-          language={language}
-          t={t}
-          themeStyles={themeStyles}
-          colorScheme={colorScheme}
-          isRTL={isRTL}
-          flexDirection={flexDirection}
-        />
-      )}
-
-      <DeleteTodoModal
-        visible={deleteModalVisible}
-        onClose={cancelDelete}
-        onConfirmDelete={handleConfirmDelete}
-        t={t}
-        themeStyles={themeStyles}
-        colorScheme={colorScheme}
-        flexDirection={flexDirection}
-      />
-    </View>
+      </View>
+  
   );
 };
 

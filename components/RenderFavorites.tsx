@@ -21,6 +21,7 @@ import {
   getUserCategories,
   getFavoritesByCategory,
   removePrayerFromFavorite,
+  deleteFavoriteCategory,
 } from "@/utils/initializeDatabase";
 import { UserCategory, PrayerWithTranslations } from "@/utils/types";
 
@@ -77,6 +78,70 @@ export default function RenderFavoritePrayers() {
     })();
   }, [selectedCategoryId, refreshTriggerFavorites]);
 
+  const handleDeleteCategory = async (categoryId: number) => {
+    Alert.alert(
+      t("FavoriteCategories.confirmCategoryDeletionCategory"),
+      t("FavoriteCategories.confirmCategoryDeletionMessage"),
+      [
+        { text: t("cancel"), style: "cancel" },
+        {
+          text: t("delete"),
+          style: "destructive",
+          onPress: () => deleteCategory(categoryId),
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+  const deleteCategory = async (categoryId: number) => {
+    if (selectedCategoryId == null) return;
+    if (categoryId === selectedCategoryId) {
+      setSelectedCategoryId(null);
+      setPrayers([]);
+    }
+    // Remove the category from the list
+    setCategories((prev) => prev.filter((c) => c.id !== categoryId));
+    // Remove the prayers from the list
+    setPrayers((prev) => prev.filter((p) => p.category_id !== categoryId));
+    // Remove the category from the database
+    // and remove the prayers from the database
+    try {
+      await deleteFavoriteCategory(categoryId);
+      setCategories((prev) => prev.filter((c) => c.id !== categoryId));
+      if (selectedCategoryId === categoryId) {
+        setSelectedCategoryId(null);
+        setPrayers([]);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleRemovePrayerFromFavorite = (prayerId: number) => {
+    Alert.alert(
+      t("confirmRemovalTitle"),
+      t("confirmRemovalMessage"),
+      [
+        { text: t("cancel"), style: "cancel" },
+        {
+          text: t("yesRemove"),
+          style: "destructive",
+          onPress: async () => {
+            if (selectedCategoryId == null) return;
+            try {
+              await removePrayerFromFavorite(prayerId, selectedCategoryId);
+              setPrayers((prev) => prev.filter((p) => p.id !== prayerId));
+            } catch (e) {
+              console.error(e);
+              setError(t("errorRemovingFavorite"));
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
   // Loading state
   if (isLoading) {
     return (
@@ -106,29 +171,7 @@ export default function RenderFavoritePrayers() {
     );
   }
 
-  const currentCategory = categories.find(
-    (c) => c.id === selectedCategoryId
-  );
-
-  const confirmRemove = (prayerId: number) => {
-    Alert.alert(
-      t("confirmRemovalTitle"),
-      t("confirmRemovalMessage"),
-      [
-        { text: t("cancel"), style: "cancel" },
-        {
-          text: t("yesRemove"),
-          style: "destructive",
-          onPress: async () => {
-            if (selectedCategoryId == null) return;
-            await removePrayerFromFavorite(prayerId, selectedCategoryId);
-            setPrayers((prev) => prev.filter((p) => p.id !== prayerId));
-          },
-        },
-      ],
-      { cancelable: true }
-    );
-  };
+  const currentCategory = categories.find((c) => c.id === selectedCategoryId);
 
   return (
     <ThemedView style={styles.container}>
@@ -156,18 +199,22 @@ export default function RenderFavoritePrayers() {
                 },
               ]}
             >
-              <Text
+              <ThemedText
                 style={[
                   styles.pillText,
                   {
-                    color: selected
-                      ? "#FFF"
-                      : Colors[colorScheme].text,
+                    color: selected ? "#FFF" : Colors[colorScheme].text,
                   },
                 ]}
               >
                 {item.title}
-              </Text>
+              </ThemedText>
+              <Ionicons
+                name="remove-circle-outline"
+                size={24}
+                color="black"
+                onPress={() => handleDeleteCategory(item.id)}
+              />
             </Pressable>
           );
         }}
@@ -185,9 +232,9 @@ export default function RenderFavoritePrayers() {
           <ThemedText style={styles.headerTitle}>
             {currentCategory.title}
           </ThemedText>
-          <Text style={styles.headerCount}>
+          <ThemedText style={styles.headerCount}>
             {prayers.length} {prayers.length === 1 ? t("prayer") : t("prayers")}
-          </Text>
+          </ThemedText>
         </View>
       )}
 
@@ -227,32 +274,38 @@ export default function RenderFavoritePrayers() {
                 {
                   shadowOpacity: pressed ? 0.15 : 0.1,
                   transform: [{ scale: pressed ? 0.98 : 1 }],
+                  backgroundColor: Colors[colorScheme].contrast,
                 },
               ]}
             >
+              <Ionicons
+                name="remove-circle-outline"
+                size={25}
+                color={Colors.universal.error}
+                style={{ alignSelf: "flex-end", paddingBottom: 20 }}
+                onPress={() => handleRemovePrayerFromFavorite(item.id)}
+              />
               <View style={styles.cardHeader}>
                 {item.arabic_title && (
                   <ThemedText style={styles.arabicTitle}>
                     {item.arabic_title}
                   </ThemedText>
                 )}
-                <ThemedText style={styles.cardTitle}> {item.name} </ThemedText>
+                <ThemedText style={styles.cardTitle}>{item.name} </ThemedText>
               </View>
               <ThemedText numberOfLines={2} style={styles.cardBody}>
                 {item.introduction || item.prayer_text?.slice(0, 100)}
               </ThemedText>
               <View style={styles.cardFooter}>
-                <View
-                  style={[styles.tag, { backgroundColor: item.color + "20" }]}
-                >
+                <View style={[styles.tag, { backgroundColor: item.color }]}>
                   <Ionicons
                     name="bookmark-outline"
                     size={14}
-                    color={item.color}
+                    color={Colors[colorScheme].iconDefault}
                   />
-                  <Text style={[styles.tagText, { color: item.color }]}> 
+                  <ThemedText style={styles.tagText}>
                     {item.category_title}
-                  </Text>
+                  </ThemedText>
                 </View>
                 <View style={styles.actionsRow}>
                   <Pressable
@@ -263,32 +316,7 @@ export default function RenderFavoritePrayers() {
                       })
                     }
                     style={styles.actionButton}
-                  >
-                    <ThemedText
-                      style={[
-                        styles.readMoreText,
-                        { color: item.color },
-                      ]}
-                    >
-                      {t("readMore")}
-                    </ThemedText>
-                    <Ionicons
-                      name="arrow-forward"
-                      size={16}
-                      color={item.color}
-                      style={{ marginLeft: 4 }}
-                    />
-                  </Pressable>
-                  <Pressable
-                    onPress={() => confirmRemove(item.id)}
-                    style={styles.removeButton}
-                  >
-                    <Ionicons
-                      name="trash-outline"
-                      size={18}
-                      color={Colors.universal.error}
-                    />
-                  </Pressable>
+                  ></Pressable>
                 </View>
               </View>
             </Pressable>
@@ -320,12 +348,14 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   pill: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+    marginRight: 12,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 12,
   },
   pillText: { fontSize: 14, fontWeight: "500" },
   header: {

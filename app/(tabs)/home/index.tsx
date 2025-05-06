@@ -5,27 +5,30 @@ import { StyleSheet } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { Colors } from "@/constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useColorScheme } from "react-native";
+import { useColorScheme, TouchableWithoutFeedback, Keyboard } from "react-native";
 import { useTranslation } from "react-i18next";
-import { useLanguage } from "@/context/LanguageContext";
 export default function index() {
   const colorScheme = useColorScheme() || "light";
   const { t } = useTranslation();
-  const { language } = useLanguage();
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: Colors[colorScheme].background },
-      ]}
-      edges={["top"]}
+    <TouchableWithoutFeedback
+      style={{ flex: 1 }}
+      onPress={() => Keyboard.dismiss()}
     >
-      <ThemedText type="title" style={styles.greeting}>
-        {t("welcome")}
-      </ThemedText>
-      <QuestionLinks />
-    </SafeAreaView>
+      <SafeAreaView
+        style={[
+          styles.container,
+          { backgroundColor: Colors[colorScheme].background },
+        ]}
+        edges={["top"]}
+      >
+        <ThemedText type="title" style={styles.greeting}>
+          {t("welcome")}
+        </ThemedText>
+        <QuestionLinks />
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
 

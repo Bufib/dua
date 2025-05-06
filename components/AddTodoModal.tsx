@@ -6,6 +6,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  TouchableWithoutFeedback,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform
 } from "react-native";
 import { ThemedText } from "./ThemedText"; // Adjust path
 import { Ionicons } from "@expo/vector-icons";
@@ -60,70 +64,84 @@ export const AddTodoModal: React.FC<AddTodoModalProps> = ({
       animationType="slide"
       onRequestClose={handleClose}
     >
-      <View style={styles.modalOverlay}>
-        <View
-          style={[
-            styles.modalContent,
-            { backgroundColor: colorScheme === "dark" ? "#222" : "#fff" },
-          ]}
-        >
-          <View style={styles.modalHeader}>
-            <ThemedText style={styles.modalTitle}>
-              {t("addForDay")} {selectedDayName}
-            </ThemedText>
-            <TouchableOpacity style={styles.closeButton} onPress={handleClose}>
-              <Ionicons
-                name="close"
-                size={24}
-                color={colorScheme === "dark" ? "#fff" : "#000"}
-              />
-            </TouchableOpacity>
-          </View>
-          <TextInput
+        <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+  >
+      <TouchableWithoutFeedback
+        style={{ flex: 1 }}
+        onPress={() => Keyboard.dismiss()}
+      >
+        <View style={styles.modalOverlay}>
+          <View
             style={[
-              styles.modalInput,
-              {
-                color: colorScheme === "dark" ? "#fff" : "#000",
-                backgroundColor: colorScheme === "dark" ? "#333" : "#f5f5f5",
-                textAlign: isRTL ? "right" : "left",
-              },
+              styles.modalContent,
+              { backgroundColor: colorScheme === "dark" ? "#222" : "#fff" },
             ]}
-            value={newTodo}
-            onChangeText={setNewTodo}
-            placeholder={t("enterPrayer")}
-            placeholderTextColor={colorScheme === "dark" ? "#999" : "#999"}
-            multiline={true}
-          />
-          <View style={[styles.modalButtonsContainer, flexDirection]}>
-            <TouchableOpacity
+          >
+            <View style={styles.modalHeader}>
+              <ThemedText style={styles.modalTitle}>
+                {t("addForDay")} {selectedDayName}
+              </ThemedText>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={handleClose}
+              >
+                <Ionicons
+                  name="close"
+                  size={24}
+                  color={colorScheme === "dark" ? "#fff" : "#000"}
+                />
+              </TouchableOpacity>
+            </View>
+            <TextInput
               style={[
-                styles.modalButton,
-                styles.cancelButton,
+                styles.modalInput,
                 {
-                  backgroundColor: colorScheme === "dark" ? "#333" : "#f0f0f0",
+                  color: colorScheme === "dark" ? "#fff" : "#000",
+                  backgroundColor: colorScheme === "dark" ? "#333" : "#f5f5f5",
+                  textAlign: isRTL ? "right" : "left",
                 },
               ]}
-              onPress={handleClose}
-            >
-              <ThemedText style={styles.modalButtonText}>
-                {t("cancel")}
-              </ThemedText>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.modalButton,
-                styles.addModalButton,
-                { backgroundColor: "#4CAF50" },
-              ]}
-              onPress={handleAddPress}
-            >
-              <ThemedText style={[styles.modalButtonText, { color: "#fff" }]}>
-                {t("add")}
-              </ThemedText>
-            </TouchableOpacity>
+              value={newTodo}
+              onChangeText={setNewTodo}
+              placeholder={t("enterPrayer")}
+              placeholderTextColor={colorScheme === "dark" ? "#999" : "#999"}
+              multiline={true}
+            />
+            <View style={[styles.modalButtonsContainer, flexDirection]}>
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  styles.cancelButton,
+                  {
+                    backgroundColor:
+                      colorScheme === "dark" ? "#333" : "#f0f0f0",
+                  },
+                ]}
+                onPress={handleClose}
+              >
+                <ThemedText style={styles.modalButtonText}>
+                  {t("cancel")}
+                </ThemedText>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.modalButton,
+                  styles.addModalButton,
+                  { backgroundColor: "#4CAF50" },
+                ]}
+                onPress={handleAddPress}
+              >
+                <ThemedText style={[styles.modalButtonText, { color: "#fff" }]}>
+                  {t("add")}
+                </ThemedText>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </Modal>
   );
 };
