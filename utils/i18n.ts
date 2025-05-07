@@ -197,6 +197,7 @@ const resources: Resource = {
         confirmCategoryDeletionCategory: "Kategorie löschen",
         confirmCategoryDeletionMessage:
           "Möchtest du diese Kategorie wirklich löschen? Alle Gebete in dieser Kategorie werden entfernt.",
+          nameExists: "Dieser Ordner existiert bereits"
       },
     },
   },
@@ -383,6 +384,8 @@ const resources: Resource = {
         confirmCategoryDeletionCategory: "حذف الفئة",
         confirmCategoryDeletionMessage:
           "هل أنت متأكد أنك تريد حذف هذه الفئة؟ سيتم إزالة جميع الصلوات في هذه الفئة.",
+          nameExists: "توجد هذه الفئة بالفعل"
+
       },
     },
   },
@@ -574,6 +577,7 @@ const resources: Resource = {
         confirmCategoryDeletionCategory: "Delete category",
         confirmCategoryDeletionMessage:
           "Are you sure you want to delete this category? All prayers in this category will be removed.",
+           nameExists: "This folder already exists"
       },
     },
   },

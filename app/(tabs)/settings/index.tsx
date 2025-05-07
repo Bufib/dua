@@ -161,7 +161,7 @@ const Settings = () => {
                   {t("darkmode")}
                 </ThemedText>
                 <ThemedText style={styles.settingSubtitle}>
-                 {t("darkmodeExplanation")}
+                  {t("darkmodeExplanation")}
                 </ThemedText>
               </View>
             </View>
@@ -212,39 +212,6 @@ const Settings = () => {
               color={colorScheme === "dark" ? "#8E8E93" : "#C7C7CC"}
             />
           </Pressable>
-        </SettingCard>
-
-        <SettingCard style={{ marginTop: 12 }}>
-          <View style={styles.settingRow}>
-            <View style={styles.settingInfo}>
-              <View style={styles.settingIconContainer}>
-                <Ionicons
-                  name="notifications"
-                  size={22}
-                  color={colorScheme === "dark" ? "#FFFFFF" : "#007AFF"}
-                />
-              </View>
-              <View>
-                <ThemedText style={styles.settingTitle}>
-                  {t("notifications")}
-                </ThemedText>
-                <ThemedText style={styles.settingSubtitle}>
-                  {t("notificationExplanation")}
-                </ThemedText>
-              </View>
-            </View>
-            <Switch
-              value={getNotifications}
-              onValueChange={hasInternet ? toggleGetNotifications : undefined}
-              trackColor={{
-                false: "#E9E9EA",
-                true: colorScheme === "dark" ? "#636366" : "#ACDBFE",
-              }}
-              thumbColor={getNotifications ? "#FFFFFF" : "#FFFFFF"}
-              ios_backgroundColor="#E9E9EA"
-              style={{ transform: [{ scaleX: 0.9 }, { scaleY: 0.9 }] }}
-            />
-          </View>
         </SettingCard>
 
         <ThemedText style={[styles.sectionTitle, { marginTop: 30 }]}>

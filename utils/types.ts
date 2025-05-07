@@ -82,6 +82,13 @@ export type PrayerWithTranslations = PrayerType & {
   translations: PrayerTranslation[];
 };
 
+export type PrayerCategorieOverView = PrayerType & {
+  introduction: string,
+  prayer_text: string,
+  category_title: string
+  color: string
+};
+
 // Other types that build on PrayerType (often from join queries)
 export type PrayerWithCategory = PrayerType &
   PrayerTranslation & {

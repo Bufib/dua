@@ -23,14 +23,14 @@ import {
   removePrayerFromFavorite,
   deleteFavoriteCategory,
 } from "@/utils/initializeDatabase";
-import { UserCategory, PrayerWithTranslations } from "@/utils/types";
+import { UserCategory, PrayerCategorieOverView } from "@/utils/types";
 
 export default function RenderFavoritePrayers() {
   const [categories, setCategories] = useState<UserCategory[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
     null
   );
-  const [prayers, setPrayers] = useState<PrayerWithTranslations[]>([]);
+  const [prayers, setPrayers] = useState<PrayerCategorieOverView[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -191,24 +191,14 @@ export default function RenderFavoritePrayers() {
               style={[
                 styles.pill,
                 {
-                  backgroundColor: selected
-                    ? item.color
-                    : Colors.universal.secondary,
+                  backgroundColor: item.color,
                   borderWidth: selected ? 0 : 1,
                   borderColor: Colors[colorScheme].border,
+                  shadowOpacity: selected ? 0.2 : 0,
                 },
               ]}
             >
-              <ThemedText
-                style={[
-                  styles.pillText,
-                  {
-                    color: selected ? "#FFF" : Colors[colorScheme].text,
-                  },
-                ]}
-              >
-                {item.title}
-              </ThemedText>
+              <ThemedText style={[styles.pillText]}>{item.title}</ThemedText>
               <Ionicons
                 name="remove-circle-outline"
                 size={24}
